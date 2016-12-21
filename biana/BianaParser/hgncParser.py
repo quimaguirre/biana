@@ -18,11 +18,14 @@
 """
 
 """
-File        : hgnc2piana.py
-Author      : Javier Garcia
-Creation    : 14 November 2007
-Contents    : fills up tables in database piana with information from HGNC
-Called from : 
+File          : hgnc2piana.py
+Author        : Javier Garcia
+Creation      : 14 November 2007
+Contents      : fills up tables in database piana with information from HGNC
+Called from   : 
+Modifications : at April of 2016 by Quim Aguirre in order to adapt the parser
+                to the changes of the names of the different fields
+Information   : http://www.genenames.org/help/statistics-downloads
 =======================================================================================================
 
 """
@@ -177,7 +180,12 @@ class HGNCParser(BianaParser):
                 header_columns = dict([ (value_list[i], i) for i in xrange(len(value_list))])
                 #sys.stderr.write("%s columns in header\n" %len(value_list))
                 columns = len(value_list)
-                                
+
+            # Example of header row:
+            # hgnc_id	symbol	name	locus_group	locus_type	status	location	location_sortable	alias_symbol	alias_name	prev_symbol	prev_name	gene_family	gene_family_id	date_approved_reserved	date_symbol_changed	date_name_changed	date_modified	entrez_id	ensembl_gene_id	vega_id	ucsc_id	ena	refseq_accession	ccds_id	uniprot_ids	pubmed_id	mgd_id	rgd_id	lsdb	cosmic	omim_id	mirbase	homeodb	snornabase	bioparadigms_slc	orphanet	pseudogene.org	horde_id	merops	imgt	iuphar	kznf_gene_catalog	mamit-trnadb	cd	lncrnadb	enzyme_id	intermediate_filament_db                                
+
+            # Example of simple row:
+            # HGNC:18149	A4GALT	alpha 1,4-galactosyltransferase	protein-coding gene	gene with protein product	Approved	22q13.2	22q13.2	"A14GALT|Gb3S|P(k)|P1"	"Gb3 synthase|CD77 synthase|globotriaosylceramide synthase|lactosylceramide 4-alpha-galactosyltransferase"		alpha 1,4-galactosyltransferase (globotriaosylceramide synthase, P blood group)	Alpha 1,4-glycosyltransferases	442	2002-02-06		2008-07-31	2016-12-13	53947	ENSG00000128274	OTTHUMG00000150744	uc062ewl.1		NM_017436	CCDS14041	Q9NPC4	10854428	MGI:3512453	RGD:621583	LRG_795|http://www.lrg-sequence.org/LRG/LRG_795	A4GALT	607922															2.4.1.228	
 
             if line_number>1:
 	
@@ -202,7 +210,7 @@ class HGNCParser(BianaParser):
 
                         
 
-	                column_index = header_columns["HGNC ID"]
+	                column_index = header_columns["hgnc_id"]
                         column_value =  line_fields[column_index].strip()
                         if column_value.startswith("HGNC:"):
                             hgnc_id = column_value[5:]
@@ -213,181 +221,203 @@ class HGNCParser(BianaParser):
                                                                           value = hgnc_id,
                                                                           type = "unique" ))
 	                
-	                column_index = header_columns["Approved Symbol"]
+	                column_index = header_columns["symbol"]
 	                official_gene_symbol = line_fields[column_index].strip()
                         hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "geneSymbol", 
                                                                           value = official_gene_symbol,
                                                                           type = "unique" ))
 	                
-	                column_index = header_columns["Approved Name"]
+	                column_index = header_columns["name"]
 	                official_gene_name = line_fields[column_index].strip()
 	                # Oficial gene Name is entered as a description
                         hgnc_object.add_attribute( ExternalEntityAttribute(attribute_identifier = "description",
                                                                            value = official_gene_name, type="unique" ))
+
+	                column_index = header_columns["alias_symbol"]
+	                aliases_symbol = line_fields[column_index].strip()
+	                if len(aliases_symbol)>0:
+                            if aliases_symbol.startswith('"') and aliases_symbol.endswith('"'):
+                                aliases_symbol = aliases_symbol[1:-1]
+                            aliases_symbol = [ x.strip() for x in aliases_symbol.split("|") ]
+                            [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "geneSymbol", 
+                                                                                value = x,
+                                                                                type = "alias" )) for x in aliases_symbol ]
+
+                        keyword = "alias_name"
+                        if keyword in header_columns:
+	                    column_index = header_columns[keyword]
+	                    aliases_name = line_fields[column_index].strip()
+	                    if len(aliases_name)>0:
+                                if aliases_name.startswith('"') and aliases_name.endswith('"'):
+                                    aliases_name = aliases_name[1:-1]
+                                aliases_name = [ x.strip() for x in aliases_name.split("|") ]
+                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "description", 
+                                                                                value = x,
+                                                                                type = "alias")) for x in aliases_name ]
 	                
-	                column_index = header_columns["Previous Symbols"]
+	                column_index = header_columns["prev_symbol"]
 	                previous_symbols = line_fields[column_index].strip()
 	                if len(previous_symbols)>0:
-                            previous_symbols = [ x.strip() for x in previous_symbols.split(",") ]
+                            if previous_symbols.startswith('"') and previous_symbols.endswith('"'):
+                                previous_symbols = previous_symbols[1:-1]
+                            previous_symbols = [ x.strip() for x in previous_symbols.split("|") ]
                             [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "geneSymbol", 
                                                                                 value = x,
                                                                                 type = "previous")) for x in previous_symbols ]
 
-                        keyword = "Previous Names"
+                        keyword = "prev_name"
                         if keyword in header_columns:
 	                    column_index = header_columns[keyword]
 	                    previous_names = line_fields[column_index].strip()
 	                    if len(previous_names)>0:
 				# some names have commas in between, so we will split based on ", " - fix by Laura Furlong
-                                previous_names = [ x.strip('" \t') for x in previous_names.split("\", \"") ]
+                                if previous_names.startswith('"') and previous_names.endswith('"'):
+                                    previous_names = previous_names[1:-1]
+                                previous_names = [ x.strip() for x in previous_names.split("|") ]
                                 [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "description", 
                                                                                 value = x, type="previous" )) for x in previous_names ]
 
-	                column_index = header_columns["Aliases"]
-	                aliases_symbol = line_fields[column_index].strip()
-	                if len(aliases_symbol)>0:
-                            aliases_symbol = [ x.strip() for x in aliases_symbol.split(",") ]
-                            [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "geneSymbol", 
-                                                                                value = x,
-                                                                                type = "alias" )) for x in aliases_symbol ]
-	                	
-	                column_index = header_columns["Accession Numbers"]
-	                accession_numbers = line_fields[column_index].strip()
-	                if len(accession_numbers)>0:
-                            accession_numbers = [ x.strip() for x in accession_numbers.split(",") ]
-                            [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "accessionNumber", 
-                                                                                value = x,
-                                                                                type = "cross-reference")) for x in accession_numbers ]
-
-
-                        keyword = "Name Aliases"
+                        keyword = "entrez_id"
                         if keyword in header_columns:
 	                    column_index = header_columns[keyword]
-	                    accession_numbers = line_fields[column_index].strip()
-	                    #some names have commas in between, so we will replace commas that separate names by && and then split by && - fix by Laura Furlong
-	                    accession_numbers = accession_numbers.replace("\", ", "\"&&")
-	                    if len(accession_numbers)>0:
-                                accession_numbers = [ x.strip(" \"\t") for x in accession_numbers.split("&&") ]
-                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "description", 
-                                                                                value = x,
-                                                                                type = "alias")) for x in accession_numbers ]
-
-	                	
-                        keyword = "Enzyme IDs"
-                        if keyword in header_columns:
-	                    column_index = header_columns[keyword]
-	                    enzyme_IDs = line_fields[column_index].strip()
-	                    if len(enzyme_IDs)>0:
-                                enzyme_IDs = [ x.strip() for x in enzyme_IDs.split(",") ]
-                                new_enzyme_IDs = []
-                                for id in enzyme_IDs:
-                                    m = re.match("\s*(.+\..+\..+\..+)", id)
-                                    if m:
-                                        new_enzyme_IDs.append(m.group(1))
-                                enzyme_IDs = new_enzyme_IDs
-                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "EC", 
-                                                                                value = x,
-                                                                                type = "cross-reference" ) ) for x in enzyme_IDs ]
-
-                        keyword = "Entrez Gene ID"
-                        if keyword in header_columns:
-	                    column_index = header_columns[keyword]
-	                    column_value = line_fields[column_index].strip()
-	                    if len(column_value)>0:
-                                geneIDs = [ x.strip() for x in column_value.split(",") ]
+	                    geneIDs = line_fields[column_index].strip()
+	                    if len(geneIDs)>0:
+                                if geneIDs.startswith('"') and geneIDs.endswith('"'):
+                                    geneIDs = geneIDs[1:-1]
+                                geneIDs = [ x.strip() for x in geneIDs.split("|") ]
                                 [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "geneID", 
                                                                                     value = x,
                                                                                     type = "cross-reference")) for x in geneIDs ]
-	                	
-                        keyword = "Mouse Genome Database ID"
+
+                        keyword = "ensembl_gene_id"
                         if keyword in header_columns:
 	                    column_index = header_columns[keyword]
-	                    column_value = line_fields[column_index].strip()
-	                    if len(column_value)>0:
-                                MGD_IDs = [ x.lstrip("MGI:") for x in column_value.split(",") ]
-                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "mgi", 
+	                    ensemblIDs = line_fields[column_index].strip()
+	                    if len(ensemblIDs)>0:
+                                if ensemblIDs.startswith('"') and ensemblIDs.endswith('"'):
+                                    ensemblIDs = ensemblIDs[1:-1]
+                                ensemblIDs = [ x.strip() for x in ensemblIDs.split("|") ]
+                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "ensembl", 
                                                                                     value = x,
-                                                                                    type = "cross-reference")) for x in MGD_IDs ]
+                                                                                    type = "cross-reference")) for x in ensemblIDs ]
 	                	
-                        keyword = "Mouse Genome Database ID (mapped data supplied by MGI)"
+                        keyword = "ena"
                         if keyword in header_columns:
 	                    column_index = header_columns[keyword]
-	                    column_value = line_fields[column_index].strip()
-	                    if len(column_value)>0:
-                                MGD_IDs = [ x.lstrip("MGI:") for x in column_value.split(",") ]
+	                    accessionIDs = line_fields[column_index].strip()
+	                    if len(accessionIDs)>0:
+                                if accessionIDs.startswith('"') and accessionIDs.endswith('"'):
+                                    accessionIDs = accessionIDs[1:-1]
+                                accessionIDs = [ x.strip() for x in accessionIDs.split("|") ]
+                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "AccessionNumber", 
+                                                                                    value = x,
+                                                                                    type = "cross-reference")) for x in accessionIDs ]
+
+	                column_index = header_columns["refseq_accession"]
+	                refseqs = line_fields[column_index].strip()
+	                if len(refseqs)>0: 
+                            if refseqs.startswith('"') and refseqs.endswith('"'):
+                                refseqs = refseqs[1:-1]
+                            refseqs = [ x.strip() for x in refseqs.split("|") ]
+                            [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "refseq", 
+                                                                                value = x,
+                                                                                type = "cross-reference")) for x in refseqs ]
+
+                        keyword = "uniprot_ids"
+                        if keyword in header_columns:
+	                    column_index = header_columns[keyword]
+	                    uniprotIDs = line_fields[column_index].strip()
+	                    if len(uniprotIDs)>0:
+                                if uniprotIDs.startswith('"') and uniprotIDs.endswith('"'):
+                                    uniprotIDs = uniprotIDs[1:-1]
+                                uniprotIDs = [ x.strip() for x in uniprotIDs.split("|") ]
+                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "uniprotaccession", 
+                                                                                    value = x,
+                                                                                    type = "cross-reference")) for x in uniprotIDs ]
+	                	
+#                        keyword = "GDB ID (mapped data)"
+#                        if keyword in header_columns:
+#	                    column_index = header_columns[keyword]
+#	                    column_value = line_fields[column_index].strip()
+#	                    if len(column_value)>0:
+#                                GDB_IDs = [ x.lstrip("GDB:") for x in column_value.split(",") ]
+#                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "gdb", 
+#                                                                                    value = x,
+#                                                                                    type = "cross-reference" )) for x in GDB_IDs ]
+	                	
+                        keyword = "pubmed_id"
+                        if keyword in header_columns:
+	                    column_index = header_columns[keyword]
+	                    pubmed_IDs = line_fields[column_index].strip()
+	                    if len(pubmed_IDs)>0:
+                                if pubmed_IDs.startswith('"') and pubmed_IDs.endswith('"'):
+                                    pubmed_IDs = pubmed_IDs[1:-1]
+                                pubmed_IDs = [ x.strip() for x in pubmed_IDs.split("|") ]
+                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "pubmed", 
+                                                                                    value = x,
+                                                                                    type = "cross-reference")) for x in pubmed_IDs ]
+	                	
+                        keyword = "mgd_id"
+                        if keyword in header_columns:
+	                    column_index = header_columns[keyword]
+	                    MGD_IDs = line_fields[column_index].strip()
+	                    if len(MGD_IDs)>0:
+                                if MGD_IDs.startswith('"') and MGD_IDs.endswith('"'):
+                                    MGD_IDs = MGD_IDs[1:-1]
+                                MGD_IDs = [ x.lstrip("MGI:") for x in MGD_IDs.split("|") ]
                                 [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "mgi", 
                                                                                     value = x,
                                                                                     type = "cross-reference")) for x in MGD_IDs ]
 
-	                column_index = header_columns["RefSeq IDs"]
-	                column_value = line_fields[column_index].strip()
-	                if len(column_value)>0: 
-                            refseqs = [ x.strip() for x in column_value.split(",") ]
-                            [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "refseq", 
-                                                                                value = x,
-                                                                                type = "cross-reference")) for x in refseqs ]
-	                	
-                        keyword = "GDB ID (mapped data)"
+                        keyword = "rgd_id"
                         if keyword in header_columns:
 	                    column_index = header_columns[keyword]
-	                    column_value = line_fields[column_index].strip()
-	                    if len(column_value)>0:
-                                GDB_IDs = [ x.lstrip("GDB:") for x in column_value.split(",") ]
-                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "gdb", 
-                                                                                    value = x,
-                                                                                    type = "cross-reference" )) for x in GDB_IDs ]
+	                    RGD_IDs = line_fields[column_index].strip()
+	                    if len(RGD_IDs)>0:
+                                if RGD_IDs.startswith('"') and RGD_IDs.endswith('"'):
+                                    RGD_IDs = RGD_IDs[1:-1]
+                                RGD_IDs = [ x.lstrip("RGD:") for x in RGD_IDs.split("|") ]
+                                for current_rgd_id in RGD_IDs:
+                                    if current_rgd_id != "":
+                                        hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "rgd", 
+                                                                                      value = current_rgd_id,
+                                                                                      type = "cross-reference"))
 	                	
-                        keyword = "Entrez Gene ID (mapped data supplied by NCBI)"
+                        keyword = "omim_id"
                         if keyword in header_columns:
 	                    column_index = header_columns[keyword]
-	                    column_value = line_fields[column_index].strip()
-	                    if len(column_value)>0:
-                                mapped_geneIDs = [ x.strip() for x in column_value.split(",") ]
-                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "geneID", 
-                                                                                    value = x,
-                                                                                    type = "cross-reference")) for x in mapped_geneIDs ]
-	                	
-                        keyword = "OMIM ID (mapped data supplied by NCBI)"
-                        if keyword in header_columns:
-	                    column_index = header_columns[keyword]
-	                    column_value = line_fields[column_index].strip()
-	                    if len(column_value)>0:
-                                omimIDs = [ x.strip() for x in column_value.split(",") ]
+	                    omimIDs = line_fields[column_index].strip()
+	                    if len(omimIDs)>0:
+                                if omimIDs.startswith('"') and omimIDs.endswith('"'):
+                                    omimIDs = omimIDs[1:-1]
+                                omimIDs = [ x.strip() for x in omimIDs.split("|") ]
                                 [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "mim",
                                                                                     value = x, 
 			    							type="cross-reference")) for x in omimIDs ]
 	                	
-                        keyword = "RefSeq (mapped data supplied by NCBI)"
+                        keyword = "imgt"
                         if keyword in header_columns:
 	                    column_index = header_columns[keyword]
-	                    column_value = line_fields[column_index].strip()
-	                    if len(column_value)>0:
-                                mapped_refseqs = [ x.strip() for x in column_value.split(",") ]
-                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "refseq", 
+	                    imgtIDs = line_fields[column_index].strip()
+	                    if len(imgtIDs)>0:
+                                if imgtIDs.startswith('"') and imgtIDs.endswith('"'):
+                                    imgtIDs = imgtIDs[1:-1]
+                                imgtIDs = [ x.strip() for x in imgtIDs.split("|") ]
+                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "IMGT", 
                                                                                     value = x,
-                                                                                    type = "cross-reference")) for x in mapped_refseqs ]
-
-                        keyword = "UniProt ID (mapped data supplied by UniProt)"
+                                                                                    type = "cross-reference")) for x in imgtIDs ]
+	                	
+                        keyword = "enzyme_id"
                         if keyword in header_columns:
 	                    column_index = header_columns[keyword]
-	                    column_value = line_fields[column_index].strip()
-	                    if len(column_value)>0:
-                                uniprotIDs = [ x.strip() for x in column_value.strip().split(",") ]
-                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "uniprotaccession", 
-                                                                                    value = x,
-                                                                                    type = "cross-reference")) for x in uniprotIDs ]
-
-                        keyword = "Rat Genome Database ID (mapped data supplied by RGD)"
-                        if keyword in header_columns:
-	                    column_index = header_columns[keyword]
-	                    column_value = line_fields[column_index].strip()
-	                    if len(column_value)>0:
-                                RGD_IDs = [ x.lstrip("RGD:") for x in column_value.split(",") ]
-                                for current_rgd_id in RGD_IDs:
-                                    if current_rgd_id.strip() != "":
-                                        hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "rgd", 
-                                                                                      value = current_rgd_id.strip(),
-                                                                                      type = "cross-reference"))
+	                    enzyme_IDs = line_fields[column_index].strip()
+	                    if len(enzyme_IDs)>0:
+                                if enzyme_IDs.startswith('"') and enzyme_IDs.endswith('"'):
+                                    enzyme_IDs = enzyme_IDs[1:-1]
+                                enzyme_IDs = [ x.strip() for x in enzyme_IDs.split("|") ]
+                                [ hgnc_object.add_attribute(ExternalEntityAttribute(attribute_identifier = "EC", 
+                                                                                value = x,
+                                                                                type = "cross-reference" ) ) for x in enzyme_IDs ]
 	                	
 	                # Save the object in the database            	
 	                self.biana_access.insert_new_external_entity( externalEntity = hgnc_object )
