@@ -215,6 +215,10 @@ class BiopaxEntity(object):
                 else:
                     value = BiopaxEntity.datatype_operations[xref_object.db.lower()](xref_object.id)
                     if not isinstance(value,list):
+                        # Quim Aguirre: I have introduced this condition in order to split the Reactome code and only introduce the number of the code
+                        # Example: R-ECO-159880 --> 159880
+                        if BiopaxEntity.datatype_to_biana_type[xref_object.db.lower()].lower() == 'reactome':
+                            value = value.split("-")[2]
                         externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = BiopaxEntity.datatype_to_biana_type[xref_object.db.lower()], 
                                                                                value = value,
                                                                                type = "cross-reference" ) )
