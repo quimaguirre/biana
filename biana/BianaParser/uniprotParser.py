@@ -569,7 +569,7 @@ class UniprotParser(BianaParser):
                 # Quim Aguirre: Addition of Tair cross-reference
                 m = tair_regex.match(line)
                 if m:
-            self.verify_attribute_length("tair", m.group(1))
+                    self.verify_attribute_length("tair", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="Tair", value=m.group(1), type="cross-reference"))
 
                     continue
