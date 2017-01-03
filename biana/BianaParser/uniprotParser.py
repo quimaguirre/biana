@@ -77,7 +77,8 @@ class UniprotParser(BianaParser):
         
         pfam_regex = re.compile("^DR\s+Pfam;\s*(\S+);")
         kegg_regex = re.compile("^DR\s+KEGG;\s*(\S+);")
-        interpro_regex = re.compile("^DR\s+InterPro;\s*(\S+);")
+        #interpro_regex = re.compile("^DR\s+InterPro;\s*(\S+);")
+        interpro_regex = re.compile("^DR\s+InterPro;\s*IPR(\d+);") # Quim Aguirre: Modification added to cut the prefix IPR-, as it is done in the parsing of other external databases
         prosite_regex = re.compile("^DR\s+PROSITE;\s*(\S+);")
         prodom_regex = re.compile("^DR\s+ProDom;\s*(\S+);")
         mim_regex = re.compile("^DR\s+MIM;\s*(\S+);")
@@ -92,23 +93,30 @@ class UniprotParser(BianaParser):
         geneID_regex = re.compile("^DR\s+GeneID;\s*(\S+);")
         go_regex = re.compile("^DR\s+GO;\s*GO\:(\d+);")
         #refseq_regex = re.compile("^DR\s+RefSeq;\s*(\S+);")
-        refseq_regex = re.compile("^DR\s+RefSeq;(.*)")
+        #refseq_regex = re.compile("^DR\s+RefSeq;(.*)")
+        refseq_regex = re.compile("^DR\s+RefSeq;(.*)\.\s*\[*") # Quim Aguirre: Modification to avoid problems of entries containing nucleotide sequence identifier
+                                                               # Example: DR   RefSeq; XP_017456514.1; XM_017601025.1. [P36877-1]
         unigene_regex = re.compile("^DR\s+UniGene;\s*(\S+);")
         hgnc_regex = re.compile("^DR\s+HGNC;\s*HGNC\:(\d+);")
         pdb_regex = re.compile("^DR\s+PDB;\s*(\S+);.+;.+;(.+).")
         flybase_regex = re.compile("^DR\s+FlyBase;\s*(\S+);")
         mgi_regex = re.compile("^DR\s+MGI;\s*MGI:(\d+);")
-        reactome_regex = re.compile("^DR\s*Reactome;\s*REACT_(\d+);")
+        #reactome_regex = re.compile("^DR\s*Reactome;\s*REACT_(\d+);")
+        reactome_regex = re.compile("^DR\s*Reactome;\s*R-[A-Z]{3}-(\d+);") # Quim Aguirre: Modification to obtain the numeric part of the Reactome code, which has changed respect the previous version
+                                                                           # Example of code: R-ECO-159880 --> 159880
         sgd_regex = re.compile("^DR\s+SGD;\s*(\w+);")
+        tair_regex = re.compile("^DR\s+TAIR;\s*(\S+);") # Quim Aguirre: Addition of TAIR regex
         
 
-        tigr_regex = re.compile("^DR\s+TIGR\;\s+(.+)\;")
+        #tigr_regex = re.compile("^DR\s+TIGR\;\s+(.+)\;")
+        tigr_regex = re.compile("^DR\s+TIGRFAMs\;\s+(.+)\;") # Quim Aguirre: Change of the resource abbreviation
         #intact_regex = re.compile("^DR\s+IntAct") # It's the same as UniprotAccession?
         dip_regex = re.compile("^DR\s+DIP\;\s+DIP\:(.+)\;")
         cygd_regex = re.compile("^DR\s+CYGD\;\s+(.+)\;")
         #arrayexpress_regex = re.compile("")  # It's the same as UniprotAccession?
         WormPep_regex = re.compile("^DR\s+WormPep\;\s+(.+)\;\s*CE(\d+)\.\s*$")
-        WormBase_regex = re.compile("^DR\s+WormBase\;\s*WBGene(\d+)\;\s*(.+)\.\s*$")
+        #WormBase_regex = re.compile("^DR\s+WormBase\;\s*WBGene(\d+)\;\s*(.+)\.\s*$")
+        WormBase_regex = re.compile("^DR\s+WormBase;\s*.+;\s*.+;\s*WBGene(\d+);\s*(\S+)\.") # Quim Aguirre: Modification to obtain the numeric part of the WormBaseGeneID code
         rgd_regex = re.compile("^DR\s+RGD\;\s+(\d+)\;")
         
         #Sequence
@@ -167,6 +175,21 @@ class UniprotParser(BianaParser):
                             for enzyme in enzymes:
 				self.verify_attribute_length("ec", enzyme)
                                 uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="EC", value=enzyme, type="cross-reference"))
+
+			# Detect names
+			if desc_str != "":
+			    names = re.findall("RecName\: Full\=([^;]+)", desc_str)
+			    for name in names:
+				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="name", value=name, type="unique"))
+
+			    alt_names = re.findall("AltName\: Full\=([^;]+)", desc_str)
+			    for name in alt_names:
+				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="name", value=name, type="synonym"))
+			    
+			    short_names = re.findall("Short=([^;]+)", desc_str)
+			    for name in short_names:
+				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="name", value=name, type="unique"))
+
 
                     #add comments
                     if len(comments["Function"])>0:
@@ -262,6 +285,7 @@ class UniprotParser(BianaParser):
             m = keyword_regex.match(line)
             if m:
 		for x in m.group(1).split(";"):
+		    x = x.strip()
 		    self.verify_attribute_length("keyword", x)
 		    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="keyword", value=x, type="cross-reference")) 
                 continue
@@ -282,18 +306,21 @@ class UniprotParser(BianaParser):
                 m = gene_orf_name_regex.search(line)
                 if m:
 		    for x in m.group(1).split(","):
+			x = x.strip()
 			self.verify_attribute_length("orfname", x)
 			uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="ORFName", value=x,type="alias")) 
                     
                 m = gene_synonyms_regex.search(line)
                 if m:
 		    for x in m.group(1).split(","):
+			x = x.strip()
 			self.verify_attribute_length("genesymbol", x)
 			uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="geneSymbol", value=x, type="synonym")) 
 
                 m = gene_orderedLocusNames.search(line)
                 if m:
 		    for x in m.group(1).split(","):
+			x = x.strip()
 			self.verify_attribute_length("orderedlocusname", x)
 			uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="OrderedLocusName", value=x, type="alias")) 
 
@@ -536,6 +563,14 @@ class UniprotParser(BianaParser):
                 if m:
 		    self.verify_attribute_length("sgd", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="SGD", value=m.group(1), type="cross-reference"))
+
+                    continue
+
+                # Quim Aguirre: Addition of Tair cross-reference
+                m = tair_regex.match(line)
+                if m:
+            self.verify_attribute_length("tair", m.group(1))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="Tair", value=m.group(1), type="cross-reference"))
 
                     continue
 
