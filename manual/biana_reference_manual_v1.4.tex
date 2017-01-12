@@ -1,0 +1,2549 @@
+\documentclass[11pt,oneside]{book}
+
+\usepackage{fancyhdr}
+\usepackage{verbatim}
+\usepackage{fancyvrb}
+\usepackage{graphicx}
+\usepackage{color}
+
+\newcommand{\sq}[1]{#1$^2$}
+
+\newcommand{\ues}{\textit{User Entity Set} }
+
+\newcommand{\eE}{\textit{External Entity} }
+\newcommand{\eEs}{\textit{External Entities} }
+\newcommand{\eEr}{\textit{External Entity Relation} }
+\newcommand{\eEa}{\textit{External Entity Attribute} }
+\newcommand{\eEra}{\textit{External Entity Relation Attribute} }
+
+\newcommand{\uE}{\textit{User Entity} }
+\newcommand{\uEs}{\textit{User Entities}}
+
+\newcommand{\ed}{\textit{External Database} }
+\newcommand{\eds}{\textit{External Databases} }
+
+\newcommand{\uP}{\textit{Unification Protocol} }
+\newcommand{\uPs}{\textit{Unification Protocols} }
+
+\newcommand{\Bdb}{\textit{BIANA Database}}
+\newcommand{\Bdbs}{\textit{BIANA Databases}}
+
+\newcommand{\BIANA}{\textit{BIANA} }
+\newcommand{\BIANASESSION}{\textit{BIANA Session} }
+\newcommand{\BianaGlobals}{\textit{\textbf{BIANA\_GLOBALS}} }
+
+\newcommand{\bt}{\textit{BIANA Tree} }
+
+\newcommand{\cytoscape}{\textit{Cytoscape} }
+
+
+\newcommand{\url}[1]{\tiny{#1}}
+
+
+\definecolor{code}{gray}{0.75}
+
+
+%\newenvironment{boxcode}[1]{
+%\colorbox{code}{\scriptsize{\tt{#1}}}
+%}
+
+%\newcommand{\boxcode}[1]{\colorbox{code}{\scriptsize{\tt{#1}}}}
+%\newcommand{\boxcode}[1]{\colorbox{code}{\scriptsize{\tt{#1}}}}
+
+%\newcommand{\printcommand}{\colorbox{code}{\scriptsize{\BUseVerbatim{bianacommand}}}}
+\newcommand{\printcommand}[1]{\colorbox{code}{\scriptsize{\BUseVerbatim{#1}}}}
+
+
+
+%\newcommand{\m}[1]{\mbox{\boldmath $#1$}}
+
+%%%%%%%%%%
+
+\pagestyle{fancyplain}
+
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\fancyhf{} \fancyhead[LE,RO]{\bfseries\thepage}
+\fancyhead[LO]{\bfseries\rightmark} \fancyhead[RE]{\bfseries\leftmark}
+
+\begin{document}
+
+\title{Biological Interactions and Network Analysis Using BIANA Cytoscape Plugin}
+%\subtitle{Reference manual}
+\author{Emre G\"{u}ney \& Javier Garc\'ia Garc\'ia}
+\date{\today}
+\maketitle
+
+
+%%%%%%%%%
+
+\tableofcontents
+
+%%%%%%%%%%%%%%  INTRODUCTION %%%%%%%%%%%%%%%%%%%
+
+
+\chapter{Introduction}
+
+\section{\BIANA Overview}
+
+\BIANA (Biologic Interactions and Network Analysis) is a biological database integration and network management framework written in Python. \BIANA is a Python framework designed to achieve two major goals: i) the integration of multiple sources of biological information, including biological entities and their relationships, and ii) the management of biological information as a network where entities are nodes and relationships are edges. 
+
+\BIANA uses a generic method to find entries of a given molecule that are equivalent across different biological data repositories. Moreover, \BIANA incorporates and empowers a variety of network analysis methods through NetworkX python package. In addition to integrating all major biological repositories, BIANA is easily adaptable to newly created data repositories. The \BIANA framework is an extension of the Protein Interaction and Network Analysis (PIANA), which was focused on protein-protein interactions. \BIANA bridges the network visualization of Cytoscape and the network analysis capabilities of NetworkX with customizable data integration for any type of relationships between genes and their products. \BIANA address the challenge of unambiguously gathering all available data for the biological entities of interest and working with their networks. 
+
+The main focus of \BIANA is biological database unification and to let user decide how to do it. In order to make sure that BIANA would be freely accessible by anybody, \BIANA framework uses either free open-source software (Python, MySQL, MySQLdb, NetworkX, Cytoscape, CD-HIT) or publicly available free software (BLAST). For users who want to skip these software requirements, we provide BIANA web server at the price of loosing freedom on how to decide data unification, relinquishing to incorporate user-defined data and obliging primitive network analysis \& visualization. 
+
+
+\section{\BIANA Architecture}
+
+\BIANA uses a high level abstraction schema to define databases providing any kind of biological information (both individual entries and their relationships) (See Figure \ref{fig:data_model_uml_diagram} and \ref{fig:database_schema_diagram}). Any data source that contains biologic or chemical data parsed by \BIANA is defined as an external database. Similarly \BIANA integration approach adopts the concept of external entity, corresponding to entries in external databases. For example, a Uniprot entry (a protein), a GenBank entry (a gene), an IntAct interaction (an interaction), a KEGG pathway (a metabolic relation) or a PFAM alignment are all represented as external entities. 
+
+In order to achieve data uniformity, in the cases where the data repository supplies relations, both participants and relation itself are considered as external entities. The relation itself is annotated as external entity relation (a subtype of external entity). External entity objects are characterized by several attributes, such as database identifiers, sequence, taxonomy, description or function. Each external entity relation object is further characterized by some attributes like detection method and reliability. Alternatively, the participants in external entity relations can have their particular attributes like role and cardinality. 
+
+\BIANA unifies external data inserted into its database using its parsers based on a specific protocol. This protocol, called unification protocol, consists of a set of rules that determine how data in various data sources are combined (crossed). Each rule is composed of attributes that have to be crossed and the external databases which are going to be used. The set of external entities that are decided to be "equivalent" with respect to a given unification protocol is called user entity. User entities inherit all the attributes of their included external entries. Thus, \BIANA utilizes user entries specific to a certain unification protocol chosen by the user. User can either use provided built-in unification protocols or create his/her own unification protocols. As an example, a user may be interested in creating a unification protocol defined by crossing similar sequences and same taxonomy between two or more databases and crossing entities by uniprot accession code. The advantages of this integration approach are: 1) \BIANA database only contains raw data (with exactly the same nomenclature and identifiers of the original data source), therefore does not entail any assumption on data integration allowing user to specify how the integration should be done; 2) User can use information from a single database or the combination of multiple databases, selecting which ones he wants to use at each moment; 3) User can know exactly how was the original data, and do a backtracking of his/her integration approach.
+
+\begin{figure*}[htbp!]
+  \centering
+\includegraphics[scale=0.5]{images/data_model_uml_diagram.png}
+\caption{\BIANA data model UML diagram.}
+\label{fig:data_model_uml_diagram}
+\end{figure*}
+
+\begin{figure*}[htbp!]
+  \centering
+\includegraphics[scale=0.5]{images/database_schema_diagram.png}
+\caption{\BIANA relational database schema.}
+\label{fig:database_schema_diagram}
+\end{figure*}
+
+\section{\BIANA Data Unification Approach}
+
+The integration protocol is defined by the user deciding which type of common features will be used on the equivalence of database entries (i.e. by using sequence identity, matching identifiers or sharing domain). Equivalent entries in distinct biological database sources are represented as a single node in a network, while their relationships with other nodes are considered edges. The main advantage of BIANA over other unification software is being user driven. By default, all entities (usually molecules) coming from different databases are considered non-equivalent. Then user decides which databases are unified and which attributes are used to consider molecules as equivalent. This approach has the advantage that the user decides the databases (including his/her own data if any) and identifiers being used. On the other hand, rather inconvenient than a drawback, it is the responsibility of the user to know which attributes are provided in each database. 
+
+{\BIANA} also offers insertion of an {\ed} as {\bf promiscuous}. If a database is specified as promiscuous, the entries coming from this database will be treated differently during data unification. The entries coming from promiscuous databases, when unified, can belong to multiple {\uE}s if they satisfy the equivalence conditions (imposed by the unification protocol) with any non-promiscuous entry belonging to the same set. A useful example of a promiscuous database is SCOP, database of protein structural domains, where a domain can be contained more than one protein ({\uE} in our analogy). 
+
+See Figure \ref{fig:unification_protocol_overview} for a demonstration of how different unification approaches work in \BIANA.
+
+\begin{figure*}[htbp!]
+  \centering
+\includegraphics[scale=0.5]{images/unification_figure.png}
+\caption{Demonstration of \BIANA unification approach.}
+\label{fig:unification_protocol_overview}
+\end{figure*}
+
+\chapter{Installation}
+
+\section{Requirements}
+
+\begin{itemize}
+\item Windows:
+  \begin{itemize}
+    \item Cytoscape 2.6  (\textit{http://www.cytoscape.org/}) (only required if \BIANA is going to be used as a Cytoscape Plugin)
+  \end{itemize}
+ 
+\item MAC and Unix based systems:
+  \begin{itemize}
+  \item A MySQL server version 5+ (\textit{http://www.mysql.com/}).
+    \begin{itemize}
+    \item \textcolor{red}{Mac Users}: If you experience problems installing MySQL Server, check the following link: http://www.brainfault.com/2008/04/18/install-python-mysql-mysqldb-on-mac-osx/.
+    \end{itemize}
+  \item Python, version 2.5 \textit{http://www.python.org/}
+  \item Cytoscape 2.6  (\textit{http://www.cytoscape.org/}) (required if \BIANA is going to be used as a Cytoscape Plugin)
+  \end{itemize}
+\end{itemize}
+
+%\item Python, version 2.5 \textit{http://www.python.org/} with the following modules:
+%\begin{itemize}
+%\item Networkx version 0.99 or superior(\textit{https://networkx.lanl.gov/})
+%\item MySQLdb version 1.2.2 or superior(\textit{http://sourceforge.net/projects/mysql-python})
+%    \begin{itemize}
+%        \item Checking whether networkx and MySQLdb are properly installed
+%\begin{SaveVerbatim}{bianacommand}
+%\$> python
+%>>> import networkx
+%>>>
+%>>> import MySQLdb
+%>>>
+%\end{SaveVerbatim}
+%        \printcommand{bianacommand}
+%        \item If you get an import error check INSTALLATION of these packages.
+%    \end{itemize}
+%\end{itemize}
+%\item JAVA version 1.5.0 or superior (\textit{http://www.sun.com/java/}) (required if \BIANA Java user graphical interface is going to be used).
+%\item Cytoscape 2.6  (\textit{http://www.cytoscape.org/}) (required if \BIANA is going to be used as a Cytoscape Plugin)
+%\end{itemize}
+
+\section{Installation}
+
+\begin{itemize}
+  \item Windows:
+    \begin{itemize}
+    \item Download the BIANA Windows Installer and follow setup instructions.
+    \item Installation of \BIANA Cytoscape Plugin:  
+      \begin{itemize}
+      \item Use the Plugin Cytoscape manager:
+        \begin{enumerate}
+        \item Plugins $\rightarrow$ Manage Plugins
+        \item Change Download Site $\rightarrow$ Edit sites
+        \item Add http://sbi.imim.es/data/biana/Biana\_cytoscape\_plugin.xml).
+        \end{enumerate}
+        For more details, look at at \emph{http://sbi.imim.es/web/BIANA.php}
+      \item Execute Cytoscape and run BIANA Cytoscape plugin (Plugins $\rightarrow$ BIANA).
+      \item Automatically, it will ask you to select your Python Interpreter: Select the file biana.bat (located where you installed BIANA). If you want to change it in the future, go to Configuration $\rightarrow$ Preferences.
+      \end{itemize}
+    \end{itemize}
+  \item MAC and Unix based systems:
+    \begin{enumerate}
+    \item Download source code from \emph{http://sbi.imim.es/web/BIANA.php}.
+    \item UNIX and MAC. Installation from Source Package:
+      \begin{itemize}
+      \item Installation WITH system administration privileges (which will install biana in site-packages of default Python interpreter):
+\begin{SaveVerbatim}{bianacommand}
+\$> ./install.sh
+\end{SaveVerbatim}
+        \printcommand{bianacommand}
+      \item Installation WITHOUT system administration privileges:
+        \begin{itemize}
+        \item Use install.sh with destination path as an argument as follows:
+\begin{SaveVerbatim}{bianacommand}
+\$> ./install.sh <path\_to\_install\_biana>
+\end{SaveVerbatim}
+          \printcommand{bianacommand}
+        \item Then update PYTHONPATH environment variable as follows (put it in .bash\_profile to make this change permanent)
+\begin{SaveVerbatim}{bianacommand}
+\$> export PYTHONPATH=\$PYTHONPATH:<path\_to\_install\_biana>
+\end{SaveVerbatim}
+          \printcommand{bianacommand}
+        \end{itemize}
+      \end{itemize}
+    \item Checking whether installation was successful
+      To start using \BIANA import biana library inside a Python script as follows:
+      
+\begin{SaveVerbatim}{bianacommand}
+\$> python
+>>> import biana
+BIANA>
+\end{SaveVerbatim}
+      \printcommand{bianacommand}
+
+    \end{enumerate}
+  \item Installation of \BIANA Cytoscape Plugin:  
+    \begin{itemize}
+    \item Use the Plugin Cytoscape manager:
+      \begin{enumerate}
+      \item Plugins $\rightarrow$ Manage Plugins
+      \item Change Download Site $\rightarrow$ Edit sites
+      \item Add http://sbi.imim.es/data/biana/Biana\_cytoscape\_plugin.xml).
+      \end{enumerate}
+    \item Execute Cytoscape and run BIANA Cytoscape plugin (Plugins $\rightarrow$ BIANA).
+    \item Automatically, it will ask you to select your Python Interpreter: Select the python executable file in your system. If you want to change it in the future, go to Configuration $\rightarrow$ Preferences.
+    \end{itemize}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%% USAGE %%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Usage}
+
+\BIANA is developed as a \textit{Python package}, and it is thought to be executed in Python scripts. In order to facilitate users work, most of its commands can also be executed as a \cytoscape plugin.
+
+\section{Execution}
+
+\subsection{Executing \BIANA in a \textit{Python} script}
+
+If you want to access to the \BIANA Python module directly, you have to import it in your Python script:
+
+\begin{SaveVerbatim}{bianacommand}
+import biana
+\end{SaveVerbatim}
+\printcommand{bianacommand}
+
+or
+
+\begin{SaveVerbatim}{bianacommand}
+from biana import *
+\end{SaveVerbatim}
+\printcommand{bianacommand}
+
+For more details in \BIANA available functionalities and methods, see sections \ref{section:biana_administration_commands} and \ref{section:biana_working_commands}. Some of the most common scripts are demonstrated in the scripts directory.
+
+\section{Executing \BIANA as a Cytoscape plugin}
+
+On the Cytoscape menus at the top, go to \textbf{Plugins} and then click on \textbf{BIANA}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% ADMINISTRATION COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% First, define the commands
+\begin{SaveVerbatim}{createbianadatabase}
+create_biana_database( dbname = "YOUR_BIANA_DATABASE_NAME",
+                       dbhost = "MYSQ_SERVER_HOST",
+                       dbuser = "USER",
+                       dbpassword = "PASSWORD",
+                       description = "Test database" )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{createbianadatabasecommandline}
+scripts/administration> python create_new_biana_database.py
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{createbianadatabaseparameters}
+*dbname: name of the new \Bdb. It must not exist previously!
+*dbhost: name or IP where the MySQL server is.
+*dbuser: user of MySQL database. User must have database creation grants!
+*dbpassword: Password of MySQL user.
+*description: Description for \Bdb
+\end{SaveVerbatim}
+
+
+%%% Unification commands
+\begin{SaveVerbatim}{createunification}
+create_unification_protocol( dbname = "BIANA_DATABASE_V1",
+                             dbhost = "localhost",
+                             dbuser = "root",
+                             dbpassword = "",
+                             unification_protocol_name = "NAME",
+                             list_unification_atom_elements = [([dbID_list],[attributes]),
+                                                               ([dbID_list],[attribute_list])] )
+\end{SaveVerbatim}
+
+
+\begin{SaveVerbatim}{createunificationcommandline}
+scripts/administration> python create_unification_protocol.py
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{createunificationparameters}
+*unification_protocol_name: Name defining the unification protocol
+*list_unification_atom_elements: List of tuples.
+  First position in each tuple consists of a list of external database identifiers, and
+  second position in the tuple consists in a list of external entity attributes to be used.
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{deleteunification}
+delete_unification_protocol( dbname = "BIANA_DATABASE",
+                             dbhost = "MYSQL SERVER HOST",
+                             dbuser = "USER",
+                             dbpassword = "PASSWORD",
+                             unification_protocol_name = ``UNIFICATION NAME'')
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{deleteunificationcommandline}
+  scripts/administration> python delete_unification_protocol.py
+\end{SaveVerbatim}
+
+%%% Delete biana db
+\begin{SaveVerbatim}{deletebianadatabase}
+delete_biana_database(  dbname = "DATABASE NAME",
+            		dbhost = "MYSQL_SERVER_HOST",
+            		dbuser = "USER",
+            		dbpassword = "PASSWORD" )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{deletebianadatabasecommandline}
+scripts/administration> python delete_biana_database.py
+\end{SaveVerbatim}
+
+
+%%% Parsers
+\begin{SaveVerbatim}{parserscommandline}
+scripts/administration> python parse_database.py
+\end{SaveVerbatim}
+
+
+%%% Session related %%%
+\begin{SaveVerbatim}{startsession}
+session = create_new_session( sessionID = "ID",
+                              dbname="BIANA_DBNAME",
+                              dbhost="BIANA_DBHOST",
+                              dbuser="BIANA_DBUSER",
+                              dbpassword="BIANA_DBPASS",
+                              unification_protocol="No unification" )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{startsessionparameters}
+*unification_protocol: Name defining the unification protocol to be used
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{duplicateuserentityset}
+session.duplicate_user_entity_set( user_entity_set_id="User_Entity_id1",
+                                   new_user_entity_set_id="New id" )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{removeuserentityset}
+session.remove_user_entity_set( user_entity_set_id="User_Entity_Set_1" )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{selectalluserentities}
+session.select_all_user_entities( user_entity_set_id = "User_Entity_Set_Name" )
+\end{SaveVerbatim}
+
+
+\begin{SaveVerbatim}{selectbylevel}
+user_entity_set = session.get_user_entity_set(
+                    user_entity_set_id = User_Entity_Set_Name")
+
+user_entity_ids = user_entity_set.get_user_entity_ids(level = 1)
+
+session.select_user_entities_from_user_entity_set(
+                        user_entity_set_id = "User_Entity_Set_Name",
+                        user_entity_id_list = user_entity_ids,
+                        clear_previous_selection = True )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{selectbyattribute}
+session.select_user_entities_from_user_entity_set(
+                    user_entity_set_id = "User_Entity_Set_Name",
+                    identifier_description_list =
+                            [ ("attr_name", "attr_value"), ... ],
+                    external_entity_attribute_restriction_list =
+                            [ ("attr_name", "attr_value"), ... ],
+                    id_type = "embedded",
+                    clear_previous_selection = True )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{unselectuserentities}
+user_entity_set = session.get_user_entity_set(
+                user_entity_set_id = "User_Entity_Set_Name")
+user_entity_set.clear_user_entity_selection()
+\end{SaveVerbatim}
+
+
+\begin{SaveVerbatim}{taguserentities}
+session.tag_selected_user_entities( user_entity_set_id = "User_Entity_Set_Name",
+                                    tag = "tag_name" )
+\end{SaveVerbatim}
+
+
+\begin{SaveVerbatim}{deleteuserentities}
+user_entity_set = session.get_user_entity_set(
+                        user_entity_set_id = "User_Entity_Set_Name")
+
+user_entity_set.select_user_entities(
+                        user_entity_id_list = [ (id_user_entity_1,
+                                                 id_user_entity_2, ... ] )
+
+session.remove_selected_user_entities(
+                        user_entity_set_id = "User_Entity_Set_Name" )
+\end{SaveVerbatim}
+
+
+\begin{SaveVerbatim}{subuserentityset}
+user_entity_set = session.get_user_entity_set(
+                user_entity_set_id = "User_Entity_Set_Name")
+
+user_entity_set.select_user_entities(
+                user_entity_id_list = [ (id_user_entity_1,
+                                         id_user_entity_2, ... ] )
+
+session.get_sub_user_entity_set(
+                user_entity_set_id = "User_Entity_Set_Name",
+                include_relations = True,
+                new_user_entity_set_id = "New_User_Entity_Name" )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{intersection}
+session.get_intersection_of_user_entity_set_list(
+        user_entity_set_list = [ "User_Entity_Set_Name_1",
+                                 "User_Entity_Set_Name_2", ... ]
+        include_relations = True,
+        new_user_entity_set_id = "New_User_Entity_Name" )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{union}
+session.get_union_of_user_entity_set_list(
+        user_entity_set_list = [ "User_Entity_Set_Name_1",
+                                 "User_Entity_Set_Name_2", ... ]
+        include_relations = True,
+        new_user_entity_set_id = "New_User_Entity_Name" )
+\end{SaveVerbatim}
+
+
+\begin{SaveVerbatim}{outputuserentities}
+session.output_user_entity_set_details (
+            user_entity_set_id = "User_Entity_Set_Name",
+            attributes = [ "attr_name_1", "attr_name_2", ... ],
+            only_selected = False,
+            output_format = "xml",
+            out_method = sys.stdout.write() )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{outputexternalentities}
+session.output_external_entity_details (
+            user_entity_id_list = [ "external_etity_1",
+                                    "external_entity_2", ... ],
+            attributes = [ "attr_name_1", "attr_name_2", ... ],
+            outmethod = sys.stdout.write() )
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{createnetwork}
+session.create_network(user_entity_set_id, 
+                       level=0, 
+                       include_relations_last_level = True, 
+                       relation_type_list=[], 
+                       relation_attribute_restriction_list=[], 
+                       use_self_relations=True, 
+                       expansion_attribute_list=[], 
+                       expansion_relation_type_list=[], 
+                       expansion_level=2, 
+                       attribute_network_attribute_list=[], 
+                       group_relation_type_list=[])
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{createnetworkparameters}
+* user_entity_set_id: identifier of user entity set for 
+                                        which network will be created
+* level: level of the network to be created, 
+                              network will be expanded till that level
+* include_relations_last_level: include relations between the nodes 
+                                        residing at the last level
+* relation_type_list: type of the relations to be used in expansion 
+* relation_attribute_restriction_list: tuples of (attribute, value) 
+         corresponding to restrictions to be applied on attributes of relations
+* use_self_relations: include relations within the node itself
+* expansion_attribute_list: tuples of (attribute, value_dictionary) corresponding 
+         to attributes to be used in relation inference between nodes based on 
+         shared attributes - value_dictionary is empty if attribute is not parameterizable
+* expansion_relation_type_list: type of relations to be used in shared attribute 
+         based relation inference 
+* expansion_level: number of relations (edges) to 
+         look further while inferring relations based on shared attributes
+* attribute_network_attribute_list: tuples of (attribute, value) corresponding to 
+         attributes to be used while associating nodes with common attributes - value_dictionary 
+         is empty if attribute is not parameterizable
+* group_relation_type_list: type of relations that are going to be treated
+         as a group (like pathway, complex, cluster..)
+\end{SaveVerbatim}
+
+
+\begin{SaveVerbatim}{randomizenetwork}
+session.create_randomized_user_entity_set(user_entity_set_id, 
+                                          new_user_entity_set_id, 
+                                          type_randomization)
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{randomizenetworkparameters}
+* user_entity_set_id: id of the user entity set whose 
+                  copy with random network is going to be created
+* new_user_entity_set_id: id for the created 
+                  copy of user entity set
+* type_randomization: randomization type to be used in network randomization, 
+                  can be one of the following: "random", "preserve_topology", "preserve_topology_and_node_degree", 
+                  "preserve_degree_distribution", "preserve_degree_distribution_and_node_degree", "erdos_renyi", "barabasi_albert" 
+    where;
+        - "random": add same number of edges randomly between nodes of original graph
+        - "preserve_topology": keep edges, shuffle nodes of original graph
+        - "preserve_topology_and_node_degree": keep edges, shuffle nodes of original graph with the nodes of same degree
+        - "preserve_degree_distribution": remove an edge between two random nodes with degrees k, l then add to two nodes with degrees k-1 & l-1, then shuffle nodes
+        - "preserve_degree_distribution_and_node_degree": remove 2 random edges between a-b and c-d where degree(a)=degree(c) and degree(b)=degree(d) then add 2 edges between a-d and b-c, then shuffle nodes with the same degree
+	- "erdos_renyi": creates a graph where edges are redistributed based on erdos renyi random model
+	- "barabasi_albert": creates a graph where edges are redistributed based on barabasi albert model (preferential attachment)
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{outputnetworkdetails}
+session.output_user_entity_set_network(user_entity_set_id, 
+                                       out_method=None, 
+                                       node_attributes = [], 
+                                       participant_attributes = [], 
+                                       relation_attributes=[], 
+                                       allowed_relation_types="all", 
+                                       include_participant_tags=True, 
+                                       include_relation_tags=True, 
+                                       include_relation_ids=True, 
+                                       include_participant_ids=True, 
+                                       include_relation_type=True, 
+                                       include_relation_sources=True, 
+                                       output_1_value_per_attribute=True, 
+                                       output_format="xml", 
+                                       value_seperator=", ", 
+                                       only_selected=False, 
+                                       include_command_in_rows=False, 
+                                       substitute_node_attribute_if_not_exists=False, 
+                                       include_unconnected_nodes=True)
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{outputnetworkdetailsparameters}
+* output_1_value_per_attribute: Boolean. Defines whether 1 or multiple values 
+                                are outputted per each attribute
+* output_format: format for the output used in case format is "table"; can be "tabulated" or "xml"
+* include_relation_ids: Boolean to whether display or not relation identifiers
+* include_participant_ids: Boolean to whether display or not relation participant identifiers
+* include_relation_type: Boolean to whether display or not types of relations
+* include_relation_sources: Boolean to whether display or not relation sources
+* include_participant_tags: Boolean to whether display or not tags of participants
+* include_relation_tags: Boolean to whether display or not tags of relations
+* value_separator: string to separate consecutive values in the same column
+* only_selected: Boolean to decide whether to output only selected nodes or all nodes (and their interactions)
+* include_command_in_rows: Include the command to output individual relation information at each row
+* substitute_node_attribute_if_not_exists: In case the node does not have a value for a 
+                given attribute (s.t. uniprotaccession) this flag make it possible to output another 
+                attribute (e.g. geneid) in the same column indicated as attribute:value (e.g. geneid:123123)
+* include_unconnected_nodes: Boolean to whether display or not unconnected nodes
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{outputrelationdetails}
+session.output_external_entity_relation_details(out_method=None,
+                                                external_entity_relation_id_list=[], 
+                                                attributes=[], 
+                                                node_attributes=[], 
+                                                relation_attributes=[], 
+                                                participant_attributes=[])
+\end{SaveVerbatim}
+
+\begin{SaveVerbatim}{outputrelationdetailsparameters}
+* external_entity_relation_id_list: list of relation identifiers 
+                                    for which details will be outputted
+* node_attributes: attributes of user entities connected by 
+                                    these relations for which information will be fetched
+* relation_attributes: attributes of external entity relations for 
+                                    which information will be fetched
+* participant_attributes: attributes of external entity relation participants for 
+                                    which information will be fetched
+* out_method: output method to be used if None overwritten by instance default output method
+\end{SaveVerbatim}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%   ADMINISTRATION COMMANDS   %%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\chapter{\BIANA administration commands}
+\label{section:biana_administration_commands}
+
+\BIANA administration commands consist of a set of procedures to create and maintain \BIANA databases in a transparent way designated for end users. The user executing these administration commands must be granted MySQL permissions for creating new databases, new tables and inserting new data, updating, altering, deleting existing data, lock and drop tables depending on the command.
+
+\BIANA uses a MySQL database in order to store information obtained from external databases. \BIANA offers to the user a transparent way of creating and managing distinct \Bdbs, in which each one can contain distinct external databases and distinct unification protocols.
+
+The basic procedure when installing \BIANA, is the following:
+\begin{enumerate}
+\item Install \BIANA and all its requirements.
+\item Create a new {\Bdb}.
+\item Populate {\Bdb} by inserting information from external databases.
+\item Integrate external databases using a unification protocol decided by the user.
+\item Start working with the created database and unification protocol.
+\end{enumerate}
+
+
+* Considerations to take in account:
+
+In order to optimize data insertion and data access, \Bdbs can be found in two possible states:
+
+\begin{itemize}
+\item \textit{Parsing state}: State in which database is optimized for parsing step. This is the default state when a new \Bdb is created.
+\item \textit{Running state}: State in which database is optimized for running step. Database changes to this state in the first running procedure.
+\end{itemize}
+
+
+\section{Executing administration commands}
+
+\subsection{From graphical interface}
+
+All administration options are found on \BIANA Menu Configuration button.
+
+\subsection{From command line}
+
+All scripts related with administration commands are found on path:
+
+\begin{SaveVerbatim}{bianacommand}
+biana/scripts/administration/script_to_execute {Tentative path}
+\end{SaveVerbatim}
+\printcommand{bianacommand}
+
+
+\subsection{From Biana API}
+
+All administration methods can be executed by using the Biana API:
+
+
+\begin{SaveVerbatim}{bianacommand}
+import biana
+biana.scripts.administration.COMMAND_TO_EXECUTE
+\end{SaveVerbatim}
+\printcommand{bianacommand}
+
+
+\section{Create a new \BIANA database}
+
+\begin{itemize}
+\item \textbf{Function:} Creates an empty \BIANA repository and prepares this repository for parsing external databases. It creates all necessary tables and database indices.
+\item \textbf{Special requirements:} User must have database CREATION, LOCK and INSERT grants on MySQL server.
+\item \textbf{Executing from Graphical Interface:} Configuration $\rightarrow$ Create new \BIANA database
+\item \textbf{Executing it from \BIANA API:}\\\\\printcommand{createbianadatabase}
+\item \textbf{Executing it from command line:}\\\printcommand{createbianadatabasecommandline}
+\item \textbf{Parameters:}\\\printcommand{createbianadatabaseparameters}
+\end{itemize}
+
+
+\section{Populate an existing \Bdb}
+
+\begin{itemize}
+\item \textbf{Function:} Inserts the information from an external database into selected \Bdb using selected parser.
+\item \textbf{Special requirements:} User must have INSERT grant on MySQL server for the selected \Bdb.
+\item \textbf{Executing from Graphical Interface:}
+Configuration $\rightarrow$ Parse External Database
+\item \textbf{Executing it from \BIANA API:} Not possible. Use command line or graphical interface.
+\item \textbf{Executing it from command line:} \\\printcommand{parserscommandline}
+\end{itemize}
+
+
+To check which external databases are available, which files are required and how to execute parsers using command line, see section \ref{chapter:biana_parsers}.
+
+\section{Drop an existing \Bdb}
+
+\begin{itemize}
+\item \textbf{Function:} Drops an existing \Bdb. Precaution! This action can not be undone! If you want to drop a \Bdb but have a permanent copy in a smaller file, see section \ref{section:biana_db_backup}.
+\item \textbf{Special requirements:} User must have database DROP grants on MySQL server.
+\item \textbf{Executing from Graphical Interface:} Configuration $\rightarrow$ Delete \Bdbs
+\item \textbf{Executing it from \BIANA API:} \\\printcommand{deletebianadatabase}
+\item \textbf{Executing it from command line:} \\\printcommand{deletebianadatabasecommandline}
+\end{itemize}
+
+
+\section{Create a new unification protocol in a \Bdb}
+
+\begin{itemize}
+\item \textbf{Function:} Creates a new unification protocol from scratch using a given \Bdb.
+\item \textbf{Special requirements:} User must have INSERT, CREATE, DELETE and DROP grants on MySQL for selected \Bdb.
+\item \textbf{Executing from Graphical Interface:} Configuration $\rightarrow$ Create New Unification Protocol
+\item \textbf{Executing it from \BIANA API:} \\\printcommand{createunification}
+\item \textbf{Executing it from command line:} \\\printcommand{createunificationcommandline}
+\item \textbf{Parameters:}\\\printcommand{createunificationparameters}
+\end{itemize}
+
+
+
+\section{Drop an unification protocol in a \Bdb}
+
+\begin{itemize}
+\item \textbf{Function:} Drops an existing unification protocol in a \Bdb. Precaution! This action can not be undone! If you want to drop an unification protocol in a \Bdb it is recommended to have a permanent copy of the complete database in a file, see section ``Dump \Bdb''.
+\item \textbf{Special requirements:} User must have DROP database grant on MySQL server.
+\item \textbf{Executing from Graphical Interface:} Configuration $\rightarrow$ Delete Unification Protocol
+\item \textbf{Executing it from \BIANA API:} \\\printcommand{deleteunification}
+\item \textbf{Executing it from command line:} \\\printcommand{deleteunificationcommandline}
+\end{itemize}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%   WORKING COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\chapter{\BIANA working commands}
+\label{section:biana_working_commands}
+
+\section{Preliminary introduction}
+
+\subsection{User Entity Concept Focused}
+
+BIANA works with the abstract concept of ``User Entity'', as explained in the introduction section. User entities are the collections of external entities that are considered to be equivalent according to a unification protocol. So, it is not possible to directly compare user entities coming from distinct unification protocols.
+
+\subsection{User Entity Set creation}
+
+The first step to create a network is the acquisition of an initial set of seed user entities (represented as nodes) (i.e. the biologic entities of interest). Note that if no unification is used, these user entities would correspond to individual biomolecules (like proteins and genes) other than a set of biomolecules. The created set of user entities is called User Entity Set. Once created, user can interact directly with one or more user entity sets by combining them via union or intersection. User entity sets are created from a given list of attribute and value pairs which describe biological entries in some data repository (e.g. (UniProt accession, P49137), (gene symbol, MAPKAPK2), (uniprot entry name, MAPK2\_HUMAN), (HGNC, 6887), (HPRD, 11882), (Entrez, 9261), \ldots). All user entry possessing external entries associated with these values for specified attributes will be contained in the same user entity set. Some restrictions can also be imposed (for example, user may dictate that all user entities in the set must have the attribute Taxonomy Name ``human'').
+
+\subsection{Network expansion progressively by levels}
+
+Once the user has created the user entity set, it can be expanded to further levels, creating a network of relations. Relations can be of different types:
+
+\begin{description}
+\item [User entity relations]. Two user entities will be linked if any of their external entities have a relation observed in any external database. This includes interactions, reactions, pathways, \ldots). \BIANA works only with the concept of BINARY relations, which are represented as edges. So, if user selects to view ``pathway'' relations, two nodes belonging to the same pathway will be linked by a direct edge. So, there will be an edge between all nodes belonging to the same pathway. This is applied to all types of relations (see group expansion to expand by some relations types without adding edges).
+\item [Attribute relations]. Two user entities will be linked if they share some attributes (for example, user can create a network of protein similarity, where nodes will be linked if they share sequence similarity measures).
+\item [Predicted relations by attribute expansion]. \BIANA predicts novel relationships based on information transferred by using common properties shared by the nodes of the graph. Basically, let x, y, z be biological entities obtained with the integration approach, an interaction is predicted between x and y, if x is observed to interact with z and y shares some attributes (decided by the user, i.e. PFAM domains, sequence similarity, etc.) with node z. \BIANA can help to unravel latent relationships between entities using various attributes such as sequence similarity using cutoffs based on e-value or percentage of identity, PFAM or SCOP domains, or GO terms.
+\end{description}
+
+
+
+
+\section{Start a working session}
+
+\begin{itemize}
+\item \textbf{Function:} Starts a new working session, using a specified Biana Database and given Unification Protocol.
+\item \textbf{Special requirements:} A populated Biana database must exist with the parameters given. User must have SELECT grant on MySQL server for the selected \Bdb.
+\item \textbf{Executing from Graphical Interface:} New Session Button
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{startsession}
+\item \textbf{Parameters:} \\\printcommand{startsessionparameters}
+\end{itemize}
+
+
+The method returns a session object. The session object is also stored in a session dictionary, named available\_sessions, where sessions are identified by their unique sessionIDs. So, session object can be accessed directly (\verb1session.METHOD_TO_EXECUTE1) or by using the session dictionary (\verb1available_sessions["SessionID"].METHOD_TO_EXECUTE1). In the following examples, the second way is used.
+
+
+\section{User Entity Sets: Characteristics and methods}
+
+The {\uEs} is the basic \BIANA set of data to work. First it is necessary to create a Set by defining which entities must be in it, by selecting which attribute values and restrictions they must have. After creating the initial set, it can be extended to further levels by adding the relation partners of seed entities. So, a User Entity Set contains the seed user entities obtained with the attribute values given during set creation, and all the user entities obtained during network creation.
+
+
+\subsection{Create a new set of user entities}
+
+\begin{itemize}
+\item \textbf{Function:} Creates a new set of user entities based on given user entity attribute values and user entity attribute restrictions.
+\item \textbf{Special requirements:} A working session has been started
+\item \textbf{Executing from Graphical Interface:} \BIANASESSION $\rightarrow$ Create New Set.
+\item \textbf{Executing it from \BIANA API:}
+\item \textbf{Parameters:}
+\end{itemize}
+
+
+A User Entity Set is characterized by:
+
+\begin{itemize}
+\item The user entities it contains (nodes)
+\item The levels of their nodes (at which step of network extension nodes have been added)
+\item Relations between user entities (edges)
+\item Tags assigned to nodes and relations
+\item Groups of nodes by some criteria
+\end{itemize}
+
+
+In the graphical interface, these elements can be accessed by using the User Entity Set Tree, which has three elements:
+\begin{description}
+\item [Network:] All nodes contained in the user entity set classified by the level of relation.
+\item [Tags:] All tags added to nodes or edges.
+\item [Groups:]
+\end{description}
+
+
+Actions that can be performed in a user entity set can be accessed in the graphical interface by selecting the user entity set in the Session Tree.
+Using Biana API, all the methods on user entity sets must be used through the Session instance, where the user entity must be called as the user\_entity\_set\_id parameter.
+
+
+\subsection{Duplicate a user entity set}
+
+\begin{itemize}
+\item \textbf{Function:} Creates a new user entity set with another name by duplicating an existing one. It is an exact copy of the original one (same set restrictions, same levels, \ldots)
+\item \textbf{Special requirements:} A user entity set has been created.
+\item \textbf{Executing from Graphical Interface:}  User Entity Set Tree Node $\rightarrow$ Duplicate
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{duplicateuserentityset}
+\end{itemize}
+
+
+\subsection{Remove a user entity set}
+
+\begin{itemize}
+\item \textbf{Function:} Deletes a user entity set. This action is not reversible!
+\item \textbf{Special requirements:} The use entity set must previously exist.
+\item \textbf{Executing from Graphical Interface:} User Entity Set Tree Node $\rightarrow$ Delete
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{removeuserentityset}
+\end{itemize}
+
+
+\subsection{Select nodes in a user entity set}
+
+In most experiments, it is interesting to select a subset of nodes inside a User Entity Set because of several reasons: create a new user entity set with selected nodes, analyze a subset of nodes instead of all the nodes, etc. Nodes can be selected using distinct criteria:
+
+\begin{itemize}
+\item Nodes that have some attribute.
+\item Nodes belonging to certain level on the network.
+\item Mapping one user entity set on other (select the nodes that are in the intersection in both user entity sets).
+\item Manually selecting nodes in network viewer inside Cytoscape Plugin
+\item Directly by using User Entity ID.
+\end{itemize}
+
+
+\begin{itemize}
+\item \textbf{Function:}
+\item \textbf{Special requirements:}
+\item \textbf{Executing from Graphical Interface:}\\
+User Entity Set Tree Node $\rightarrow$ Network $\rightarrow$ Level X
+User Entity Set Tree Node $\rightarrow$ Select User Entities by
+User Entity Set Tree Node $\rightarrow$ Select All User Entities
+Manually selecting nodes in network viewer inside Cytoscape Plugin
+\item \textbf{Executing it from \BIANA API:}
+\begin{itemize}
+\item To select all nodes of a user entity set: \\\printcommand{selectalluserentities}
+\item To select nodes by level:\\\printcommand{selectbylevel}
+\item To select nodes by attribute:\\\printcommand{selectbyattribute}
+\end{itemize}
+\end{itemize}
+
+
+\subsection{Clear previous selection of nodes in a user entity set}
+
+Care must be taken during selection actions, not clearing previous selections may cause undesired nodes included in the following actions. To clean previous selection of nodes:
+
+\begin{itemize}
+\item \textbf{Function:} Clears the selection of nodes in a user entity set.
+\item \textbf{Special requirements:} A user entity set has been created and has selected nodes.
+\item \textbf{Executing from Graphical Interface:} Simply click on the network where there are no nodes and edges, and the current selection will disappear.
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{unselectuserentities}
+\end{itemize}
+
+
+\subsection{Tag selected nodes in a user entity set}
+
+Tags are used to mark a set of selected nodes in a given moment. For example, if a User Entity Set contains nodes related to some illnesses, it would be interesting to tag them to analyze their properties compared with the rest of the nodes. Tags are always applied to selected nodes.
+
+\begin{itemize}
+\item \textbf{Function:} Tags all selected nodes in a User Entity Set.
+\item \textbf{Special requirements:} A user entity set has been created and there are some user entities selected.
+\item \textbf{Executing from Graphical Interface:} Right-click one of the selected nodes in network viewer inside Cytoscape Plugin.
+From the menu that appears, select;
+ \BIANA $\rightarrow$ Tag Selected Nodes.
+Then in the pop-up dialog box, enter the name of the tag as shown below.
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{unselectuserentities}
+\end{itemize}
+
+
+\subsection{Delete selected nodes in a user entity set}
+\begin{itemize}
+\item \textbf{Function:} A selected group of nodes can be removed from the network they belong to permanently. Deletes selected user entities and their relations in the user entity set.
+\item \textbf{Special requirements:} A user entity set is created and it has selected nodes.
+\item \textbf{Executing from Graphical Interface:} Right-click one of the selected nodes in network viewer inside Cytoscape Plugin.
+From the arising menu, select;
+ \BIANA $\rightarrow$ Remove Selected Nodes. Then in the pop-up dialog box, select ``Yes'', to accept the removal irreversibly as demonstrated below.
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{deleteuserentities}
+\end{itemize}
+
+
+\subsection{Create a sub user entity set}
+
+More often than not, users may be interested in generating a new user entity set from a subset of nodes in an existing user entity set.
+
+\begin{itemize}
+\item \textbf{Function:} Creates a new set from selected user entities in a user entity set. The new set DOES not include any of the attribute restrictions from its parent set.
+\item \textbf{Special requirements:} A user entity set is created and it has selected user entities.
+\item \textbf{Executing from Graphical Interface:} Right click one of the selected nodes in network viewer inside Cytoscape Plugin.
+From the arising menu, select;
+ \BIANA $\rightarrow$ Create new set from selected nodes.
+ Specify the name for the user entity set to be created from the appearing dialog box;
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{subuserentityset}
+\end{itemize}
+
+
+
+\subsection{Intersection of user entity sets}
+
+Any number of user entity sets can be intersected with each other to generate a new user entity set containing nodes and edges common to all of them.
+
+\begin{itemize}
+\item \textbf{Function:} Gets a new user entity set containing the user entities that are in the intersection of all user entity sets specified.
+\item \textbf{Special requirements:}
+\item \textbf{Executing from Graphical Interface:}
+\begin{enumerate}
+        \item Select more than one user entity set from \BIANASESSION Tree (click while holding control key) and right-click.
+        \item From the arising menu, select ``Intersection''; \BIANASESSION Tree Selected User Entity Nodes $\rightarrow$ Intersection
+        \item Specify the name for the user entity set to be created from the appearing dialog box;
+\end{enumerate}
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{intersection}
+\end{itemize}
+
+
+\subsection{Union of user entity sets}
+
+Any number of user entity sets can be combined with each other to generate a new user entity set containing nodes and edges in all of them.
+
+\begin{itemize}
+\item \textbf{Function:}
+\item \textbf{Special requirements:}
+\item \textbf{Executing from Graphical Interface:}
+    \begin{enumerate}
+        \item Select more than one user entity set from \BIANASESSION Tree (click while holding control key) and right-click.
+        \item From the arising menu, select ``Union''; \BIANASESSION Tree Selected Nodes $\rightarrow$ Union
+        \item Specify the name for the user entity set to be created from the appearing dialog box;
+    \end{enumerate}
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{union}
+\end{itemize}
+
+
+
+
+\subsection{View and Export}
+
+
+\subsubsection{Output user entity details from a user entity set}
+
+\begin{itemize}
+\item \textbf{Function:}Shows or prints into a file user entities information.
+\item \textbf{Executing from Graphical Interface:}
+    \begin{itemize}
+        \item All user entities in the set:
+            \begin{enumerate}
+            \item \BIANASESSION Tree Selected User Entity Node $\rightarrow$ View Set Details
+            \item Select attributes for which information of user entities will be retrieved from the arising window.
+            \end{enumerate}
+        \item Only selected user entities:
+            \begin{enumerate}
+                \item Select a set of nodes and right-click one of them.
+                \item In the appearing menu: \BIANA $\rightarrow$ View Entity Details-
+                \item Select relevant attributes from the pop-up window as explained in the previous option.
+            \end{enumerate}
+    \end{itemize}
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{outputuserentities}
+\end{itemize}
+
+
+
+\subsubsection{Show user entity attributes}
+
+Prints the composition details from selected {\uEs}, where attributes are showed for each \eE.
+
+\begin{itemize}
+    \item \textbf{Function:} Shows or prints into a file \eEs information that belong to selected {\uEs}.
+\item \textbf{Executing from Graphical Interface:}In the user entity set details window, it is possible to select and display information about external entities contained in individual user entities by;
+User Entity Set Details Window $\rightarrow$ View Details
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{outputexternalentities}
+\end{itemize}
+
+
+\subsection{Creating a network in a \ues}
+BIANA allows user to create 3 different types of relation networks:
+\begin{description}
+\item [Relation network:] connecting user entities (nodes) with respect to individual relationships (interaction, pathway, reaction, no\_interaction) of contained external entities of user entities.
+\item [Attribute network:] connecting user entities with respect to shared attributes of contained external entities of user entities.
+\item [Expansion network:] connecting user entities with respect to predicted relations based on some attributes.
+\end{description}
+
+\begin{itemize}
+\item \textbf{Function:} Creates a network of relations
+\item \textbf{Special requirements:} A user entity set has been created.
+\item \textbf{Executing from Graphical Interface:} User Entity Set Tree Node $\rightarrow$ Create/Expand Network or User Entity Set Tree Node Network $\rightarrow$ Create/Expand. Then in the network selection window (Image 20), check ``Add attribute relations''. Next, in the appearing pop-up window, select types of relations between user entities to be added and restrictions to be applied on those relations.
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{createnetwork}
+\item \textbf{Parameters:}\\\printcommand{createnetworkparameters}
+\end{itemize}
+
+
+ATTENTION! The attribute value list in expansion\_attribute\_list argument is reserved to be used for attribute type ``proteinSequence'' and should be empty ( [] ) for attributes other than ``proteinSequence''. In case of ``proteinSequence'' attribute valid options are ``identities'', ``similarity'', ``coverage\_A'', ``coverage\_B'', ``bit\_score'', ``evalue''.
+
+\subsection{Network Randomization}
+
+\begin{itemize}
+\item \textbf{Function:} Randomizes current network in user entity set.
+\item \textbf{Executing from Graphical Interface:}User Entity Set Tree Node $\rightarrow$ Randomize Network
+or
+User Entity Set Tree Node Network $\rightarrow$ Randomize
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{randomizenetwork}
+\item \textbf{Parameters:}\\\printcommand{randomizenetworkparameters}
+\end{itemize}
+
+
+\subsection{Output network of relations}
+
+\begin{itemize}
+\item \textbf{Function:} Shows or prints into a file user entities network information.
+\item \textbf{Executing from Graphical Interface:} User Entity Set Tree Node $\rightarrow$ View Network Details or User Entity Set Tree Node Network $\rightarrow$ View Details. Then in the attribute selection window, select attributes for which information of edges and nodes connected by those edges will be retrieved.
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{outputnetworkdetails}
+\item \textbf{Parameters:}\\\printcommand{outputnetworkdetailsparameters}
+\end{itemize}
+
+
+\subsection{Show relation details}
+
+\begin{itemize}
+\item \textbf{Function:} Shows or prints into a file the details of a user entity relation.
+\item \textbf{Executing from Graphical Interface:} In the user entity set network details window, it is possible to select and display information about all relations connecting external entities contained in individual user entities by selecting relations from the user entity network details view window and clicking ``€œView Details''€ button yielding in a new information window poped-up. User Entity Set Network Details Window $\rightarrow$ View Details
+\item \textbf{Executing it from \BIANA API:}\\\printcommand{outputrelationdetails}
+\item \textbf{Parameters:}\\\printcommand{outputrelationdetailsparameters}
+\end{itemize}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%   BIANA PARSERS  %%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\chapter{\BIANA \eds Parsers}
+\label{chapter:biana_parsers}
+
+BIANA provides some default database parsers for most common databases and formats. \BIANA has been designed to be able to store any kind of biologic database, relying on the user how he wants to integrate data between databases by choosing which combinations of attributes must be shared. However, due to the large number of different databases, formats and versions, and that often different versions of the same database have different formats, not all databases with biologic data have a current working \BIANA Parser. Despite existing interchange standard formats, databases often change their formats, so parsers are not guaranteed to work in all database versions. In order to solve this problem, we provide a set of default parsers, that will be updated in this list of available parsers.
+
+If you find an existing parser is not working any more for a new database version, or you are interested in having a parser for another database not available here, you can ask for us to make it (it can take some time), or try yourself creating a new parser (see \ref{section:create_own_parser}. Alternatively, you can use \BIANA Generic Parser which accepts data in a certain tab-separated format (see \ref{section:use_generic_parser}). Once you convert your data you can user the Generic Parser to parse your data.
+
+\section{Available \eds Parsers}
+An external database is any data source that contains biologic or chemical data that can be parsed by \BIANA and inserted in the database in order to be integrated with data in other databases. Here are described available external database parsers, with the following information:
+
+\begin{itemize}
+  \item External database.
+  \item External database description.
+  \item Needed external database files and how obtaining them.
+  \item External entity description and external entity attributes.
+  \item Last checked version.
+  \item  Approximate parsing time.
+\end{itemize}
+
+Distinct versions or releases of external databases may contain distinct formats or special characteristics than make parser to not work properly. If any error is produced during parsing due to unexpected database format, a control process is executed and whole database is deleted from \Bdb. However, it is recommended to create a testing \Bdb to inserted data before inserting it to the desired \Bdb, in order to check all is working properly. Parsers can be used directly from Graphical Interface or by command line. A script for parsing is available in \BIANA administration scripts.
+
+\subsection{Data retrieval}
+Data from external databases can be obtained directly from website or FTP links listed below. In order to facilitate data retrieval, in administration scripts directory there are several ftp scripts to automatically get the data.
+
+\begin{SaveVerbatim}{get_edb_by_ftp}
+scripts/administration/external_database_download_scripts
+\end{SaveVerbatim}
+\printcommand{get_edb_by_ftp}
+
+
+Each script has one of the following formats:
+\begin{itemize}
+\item ftp\_DATABASE
+  \item wget\_DATABASE
+  \item html\_DATABASE
+\end{itemize}
+
+To execute them, execute the following command, replacing DATABASE for the desired database depending on the prefix (either ftp, wget or html) preceding the DATABASE.
+
+\begin{itemize}
+  \item For DATABASEs preceded with ftp:
+\begin{SaveVerbatim}{get_edb_by_ftp}
+\$> ftp_get_database.sh ftp_DATABASE
+# calls: ftp -inp < ftp_DATABASE
+\end{SaveVerbatim}
+\printcommand{get_edb_by_ftp}
+   \item For DATABASEs preceded with wget:
+\begin{SaveVerbatim}{get_edb_by_ftp}
+\$> wget_get_database.sh ftp_DATABASE
+# calls: wget -i wget_DATABASE
+\end{SaveVerbatim}
+\printcommand{get_edb_by_ftp}
+   \item For DATABASEs preceded with html: Those DATABASEs either requires registration or needs human interaction during download so use a web browser to go to the page indicated in html\_DATABASE file.
+\begin{SaveVerbatim}{get_edb_by_ftp}
+\$> html_get_database.sh html_DATABASE
+# calls: lynx html_DATABASE
+\end{SaveVerbatim}
+\printcommand{get_edb_by_ftp}
+\end{itemize}
+
+
+\subsection{Available Parsers}
+
+%%%% UNIPROT %%%%
+\begin{minipage}{\textwidth}
+
+\subsubsection{Uniprot}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & Swiss-Prot, which is manually annotated and reviewed. TrEMBL, which is automatically annotated and is not reviewed. UniProt (Universal Protein Resource) is the world's most comprehensive catalog of information on proteins. It is a central repository of protein sequence and function created by joining the information contained in Swiss-Prot, TrEMBL, and PIR. \\ \hline
+  Database Reference & The UniProt Consortium (2007) The Universal Protein Resource (UniProt). Nucleic Acids Res. 35: D193-197. \\ \hline
+  Database Link & \url{ftp://ftp.uniprot.org/pub/databases/uniprot/current\_release/knowledgebase/complete} \\ \hline
+  External Entity Types & Protein \\ \hline
+  External Entity Relation Types & \- \\ \hline
+  Needed files & uniprot\_sprot.dat.gz (SWISS-PROT) and uniprot\_trembl.dat.gz (TREMBL) \\ \hline
+  Parser name & uniprot \\ \hline
+  Input-identifier & Files uniprot\_sprot.dat.gz and uniprot\_trebml.dat.gz \\ \hline
+  Checked version & Uniprot Knowledgbase Release 14.1 (September 2008) \\ \hline
+  Comments & Swiss-prot and TrembL must be inserted as distinct databases. \\ \hline
+  Approximate parsing time & Swissprot: Approximately one day. Trembl: The growth of Trembl has been so important during the last three years that it takes too much time to parse. It is recommended not to parse Trembl \\
+  \hline
+\end{tabular}
+%\end{center}
+
+\medskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py uniprot --input-identifier=uniprot_sprot.dat.gz 
+                                     --biana-dbname="BIANA_DB" 
+                                     --biana-dbuser="root" 
+                                     --biana-dbpass="PASSWORD"
+                                     --time-control 
+                                     --database-name="uniprot swissprot" 
+                                     --database-version="Release XX"
+\$> python parse_database.py uniprot --input-identifier=uniprot_trembl.dat.gz 
+                                     --biana-dbname="BIANA_DB" 
+                                     --biana-dbuser="root" 
+                                     --biana-dbpass="PASSWORD" 
+                                     --time-control 
+                                     --database-name="uniprot trembl" 
+                                     --database-version="Release XX"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+%%%% GENBANK %%%%
+\begin{minipage}{\textwidth}
+\subsubsection{GenBank Database}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & GenBank is the NIH genetic sequence database, an collection of all publicly available DNA. GenPept contains proteins codified by those sequences. \\ \hline
+  Database Reference & Genbank. Nucleic Acids Res. 2007 Jan;35(Database issue):D21-5.\\ \hline
+  Database Link & \url{ftp://ftp.ncbi.nih.gov/ncbi\-asn1/protein\_fasta/} \\ \hline
+  External Entity Types & Protein \\ \hline
+  External Entity Relation Types & - \\ \hline
+  Needed files & All fsa\_aa.gz files in ftp site\\ \hline
+  Parser name & ncbi\_genpept \\ \hline
+  Input-identifier & The path where all fsa\_aa.gz files are saved\\ \hline
+  Checked version & Release 167\\ \hline
+  Comments & It is necessary to have previously inserted taxonomy database.\\ \hline
+  Approximate parsing time & 5 hours \\
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\medskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py ncbi_genpept --input-identifier=path/
+                                          --biana-dbname="BIANA_DB"
+                                          --biana-dbuser="root"
+                                          --biana-dbpass="PASSWORD"
+                                          --time-control
+                                          --database-name="genpept"
+                                          --database-version="Release XX"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\subsubsection{Taxonomy Database}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & The NCBI taxonomy database contains the names of all organisms that are represented in the genetic databases with at least one nucleotide or protein sequence\\ \hline
+  Database Reference & Wheeler DL, Chappey C, Lash AE, Leipe DD, Madden TL, Schuler GD, Tatusova TA, Rapp BA (2000). Database resources of the National Center for Biotechnology Information. Nucleic Acids Res 2000 Jan 1;28(1):10-4\\ \hline
+  Database Link & \url{ftp://ftp.ncbi.nih.gov/pub/taxonomy} \\ \hline
+  External Entity Types & Taxonomy \\ \hline
+  External Entity Relation Types & \-\\ \hline
+  Needed files & taxdump.tar.Z \\ \hline
+  Parser name & taxonomy \\ \hline
+  Input-identifier & Path where taxdump.tar.Z is uncompressed \\ \hline
+  Checked version & December 2016 \\ \hline
+  Comments & Uncompress and untar taxdump.tar.Z file \\ \hline
+  Approximate parsing time & 20 minutes \\
+  \hline
+\end{tabular}
+%\end{center}
+
+\medskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py taxonomy --input-identifier=path/
+                                      --biana-dbname="BIANA_DB"
+                                      --biana-dbuser="root"
+                                      --biana-dbpass="PASSWORD"
+                                      --time-control
+                                      --database-name="Taxonomy"
+                                      --database-version="Database release"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{Protein-protein interactions Open Biomedical Ontologies}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & A structured controlled vocabulary for the annotation of experiments concerned with protein-protein interactions. Developed by the HUPO Proteomics Standards Initiative.\\ \hline
+  Database Reference & \\ \hline
+  Database Link & \url{http://www.psidev.info/node/60} \\ \hline
+  External Entity Types & PsiMiOboOntologyElement \\ \hline
+  External Entity Relation Types & -\\ \hline
+  Needed files & psi\-mi\-obo\\ \hline
+  Parser name & psi\_mi\_obo\\ \hline
+  Input-identifier & Path where psi-mi.obo file is \\ \hline
+  Checked version & 1.2 (October 22, 2014)\\ \hline
+  Comments & \- \\ \hline
+  Approximate parsing time & Less than a minute \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py psi_mi_obo --input-identifier=path where psi-mi.obo file is
+                                        --biana-dbname="BIANA_DB"
+                                        --biana-dbuser="root"
+                                        --biana-dbpass="PASSWORD"
+                                        --time-control
+                                        --database-name="PSI-MI Obo"
+                                        --database-version="Database release"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\subsubsection{NCBI Blast Non-Redundant Database}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & NCBI Non-redundant sequence database for Blast \\ \hline
+  Database Reference & Genbank. Nucleic Acids Res. 2007 Jan;35(Database issue):D21-5\\ \hline
+  Database Link & \url{ftp://ftp.ncbi.nih.gov/ncbi-asn1/protein\_fasta/} \\ \hline
+  External Entity Types & Protein \\ \hline
+  External Entity Relation Types & \-\\ \hline
+  Needed files & nr.gz\\ \hline
+  Parser name & nr\\ \hline
+  Input-identifier & nr.gz file\\ \hline
+  Checked version & August 2008 \\ \hline
+  Comments & It is necessary to have previously inserted taxonomy database\\ \hline
+  Approximate parsing time & 4-5 hours\\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py nr --input-identifier=nr.gz
+                                --biana-dbname="BIANA_DB"
+                                --biana-dbuser="root"
+                                --biana-dbpass="PASSWORD"
+                                --time-control
+                                --database-name="nr"
+                                --database-version="Database release X"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{International Protein Index Database (IPI)}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & The International Protein Index: An integrated database for proteomics experiments. \\ \hline
+  Database Reference & TKersey P. J., Duarte J., Williams A., Karavidopoulou Y., Birney E., Apweiler R. The International Protein Index: An integrated database for proteomics experiments. Proteomics 4(7): 1985-1988 (2004). \\ \hline
+  Database Link & \url{ftp://ftp.ebi.ac.uk/pub/databases/IPI/last\_release/current/} \\ \hline
+  External Entity Types & Protein \\ \hline
+  External Entity Relation Types & \- \\ \hline
+  Needed files & All fasta files in ftp site. Download them using the script ``ftp\_ipi'' \\ \hline
+  Parser name & ipi\\ \hline
+  Input-identifier & The path where all ipi.XXXX.fasta.gz files are saved\\ \hline
+  Checked version & 27 September 2011\\ \hline
+  Comments & \textcolor{red}{IPI has closed. The last version is from 2011} \\ \hline
+  Approximate parsing time & 10 minutes\\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py ipi --input-identifier=path_where_ipi_files_are
+                                 --biana-dbname="BIANA_DB"
+                                 --biana-dbuser="root"
+                                 --biana-dbpass="PASSWORD"
+                                 --time-control
+                                 --database-name="ipi"
+                                 --database-version="Database release X"
+
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{iRefIndex}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & A reference index for protein interaction data \\ \hline
+  Database Reference & iRefIndex: a consolidated protein interaction database with provenance. Razick S, Magklaras G, Donaldson IM. BMC Bioinformatics. 2008 Sep 30;9:405. \\ \hline
+  Database Link & \url{http://irefindex.org/download/irefindex/data/archive/release\_14.0/psi\_mitab/MITAB2.6/} \\ \hline
+  External Entity Types & Protein \\ \hline
+  External Entity Relation Types & Interaction and complex \\ \hline
+  Needed files & File All.mitab.??????.txt.zip \\ \hline
+  Parser name & irefindex\_2016\\ \hline
+  Input-identifier & The downloaded file\\ \hline
+  Checked version & 14.0 (last edited in 2016-07-23)\\ \hline
+  Comments & \\ \hline
+  Approximate parsing time & 15 minutes\\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py irefindex_2016 --input-identifier=path_where_downloaded_file_is
+                                       --biana-dbname="BIANA_DB"
+                                       --biana-dbuser="root"
+                                       --biana-dbpass="PASSWORD"
+                                       --time-control
+                                       --database-name="iRefIndex"
+                                       --database-version="Database release X"
+
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{Cluster Of Orthologous Genes Database (COGs)}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & Clusters of Orthologous Groups of proteins (COG). COG is delineated by comparing protein sequences encoded in complete genomes, representing major phylogenetic lineages. Each COG consists of individual proteins or groups of paralogs from at least 3 lineages and thus corresponds to an ancient conserved domain.\\ \hline
+  Database Reference & Science 1997 Oct 24;278(5338):631-7, BMC Bioinformatics 2003 Sep 11;4(1):41, Nucleic Acids Res. 2015 Jan;43:D261-D269 \\ \hline
+  Database Link & \url{ftp://ftp.ncbi.nih.gov/pub/COG/COG2014/data/} \\ \hline
+  External Entity Types & Protein\\ \hline
+  External Entity Relation Types & \-\\ \hline
+  Needed files & prot2003-2014.fa, prot2003-2014.tab, prot2003-2014.gi2gbk.tab, genomes2003-2014.tab, fun2003-2014.tab, cognames2003-2014.tab, cog2003-2014.csv\\ \hline
+  Parser name & cog2014\\ \hline
+  Input-identifier & Path where cog files are downloaded\\ \hline
+  Checked version & 2014 (with some modifications of 18-Oct-2016)\\ \hline
+  Comments & \\ \hline
+  Approximate parsing time & 30 minutes\\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py cog2014 --input-identifier=path_where_cog_files_are
+                                 --biana-dbname="BIANA_DB"
+                                 --biana-dbuser="root"
+                                 --biana-dbpass="PASSWORD"
+                                 --time-control
+                                 --database-name="COG"
+                                 --database-version="Database release X"
+				 --promiscuous
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{HUGO Gene Nomenclature Committee (HGNC)}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & HUGO Gene Nomenclature Committee. Each symbol is unique and we ensure that each gene is only given one approved gene symbol. \\ \hline
+  Database Reference & genenames.org: the HGNC resources in 2015. Nucleic Acids Res. 2015 Jan;43(Database issue):D1079-85 \\ \hline
+  Database Link & \url{http://www.genenames.org/cgi-bin/statistics} \\ \hline
+  External Entity Types & Protein\\ \hline
+  External Entity Relation Types & \-\\ \hline
+  Needed files & hgnc\_complete\_set.txt \\ \hline
+  Parser name & hgnc\_2016 \\ \hline
+  Input-identifier & The file where the data is saved \\ \hline
+  Checked version & December 2016\\ \hline
+  Comments & \- \\ \hline
+  Approximate parsing time & Less than a minute\\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py hgnc_2016 --input-identifier=FILE_WHERE_DATA_IS_SAVED
+                                  --biana-dbname="BIANA_DB"
+                                  --biana-dbuser="root"
+                                  --biana-dbpass="PASSWORD"
+                                  --time-control
+                                  --database-name="HGNC"
+                                  --database-version="Database release X"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\subsubsection{KEGG: Kyoto Encyclopedia of Genes and Genomes}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & KEGG: Kyoto Encyclopedia of Genes and Genomes\\ \hline
+  Database Reference & KEGG: Kyoto Encyclopedia of Genes and Genomes. Nucleic Acids Res. 28, 27-30 (2000) \\ \hline
+  Database Link & \url{ftp://ftp.genome.jp/pub/kegg/} \\ \hline
+  External Entity Types & protein, drug, compound, enzyme, glycan\\ \hline
+  External Entity Relation Types & relation, pathway, cluster\\ \hline
+  Needed files & ko (for kegg\_ko) genes.tar.gz (for kegg\_gene) compound drug enzyme glycan reaction (for keg\_ligand)\\ \hline
+  Parser name & kegg\_ko kegg\_gene kegg\_ligand\\ \hline
+  Input-identifier & ko (for kegg\_ko) genes.tar.gz (for kegg\_gene)\\ \hline
+  Checked version & \\ \hline
+  Comments & \\ \hline
+  Approximate parsing time & \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command for Kegg KO:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py kegg_ko --input-identifier=FILE_WHERE_DATA_IS_SAVED
+                                     --biana-dbname="BIANA_DB"
+                                     --biana-dbuser="root"
+                                     --biana-dbpass="PASSWORD"
+                                     --time-control
+                                     --database-name="KEGG KO"
+                                     --database-version="Database release X"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+Shell Command for Kegg Gene:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py kegg_gene --input-identifier=genes.tar.gz
+                                       --biana-dbname="BIANA_DB"
+                                       --biana-dbuser="root"
+                                       --biana-dbpass="PASSWORD"
+                                       --time-control
+                                       --database-name="KeggGene"
+                                       --database-version="Database release X"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+Instead you can insert gene data in two steps using genes.pep and genes.nuc
+Peptide sequences:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py kegg_gene --input-identifier=genes.pep
+                                       --biana-dbname="BIANA_DB"
+                                       --biana-dbuser="root"
+                                       --biana-dbpass="PASSWORD"
+                                       --time-control
+                                       --database-name="KeggGenePep"
+                                       --database-version="Database release X"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py kegg_gene --input-identifier=genes.nuc
+                                       --biana-dbname="BIANA_DB"
+                                       --biana-dbuser="root"
+                                       --biana-dbpass="PASSWORD"
+                                       --time-control
+                                       --database-name="KeggGeneNuc"
+                                       --database-version="Database release X"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+%\begin{minipage}{\textwidth}
+\subsubsection{PSI-MI 2.5 Formatted databases}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & Protein protein interaction databases in PSI-MI 2.5 Format\\ \hline
+  Database Reference & \\ \hline
+  Database Link & \url{} \\ \hline
+  External Entity Types & \\ \hline
+  External Entity Relation Types & \\ \hline
+  Needed files & \\ \hline
+  Parser name & psi\_mi\_2.5\\ \hline
+  Input-identifier & \\ \hline
+  Checked version & \\ \hline
+  Comments & \\ \hline
+  Approximate parsing time & \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py psi_mi_2.5 --input-identifier=FILE_WHERE_DATA_IS_SAVED
+                                        --biana-dbname="BIANA_DB"
+                                        --biana-dbuser="root"
+                                        --biana-dbpass="PASSWORD"
+                                        --time-control
+                                        --database-name="Database name"
+                                        --database-version="Database release X"
+                                        --default-attribute="name"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+
+This parser has been tested for PSI-MI 2.5 formatted databases:
+\begin{itemize}
+
+\item IntAct
+  \begin{description}
+    \item[Description:] IntAct provides a freely available, open source database system and analysis tools for molecular interaction data. All interactions are derived from literature curation or direct user submissions and are freely available
+    \item[Reference:] The MIntAct project - IntAct as a common curation platform for 11 molecular interaction databases. Nucl. Acids Res. (1 January 2014) 42 
+    \item[Website:] http://www.ebi.ac.uk/intact/
+    \item[Download:] All xml files in ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psi25/species/
+    \item[Database name:] IntAct
+    \item[Default attribute:] intact
+    \item[Input identifier:] Path containing the xml files
+    \item[Checked:] for version of October 2016
+    \item[Parsing time:] 2 hours 15 minutes
+  \end{description}
+
+\item BioGrid
+  \begin{description}
+    \item[Description:] The Biological General Repository for Interaction Datasets (BioGRID) is a public database that archives and disseminates genetic and protein interaction data from model organisms and humans
+    \item[Reference:] BioGRID interaction database: 2015 update. Nucleic Acids Res. (Nov. 2014)
+    \item[Website:] http://www.thebiogrid.org/downloads.php
+    \item[Download:] BIOGRID-ORGANISM-x.x.xx.psi25.zip. It is necessary to uncompress manually the zip file (\verb1unzip BIOGRID-ORGANISM-x.x.xx.psi25.zip1)
+    \item[Database name:] BioGrid
+    \item[Default attribute:] biogrid
+    \item[Input identifier:] Path containing uncompressed files (usually it uncompresses it into a folder named ``BIOGRID-ORGANISM-x.x.xx'').
+    \item[Checked:] for version 3.4.143 (November 2016)
+    \item[Parsing time:] 50 minutes
+  \end{description}
+
+\item{DIP}
+  \begin{description}
+    \item[Description:] The DIP database catalogs experimentally determined interactions between proteins. It combines information from a variety of sources to create a single, consistent set of protein-protein interactions
+    \item[Reference:] DIP: the Database of Interacting Proteins. Nucleic Acids Res. 2000 Jan 1; 28(1): 289-291
+    \item[Website:] http://dip.doe-mbi.ucla.edu/dip/Download.cgi (It is necessary to register in order to download data.)
+    \item[Download:] FULL file from downloads, which is complete DIP dataset (file dipxxxxxxxx.mif25.gz)
+    \item[Database name:] DIP
+    \item[Default attribute:] dip
+    \item[Input identifier:] Path to dipxxxxxxxx.mif25 file
+    \item[Checked:] for version 2016.07.31
+    \item[Parsing time:] 150 seconds
+  \end{description}
+
+\item{HPRD}
+  \begin{description}
+    \item[Description:] The Human Protein Reference Database represents a centralized platform to visually depict and integrate information pertaining to domain architecture, post-translational modifications, interaction networks and disease association for each protein in the human proteome
+    \item[Reference:] Prasad, T. S. K. et al. (2009) Human Protein Reference Database - 2009 Update. Nucleic Acids Res. 37, D767-72.
+    \item[Website:] www.hprd.org
+    \item[Download:] HPRD\_PSIMI\_xxxxxx.tar.gz. Untar and unzip the file
+    \item[Database name:] HPRD
+    \item[Default attribute:] hprd
+    \item[Input identifier:] Path where all uncompressed files are
+    \item[Checked:] Release April 2010
+    \item[Parsing time:] 7 minutes
+  \end{description}
+
+\item{MPACT}
+  \begin{description}
+    \item[Description] Currently MPact gives access to yeast protein-protein interaction data contained in CYGD.
+    \item[Website] http://mips.gsf.de/genre/proj/mpact/
+    \item[Download] file ftp://ftpmips.gsf.de/yeast/PPI/mpact-complete.psi25.xml.gz
+    \item[Input identifier] File
+    \item[Checked] version April 2007
+    \item[Parsing time] 150 seconds
+  \end{description}
+
+\item{MINT}
+  \begin{description}
+    \textcolor{red}{\item[NOTE:] MINT has been integrated inside the infrastructure of IntAct. The database is not available anymore from their website} 
+%    \color{black}\item[Website:] http://mint.bio.uniroma2.it/index.py
+%    \item[Download:] ftp://mint.bio.uniroma2.it/pub/release/psi/2.5/2008-05-21/dataset/full.psi25.zip file. Uncompressed it
+%    \item[Input identifier:] Path where file is uncompressed
+%    \item[Checked:] for version: 2008.05.21
+%    \item[Parsing time:] less than an hour
+  \end{description}
+
+%\item{BIND}
+%  \begin{description}
+%    \item[Website] http://bond.unleashedinformatics.com/Action? (It is necessary to be registered)
+%    \item[Download] data in PSI MI 2.5 Format (name it with .xml externsion)
+%    \item[Checked] Version June 2008
+%    \item[Parsing time] 100 seconds
+%  \end{description}
+
+
+\end{itemize}
+%\end{minipage}
+
+\begin{minipage}{\textwidth}
+\subsubsection{Biopax Level 2 Formatted databases}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & BioPAX Level 2 covers metabolic pathways, molecular interactions and protein post-translational modifications\\ \hline
+  Database Reference & \\ \hline
+  Database Link & \url{} \\ \hline
+  External Entity Types & protein\\ \hline
+  External Entity Relation Types & interaction, pathway\\ \hline
+  Needed files & \\ \hline
+  Parser name & biopax\_level\_2\\ \hline
+  Input-identifier & \\ \hline
+  Checked version & \\ \hline
+  Comments & \\ \hline
+  Approximate parsing time & \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\vspace{1cm}
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py biopax_level_2 --input-identifier=FILE_WHERE_DATA_IS_SAVED
+                                            --biana-dbname="BIANA_DB"
+                                            --biana-dbuser="root"
+                                            --biana-dbpass=ÈPASSWORD"
+                                            --time-control
+                                            --database-name="Database name"
+                                            --database-version="Database release X"
+                                            --default-attribute="name"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+This parser has been tested for Biopax Level 2 formatted databases:
+
+
+\begin{itemize}
+  \item Reactome
+    \begin{description}
+    \item[Description:] Reactome is a free, open-source, curated and peer reviewed pathway database
+    \item[Reference:] Reactome: a database of reactions, pathways and biological processes. Nucleic Acids Res. 2011 Jan; 39: D691-D697
+      \item[Website:] http://www.reactome.org/pages/download-data/
+      \item[Download:] ``Events in the BioPAX Level 2 format'' file. Uncompress this file
+      \item[Database name:] Reactome
+      \item[Default attribute:] reactome
+      \item[Input identifier:] Path where uncompressed files are
+      \item[Checked:] v58 (October 5, 2016)
+      \item[Parsing time:] 21 minutes
+    \end{description}
+\end{itemize}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\subsubsection{Structural Classification of Proteins (SCOP)}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & SCOP. Structural Classification of Proteins\\ \hline
+  Database Reference & Murzin A. G., Brenner S. E., Hubbard T., Chothia C. (1995). SCOP: a structural classification of proteins database for the investigation of sequences and structures. J. Mol. Biol.\\ \hline
+  Database Link & \url{http://scop.berkeley.edu/downloads/} \\ \hline
+  External Entity Types & protein domain\\ \hline
+  External Entity Relation Types & \\ \hline
+  Needed files & The parsable SCOPe files "dir.cla.scope.version-stable.txt" and "dir.des.scope.version-stable.txt"\\ \hline
+  Parser name & scop\\ \hline
+  Input-identifier & Path where files are found\\ \hline
+  Checked version & 2.06\\ \hline
+  Comments & Database-version must be exactly the same as the SCOP version (i.e. if it is release 2.06, database-version must be ``2.06''.\\ \hline
+  Approximate parsing time & Less than a minute \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py scop --input-identifier=PATH_WHERE_FILES_ARE_SAVED
+                                  --biana-dbname="BIANA_DB"
+                                  --biana-dbuser="root"
+                                  --biana-dbpass="PASSWORD""
+                                  --time-control
+                                  --database-name="SCOP"
+                                  --database-version="2.06"
+				  --promiscuous
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{Protein Families database (PFAM)}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & The Pfam database is a large collection of protein families, each represented by multiple sequence alignments and hidden Markov models (HMMs).\\ \hline
+  Database Reference & The Pfam protein families database, Nucleic Acids Research (2008) Database Issue 36:D281-D288 \\ \hline
+  Database Link & \url{http://www.geneontology.org/GO.downloads.shtml} \\ \hline
+  External Entity Types & pattern, protein\\ \hline
+  External Entity Relation Types & \\ \hline
+  Needed files & pfamA-file-name=Pfam-A.full.gz pfamB-file-name=Pfam-B.gz pfamSeq-file-name=pfamseq.gz\\ \hline
+  Parser name & pfam \\ \hline
+  Input-identifier & Path where files are found.\\ \hline
+  Checked version & 23.0\\ \hline
+  Comments & Need to use the following additional arguments with the following values: pfamA-file-name=Pfam-A.full.gz pfamB-file-name=Pfam-B.gz pfamSeq-file-name=pfamseq.gz\\ \hline
+  Approximate parsing time & \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py pfam --input-identifier=PATH_WHERE_FILES_ARE_SAVED
+                                  -- pfamA-file-name=Pfam-A.full.gz
+                                  --pfamB-file-name=Pfam-B.gz
+                                  --pfamSeq-file-name=pfamseq.gz
+                                  --biana-dbname="BIANA_DB"
+                                  --biana-dbuser="root"
+                                  --biana-dbpass="PASSWORD"
+                                  --time-control
+                                  --database-name="PFAM"
+                                  --database-version="23.0"
+				  --promiscuous
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{Gene Ontology (GO)}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & The Gene Ontology project provides a controlled vocabulary to describe gene and gene product attributes in any organism.\\ \hline
+  Database Reference & Gene Ontology: tool for the unification of biology. Nature Genet. (2000) 25: 25-29\\ \hline
+  Database Link & \url{http://www.geneontology.org/ontology/gene\_ontology\_edit.obo} \\ \hline
+  External Entity Types & ontology\\ \hline
+  External Entity Relation Types & \\ \hline
+  Needed files & gene\_ontology\_edit.obo\\ \hline
+  Parser name & go\_obo\\ \hline
+  Input-identifier & gene\_ontology\_edit.obo\\ \hline
+  Checked version & 1.2 (December 8, 2016)\\ \hline
+  Comments & This parser is for go\_obo\_v1.2\\ \hline
+  Approximate parsing time & 1 minute\\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py go_obo --input-identifier="gene_ontology_edit.obo"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="GO"
+                                    --database-version="VERSION X"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{STRING}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & STRING is a database of known and predicted protein-protein interactions. The interactions include direct (physical) and indirect (functional) associations; they stem from computational prediction, from knowledge transfer between organisms, and from interactions aggregated from other (primary) databases.\\ \hline
+  Database Reference & STRING v10: protein-protein interaction networks, integrated over the tree of life.
+Nucleic Acids Res. 2015 Jan; 43:D447-52\\ \hline
+  Database Link & \url{http://string-db.org/cgi/download.pl} \\ \hline
+  External Entity Types & protein \\ \hline
+  External Entity Relation Types & functional\_association\\ \hline
+  Needed files & protein.aliases.v10.txt.gz, protein.links.detailed.v10.txt.gz and protein.sequences.v10.fa.gz\\ \hline
+  Parser name & stringV10\\ \hline
+  Input-identifier & Path where downloaded files are\\ \hline
+  Checked version & v10\\ \hline
+  Comments & Database version must be the same as in the files! (i.e. v10)\\ \hline
+  Approximate parsing time & \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py stringV10 --input-identifier="/path/to/dowloaded/files/"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="STRING"
+                                    --database-version="v10"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\section{Preparing my data to use the generic parser}
+\label{section:use_generic_parser}
+
+\BIANA can parse any kind of user provided data given in tabulated (tab-separated) text format with its pre-specified Generic Parser.
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & User defined (generic) data parser\\ \hline
+  External Entity Types & Any\\ \hline
+  External Entity Relation Types & Any\\ \hline
+  Parser name & Any\\ \hline
+  Input-identifier & File path \\ \hline
+  Comments & See explanation below to see details about file format\\ \hline
+  Approximate parsing time & Depends on database size\\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py generic
+--input-identifier=PATH_WHERE_INPUT_FILE_RESIDES
+--biana-dbname="BIANA_DB"
+--biana-dbuser="root"
+--biana-dbpass="PASSWORD"
+--time-control
+--database-name="MyClinicalExperiment08"
+--database-version="1.0"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+A typical input file for this parser lets the program aware which type of entry it is
+providing via use of two tags at the beginning of a line:
+\begin{itemize}
+  \item @EXTERNAL\_ENTITY\_DATA
+  \item @EXTERNAL\_ENTITY\_RELATION\_DATA
+\end{itemize}
+
+Line with @EXTERNAL\_ENTITY\_DATA tag is for specifying that information for individual user data entries is going to be parsed, whereas line with @EXTERNAL\_ENTITY\_RELATION\_DATA tells that user data relation entry information is going to be given thereafter. In the first occurrence of any of these tags in the input file, it is required that they are followed by a so called definition line describing the names of the columns of the data they are providing afterwards.
+Definition line begins with several default columns followed by user\-defined columns.For external entity data entries default columns in the definition line are ``id'' and ``type'' corresponding to internal identifier and type of the entry. On the other hand, for external entity relation data entries, default columns in the definition line are ``id'', ``interactor\_id\_list'' and ``type'' corresponding to identifiers of the two participants and the type of the relationship. Each column should be separated by at least one tab character (``$\backslash$t'') and values inside columns should not include tab character. It is worth noting here that fields in relations can give information about individual participants rather than just relation using ``interactor\_id: ATTRIBUTE. In case, a list of values need to be provided in the same column, values should be separated by ``$|$'' character. If a column has no value, this should be denoted by ``-'' character. The concept can be understood better on the input file format explanation given below.
+
+\begin{verbatim}
+@EXTERNAL_ENTITY_DATA
+id      type    geneID  chebI   name
+1       protein 1234    -       protein A
+2       protein 2314    -       protein A2
+3       protein 9999    -       protein B
+4       protein 1111    -       protein C
+5       protein 6778    -       protein D
+6       protein 1982    -       protein E
+7       protein 12178   -       protein_X
+8       gene    38111   -       -
+9       gene    2018    -       -
+100     protein 1001    -       protein1001
+101     protein 1002    -       prot1002
+102     protein 1003    -       p1003
+103     protein 1004    -       p1004
+104     protein 1005    -       p1005
+105     protein 1006    -       p1006
+106     protein 1007    -       p1007
+W       compound        -       15377   water
+B12     compound        -       8843    Lactoflavin|Vitamin B2
+C1      compound        -       15422   Adenosine 5'-triphosphate
+C2      compound        -       16761   Adenosine 5'-diphosphate
+C3      compound        -       17621   Riboflavin-5-phosphate
+
+
+@EXTERNAL_ENTITY_RELATION_DATA
+id      interactor_id_list      type            name                    method_ID       participants:role
+R1      6|7                     interaction     -                       18              6: bait| 7:prey
+R2      2|3                     interaction     -                       18              -
+R3      3|4                     interaction     -                       18              -
+R4      100|101|102|103         complex         ABC complex             109             -
+R5      103|104                 interaction     -                       109             -
+R6      104|105                 interaction     -                       109             -
+R7      105|106                 interaction     -                       109             -
+R8      4|105                   interaction     -                       18              -
+R9      W|B12|C1|C2|C3          reaction        reaction_sample         -               B12: substrate|C1: substrate|C2: substrate|C3: product|W: product
+R10     R4|R5|R6|R7             pathway         first_pathway           -               -
+R11     R2|R3|R8                pathway         pathway2                -               -
+R12     R10|R11                 pathway         global pathway          -               -
+
+\end{verbatim}
+
+
+\section{Creating your own parser for your own data}
+\label{section:create_own_parser}
+
+All parsers written in \BIANA inherits BianaParser class found in biana/BianaParser/bianaParser.py. To write your own parser you need to create a new Python class whose parent is BianaParser. Then all you need to define is the arguments your parser would require in the \verb1__init__1 (class constructor) method and overwrite parse\_database member method which is responsible from reading and inserting information from your data files.
+Here is an example parser (MyDataParser.py) to insert data in user specified format into \BIANA. Let's go over the code.
+
+First we start with subclassing BianaParser:
+
+\begin{SaveVerbatim}{parser_command}
+from bianaParser import *
+                    
+class MyDataParser(BianaParser):
+    """             
+    MyData Parser Class 
+
+    Parses data in the following format (meaining Uniprot_id1 interacts with Uniprot_id2 and 
+    some scores are associated with both the participants and the interaction):
+
+	    Uniprot_id1 Description1 Participant_score1 Uniprot_id2 Description2 
+                                                     Participant_score2 Interaction_Affinity_score
+    """                 
+                                                                                         
+    name = "mydata"
+    description = "This file implements a program that fills up tables 
+                                             in BIANA database from data in MyData format"
+    external_entity_definition = "An external entity represents a protein"
+    external_entity_relations = "An external relation represents an interaction with given affinity"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+Above we introduce our parser and give name and description attributes, mandatory fields that are going to be used by \BIANA to describe this parser. Then we create \verb1__init__1 method where we call the constructor of the parent (BianaParser) with some additional descriptive arguments. You can add additional compulsory arguments to be requested from user by including "additional\_compulsory\_arguments" with a list of triplets (argument name, default value, description) (see list of command line arguments accepted by BianaParser by default).
+
+
+\begin{SaveVerbatim}{parser_command}
+def __init__(self):
+"""
+Start with the default values
+"""
+BianaParser.__init__(self, default_db_description = "MyData parser",  
+		     default_script_name = "MyDataParser.py",
+		     default_script_description = MyDataParser.description,     
+		     additional_compulsory_arguments = [])
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+
+Next, we are going to overwrite \verb1parse_database1 method (responsible from reading and inserting information from your data files) where we introduce some initial arrangements to let \BIANA know about the characteristics of the data we are going to insert:
+
+\begin{SaveVerbatim}{parser_command}
+def parse_database(self):
+"""                                                                              
+Method that implements the specific operations of a MyData formatted file
+"""
+# Add affinity score as a valid external entity relation since it is not recognized by BIANA
+self.biana_access.add_valid_external_entity_attribute_type( name = "AffinityScore",
+                                                                    data_type = "double",
+                                                                    category = "eE numeric attribute")
+
+# Add score as a valid external entity relation participant attribute 
+# since it is not recognized by BIANA 
+# (Do not confuse with external entity/relation score attribute, 
+#participants can have their attributes as well)
+self.biana_access.add_valid_external_entity_relation_participant_attribute_type( 
+                                                name = "Score", data_type = "float unsigned" )
+
+# Since we have added new attributes that are not in the default BIANA distribution, 
+#we execute the following command
+self.biana_access.refresh_database_information()
+
+\end{SaveVerbatim}
+\printcommand{parser_command}
+	
+
+There are various attributes and types in \BIANA to annotate data entries coming from external databases (see attributes and types recognized by \BIANA for details). In case we need to use attributes/types that are not by default recognized by \BIANA we need to make them known to \BIANA as it is done above with \verb1add_valid_external_entity_attribute_type1 and \verb1add_valid_external_entity_relation_participant_attribute_type1 methods (see defining new attributes and types for details).
+
+\begin{SaveVerbatim}{parser_command}
+# Open input file for reading
+self.input_file_fd = open(self.input_file, 'r')
+
+# Keep track of data entries in the file and ids assigned by BIANA for them in a dictionary
+self.external_entity_ids_dict = {}
+
+for line in self.input_file_fd:
+	(id1, desc1, score1, id2, desc2, score2, score_int) = line.strip().split()
+
+\end{SaveVerbatim}
+\printcommand{parser_command}	
+
+Above we open a file for reading and start reading the file. This is followed by converting data read from the file into objects \BIANA will understand and insert them into database:
+
+
+\begin{SaveVerbatim}{parser_command}
+# Create an external entity corresponding to Uniprot_id1 in database (if it is not already created)
+if not self.external_entity_ids_dict.has_key(id1):
+	new_external_entity = ExternalEntity( source_database = self.database, 
+                                              type = "protein" )
+	# Annotate it as Uniprot_id1
+	new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Uniprot", 
+                                                                    value=id1, type="cross-reference") )
+	# Associate its description
+	new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Description", 
+                                                                    value=desc1) )
+	# Insert this external entity into database
+	self.external_entity_ids_dict[id1] = \
+                        self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
+# Create an external entity corresponding to Uniprot_id2 in database (if it is not already created)
+if not self.external_entity_ids_dict.has_key(id2):
+	new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
+	# Annotate it as Uniprot_id2
+	new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Uniprot", 
+                                                                    value=id2, type="cross-reference") )
+	# Associate its description
+	new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Description", 
+                                                                    value=desc2) )
+	# Insert this external entity into database
+	self.external_entity_ids_dict[id2] = self.biana_access.insert_new_external_entity( \
+                                                                    externalEntity = new_external_entity )
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+
+Finally we insert information of the interaction as follows:
+
+
+\begin{SaveVerbatim}{parser_command}
+# Create an external entity relation corresponding to interaction between Uniprot_id1 
+# and Uniprot_id2 in database
+new_external_entity_relation = ExternalEntityRelation( source_database = self.database, 
+                                                       relation_type = "interaction" )
+
+# Associate Uniprot_id1 as the first participant in this interaction
+new_external_entity_relation.add_participant( externalEntityID =  \
+                                                    self.external_entity_ids_dict[id1] )
+
+# Associate Uniprot_id2 as the second participant in this interaction
+new_external_entity_relation.add_participant( externalEntityID =  \
+                                                self.external_entity_ids_dict[values[1]] )
+
+# Associate score of first participant Uniprot_id1 with this interaction
+new_external_entity_relation.add_participant_attributes( externalEntityID = \
+                                                self.external_entity_ids_dict[id1], 
+				participantAttribute = ExternalEntityRelationParticipantAttribute( \
+                                                attribute_identifier = "Score", 
+                                                value = score1 ) )
+
+# Associate score of second participant Uniprot_id2 with this interaction
+new_external_entity_relation.add_participant_attributes( externalEntityID = \
+                                                self.external_entity_ids_dict[id2], 
+				participantAttribute = ExternalEntityRelationParticipantAttribute( \
+                                                attribute_identifier = "Score", value = score2 ) )
+
+# Associate the score of the interaction with this interaction
+new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "AffinityScore",
+											     value = score_int ) )
+# Insert this external entity relation into database
+self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
+
+\end{SaveVerbatim}
+\printcommand{parser_command}
+	
+As a good programming practice we do not forget to close the file we red as follows:
+
+
+\begin{SaveVerbatim}{parser_command}
+self.input_file_fd.close()
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+
+\section{Command line arguments accepted by parsers}
+\label{section:arguments_accepted_by_parsers}
+
+By default \BIANA parsers require:
+
+\begin{description}
+    \item[input-identifier=]: path or file name of input file(s) containing database data. Path names must end with /.
+    \item[biana-dbname=]: name of database biana to be used
+    \item[biana-dbhost=]: name of host where database biana to be used is going to be placed
+    \item[database-name=]: internal identifier name to this database (it must be unique in the database)
+    \item[database-version=]: version of the database to be inserted"
+\end{description}
+
+The following optional arguments are also recognized:
+
+\begin{description}
+  \item[biana-dbuser=]: user name for the specified host
+  \item[biana-dbpass=]: password for the specified user name and host
+  \item[optimize-for-parsing]: set to disable indices (if there is any) and reduce parsing time. Useful when you want to insert a considerable amount of data to an existing \Bdb with indices created
+  \item[promiscuous]: set to allow entries coming from parsed database to belong multiple {\uEs}.
+\end{description}
+
+
+\section{Attributes and types recognized by \BIANA and defining new ones}
+\label{section:biana_attributes_and_types}
+
+BIANA uses a set of attributes and types to define external entities coming from external biological databases (such as Uniprot Accession, STRING id, GO id, etc... as attributes and protein, DNA, interaction, complex, etc... as types). If you write a parser specialized for a particular data you have, you could either use existing attributes and types to annotate the entries in your data or create new ones if existing ones do not work for you. Here we give a list of valid \BIANA attributes:
+
+\begin{itemize}
+\item External Entity \& External Entity Relation Attributes \\
+\begin{tabular}{|l|}
+\hline
+    %\textbf{name} \\ \hline
+    CHEBI \\ \hline
+    COG \\ \hline
+    CYGD \\ \hline
+    DIP \\ \hline
+    EC \\ \hline
+    Encode \\ \hline
+    Ensembl \\ \hline
+    FlyBase \\ \hline
+    GDB \\ \hline
+    GeneID \\ \hline
+    GeneSymbol \\ \hline
+    GenomeReviews \\ \hline
+    GI \\ \hline
+    GO \\ \hline
+    HGNC \\ \hline
+    HPRD \\ \hline
+    Huge \\ \hline
+    IMGT \\ \hline
+    IntAct \\ \hline
+    IntEnz \\ \hline
+    InterPro \\ \hline
+    IPI \\ \hline
+    KeggCode \\ \hline
+    KeggGene \\ \hline
+    Method\_id \\ \hline
+    MGI \\ \hline
+    MIM \\ \hline
+    MINT \\ \hline
+    MIPS \\ \hline
+    OrderedLocusName \\ \hline
+    ORFName \\ \hline
+    PFAM \\ \hline
+    PIR \\ \hline
+    PRINTS \\ \hline
+    PRODOM \\ \hline
+    Prosite \\ \hline
+    psimi\_name \\ \hline
+    PubChemCompound \\ \hline
+    Ratmap \\ \hline
+    Reactome \\ \hline
+    RGD \\ \hline
+    SCOP \\ \hline
+    SGD \\ \hline
+    STRING \\ \hline
+    Tair \\ \hline
+    TaxID \\ \hline
+    Unigene \\ \hline
+    UniParc \\ \hline
+    UniprotEntry \\ \hline
+    WormBaseGeneID \\ \hline
+    WormBaseSequenceName \\ \hline
+    YPD \\ \hline
+    AccessionNumber \\ \hline
+    RefSeq \\ \hline
+    TIGR \\ \hline
+    UniprotAccession \\ \hline
+    Disease \\ \hline
+    Function \\ \hline
+    Keyword \\ \hline
+    Description \\ \hline
+    SubcellularLocation \\ \hline
+    Name \\ \hline
+    Pubmed \\ \hline
+    Formula \\ \hline
+    Pvalue \\ \hline
+    Score \\ \hline
+    ProteinSequence \\ \hline
+    Pattern \\ \hline
+    STRINGScore \\ \hline
+    STRINGScore\_neighborhood \\ \hline
+    STRINGScore\_fusion \\ \hline
+    STRINGScore\_cooccurence \\ \hline
+    STRINGScore\_coexpression \\ \hline
+    STRINGScore\_experimental \\ \hline
+    STRINGScore\_db \\ \hline
+    STRINGScore\_textmining \\ \hline
+    SequenceMap \\ \hline
+    NucleotideSequence \\ \hline
+    PDB \\ \hline
+    TaxID\_category \\ \hline
+    TaxID\_name \\ \hline
+    GO\_name \\ \hline
+\end{tabular}
+
+\item External Entity Relation Participant Attributes \\
+\begin{tabular}{|l|}
+\hline
+    %\textbf{name} \\ \hline
+    cardinality \\ \hline
+    detection\_method \\ \hline
+    GO \\ \hline
+    KeggCode \\ \hline
+    role \\ \hline
+\end{tabular}
+\end{itemize}
+
+\bigskip
+And here is the list of valid BIANA types:
+\begin{itemize}
+\item External Entity Types \\
+\begin{tabular}{|l|}
+\hline
+    %\textbf{name} \\ \hline
+    protein \\ \hline
+    DNA \\ \hline
+    RNA \\ \hline
+    mRNA \\ \hline
+    tRNA \\ \hline
+    rRNA \\ \hline
+    CDS \\ \hline
+    gene \\ \hline
+    sRNA \\ \hline
+    snRNA \\ \hline
+    snoRNA \\ \hline
+    structure \\ \hline
+    pattern \\ \hline
+    compound \\ \hline
+    drug \\ \hline
+    glycan \\ \hline
+    enzyme \\ \hline
+    relation \\ \hline
+    ontology \\ \hline
+    SCOPElement \\ \hline
+    taxonomyElement \\ \hline
+    PsiMiOboOntologyElement \\ \hline
+    GOElement \\ \hline
+\end{tabular}
+
+
+\item External Entity Relation Types \\
+\begin{tabular}{|l|}
+\hline
+    %\textbf{name} \\ \hline
+    interaction \\ \hline
+    no\_interaction \\ \hline
+    reaction \\ \hline
+    functional\_association \\ \hline
+    cluster \\ \hline
+    homology \\ \hline
+    pathway \\ \hline
+    alignment \\ \hline
+    complex \\ \hline
+    regulation \\ \hline
+    cooperation \\ \hline
+    forward\_reaction \\ \hline
+    backward\_reaction \\ \hline
+\end{tabular}
+
+\end{itemize}
+
+
+In case, you need to annotate your data with some attribute or type that does not belong to the lists given above, you can use the following methods to introduce your attributes and types to \BIANA. To add an;
+
+\begin{description}
+  \item[External Entity Type]
+    \begin{itemize}
+      \item add\_valid\_external\_entity\_type( new\_type )
+    \end{itemize}
+  \item[External Entity Relation]
+    \begin{itemize}
+      \item add\_valid\_external\_entity\_relation\_type( new\_type )
+    \end{itemize}
+  \item[External Entity Attribute (Textual)]
+    \begin{itemize}
+      \item add\_valid\_external\_entity\_attribute\_type( new\_attribute, data\_type, ``eE identifier attribute'' )
+    \end{itemize}
+  \item[External Entity Attribute (Numeric)] 
+    \begin{itemize}
+      \item add\_valid\_external\_entity\_attribute\_type( new\_attribute, data\_type, ``eE numeric attribute'' )
+    \end{itemize}
+  \item[External Entity Relation Attribute (Textual)]
+    \begin{itemize}
+      \item add\_valid\_external\_entity\_attribute\_type( new\_attribute, data\_type, ``eE identifier attribute'' )
+    \end{itemize}
+  \item[External Entity Relation Attribute (Numeric)] 
+    \begin{itemize}
+      \item add\_valid\_external\_entity\_attribute\_type( new\_attribute, data\_type, ``eE numeric attribute'' )
+    \end{itemize}
+  \item[External Entity Relation Participant Attribute] 
+    \begin{itemize}
+      \item add\_valid\_external\_entity\_relation\_participant\_attribute\_type( new\_attribute, data\_type ) 
+    \end{itemize}
+\end{description}
+
+
+\section{Proposed unification protocol}
+\label{section:proposed_unification_protocol}
+List of external databases and the attributes (identifiers) proposed to be used in a unification protocol are given below.
+
+\begin{tabular}{p{0.65\textwidth}p{0.25\textwidth}}
+    \textbf{External Databases} & \textbf{Attributes (identifiers)} \\
+    \hline
+    \hline
+    Uniprot, GeneBank, IPI, KeggGene, COG, String & ProteinSequence AND taxID \\
+    Uniprot, HGNC, HPRD, DIP, MPACT, Reactome, IPI, BioGrid, MINT, IntAct, String & UniprotAccession \\
+    Uniprot, String & UniprotEntry \\
+    Uniprot, HGNC, HPRD, DIP, String & GeneID \\
+    Uniprot, SCOP(promiscuous) & PDB \\
+    \hline
+\end{tabular}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%   ADDITIONAL ADMINISTRATION UTILITIES  %%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\chapter{Additional administration utilities}
+
+In this section, some additional administration commands are explained. Some of the commands are in the scripts folder of the application, and other are usual command line commands. Some of the commands are available for Windows and UNIX systems, and some others only for UNIX Systems.
+
+\section{BIANA database backup}
+\label{section:biana_db_backup}
+
+In order to do a backup of the \Bdb, it is only necessary to use the \verb1mysqldump\1 utility provided with MySQL. Having a database dump is a good idea for the following reasons:
+\begin{enumerate}
+  \item Copying a database from one server to another without having to parse all databases again (easier, faster).
+  \item Having a backup of the data used to perform specific experiments.
+\end{enumerate}
+
+The command necessary to get the dump file and compress it is:
+\begin{SaveVerbatim}{parser_command}
+\$> mysqldump --opt --user=USER --password=PASSWORD 
+             --host=HOST BIANA_DATABASE_NAME | gzip -c > database_backup_X.sql.gz
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+* In Windows, probably the gzip program is not available. Skip it, and the compress the file with you compression program.
+
+The commands necessary to put the data into a new database are:
+
+1) Create a new mysql database:
+\begin{SaveVerbatim}{parser_command}
+\$> mysql --user=USER --password=PASSWORD --host=HOST -e
+           "CREATE DATABASE DATABASE_NAME"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+2) Insert the data into the database:
+\begin{SaveVerbatim}{parser_command}
+\$> gunzip -c your_backup_mysql_file.sql.gz | mysql 
+          --user=USER --password=PASSWORD --host=HOST "DATABASE_NAME"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+* In Windows, probably the gunzip program is not available by default. You must uncompress the file
+using tools as WinZip and the execute the mysql command..
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%   GLOSSARY  %%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Glossary}
+\begin{description}
+\item[BIANA Database] A repository of \BIANA containing set of external databases and unified entries compiled from all available external databases based on specified unification protocols.
+\item[External Database] Any data source that contains biologic or chemical data that can be parsed by \BIANA.
+\item[External Entity] Any entry found in any external database, such as a uniprot entry (a protein), a GenBank entry (a gene), an IntAct interaction (an interaction), a KEGG pathway or a PFAM alignment.
+\item[External Entity Attribute] Element associated to an external entity. External entities are characterized by several attributes such as database identifiers, descriptions, function, disease, \ldots Each external entity attribute has a distinct meaning. Each external entity is characterized by its associated attributes. 
+\item[External Entity Relation] Any relation between two or more external entities.
+\item[Hub User Entity] User entity that has a number of connections in a relationships network higher than a given cutoff.
+\item[Leaf User Entity] User entity that only contains an edge in a relationship network.
+\item[Linker User Entity] Given a relationship graph between user entities, a user entity is considered linker only if it belongs to the path that links two or more seed user entities.
+\item[Promiscuous external database] External database whose external entities can belong to multiple User Entities in the same unification protocol.
+\item[Unification Protocol] Set of rules (unification protocol atoms) that determine how data in various data sources are combined (crossed). All unification protocol atoms are used in with union strategy (OR), i.e. rule1 OR rule2 OR rule3.
+\item[Unification Protocol Atom] Rule that determines how data in two external databases should be crossed. It is composed by two external databases (that can be the same or not) and one or more attributes. All attributes in an unification protocol atom are used with intersection strategy (AND). For example, external entities from external databases 1 and 2 are going to be considered equivalent if they share sequence similarity and taxonomy id.
+\item[User Entity] Set of external entities considered as equivalent as the result of applying a unification protocol. Each user entity has a unique identifier for each unification protocol. An external entity can belong only to one user entity (if the external database is not promiscuous), but a user entity can be composed by several external entities.
+\item[User Entity Level] Maximum number of connections between any seed node and any other non-seed node.
+\item[User Entity Set] Set of user entities result of a user experiment. User entity set contains the seed user entities obtained when creating the set, and all the user entities obtained when creating the network. User entity set is characterized by the user entities it contains, as well as the levels of their nodes, tags assigned to nodes and relations, groups of nodes by some criteria, etc.
+\item[Seed User Entity] User entity used in the first step of network creation (user entities belonging to level 0).
+\end{description}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%   FAQ  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Frequently Asked Questions (FAQs)}
+
+
+\begin{itemize}
+
+  \item \textbf{Installation}
+    \begin{itemize}
+    \item \textbf{How do I check whether \BIANA python package is installed properly?}
+      \begin{itemize} 
+	  \item Execute python interpreter and try to import the package as below. If you interpreter prompts ``BIANA>'' string, \BIANA is installed properly. \\
+	     %$\$>$ python \\
+	     %$>>>$ import biana \\
+	    \begin{SaveVerbatim}{bianacommand}
+\$>python 
+>>> import biana 
+BIANA>
+	    \end{SaveVerbatim}
+            \printcommand{bianacommand}
+	If not, revisit the installation instructions and make sure that \BIANA python package is installed properly.
+      \end{itemize} 
+      
+    \item \textbf{What to do if Cytoscape gives \BIANA package import error while starting \BIANA plugin?}
+      \begin{itemize} 
+      \item Make sure that you configured PYTHONPATH environment variable to include directory where \BIANA python package is installed.
+      \item Restart your computer (to make sure that Cytoscape sees the changes you made to PYTHONPATH).
+      \end{itemize} 
+      
+    \item \textbf{What should I do if I get ``can not connect to MySQL database'' error?}
+      \begin{itemize} 
+      \item Check that MySQL server is running properly and (re)start it if necessary.
+      \item Check that database host and user information you provide is correct.
+      \item If you are MySQL server in your local host try using ``127.0.0.1'' instead of ``localhost'' as host name.
+      \end{itemize}
+
+    \end{itemize}
+
+
+  \item \textbf{Database population}
+    \begin{itemize}
+    \item \textbf{Is it normal that populating a \Bdb takes more time than expected?}
+      \begin{itemize} 
+      \item \Bdb population time will depend on multiple factors that can produce differences in parsing between different computers: parsed database, disk free space, disk access speed, network speed if MySQL server is in other computer... \Bdb can have two distinct states: Running and parsing. When parsing, \Bdb state is in ``parsing'' mode, and when starting a \BIANA Session it changes automatically to ``running'' mode.
+      \end{itemize}
+
+      \item \textbf{Why does \BIANA not recognize, a new parser I have created?}
+      \begin{itemize}
+      \item Make sure you copied your new parser into \BIANA\_Installation\_ path/bianaParser. Then, \BIANA should recognize the parser and it will appear in the graphical interface as well. If you are not sure where \BIANA was installed, execute python interpreter and try the following. \\
+        \begin{SaveVerbatim}{bianacommand}
+\$> python
+>>> import biana
+BIANA> biana.__path__
+        \end{SaveVerbatim}
+        \printcommand{bianacommand}
+      \end{itemize}
+    \end{itemize}
+
+  \item \textbf{Data Unification}
+    \begin{itemize}
+    \item \textbf{What is the best unification protocol to use, do you have any suggested unification protocols?}
+      \begin{itemize}
+	  \item Create \& use a unification protocol that suits best to your needs (specific to your problem). You may want to check \ref{section:proposed_unification_protocol} proposed unification protocol section to have some ideas. 
+      \end{itemize}
+    \end{itemize}
+
+  \item \textbf{BIANA Execution}
+
+    \begin{itemize}
+
+    \item \textbf{Why does the message ``Optimizing database...'' appear during a long time, when I start a \BIANA Session?}
+      \begin{itemize}
+        \item This message only appears the first time you start a Session in a \Bdb after adding a new external database in it. This process creates all necessary indices in the database to increase performance while running, and it is done after populating database in order to increase parsing performance. Depending on the \BIANA Database size, this process can take from few seconds to a couple of hours.
+        \item If it takes too long, check your disk space where \BIANA Database is stored is not full!
+      \end{itemize}
+
+    \item \textbf{I do not have any entries when I create a new user entity set, what could be the reason?}
+      \begin{itemize}
+        \item  If you created a unification protocol using only promiscuous databases, it is normal that you do not have any user entities. Data coming from promiscuous databases added to (multiple) user entities that contain at least one entry coming from a non-promiscuous entry.
+	\item There may not be any entry associated with your query, try to refine the attributes and values you have used.
+      \end{itemize}
+
+    \item \textbf{Is it normal that creating networks takes too much time?}
+      \begin{itemize}
+      \item Huge and very connected networks can take some time. Be patient. Be sure you are doing the network you want to the correct level. If you don't want interactions between elements at the last level, don't add them!
+      \item If you are using the graphical interface as a Cytoscape Plugin, it usually slows down the process significantly. Execute the same process by command line. A trick is to create the set with Cytoscape, start the network at level 0 without relations at the last level, then save the commands into a file, then edit manually the file to set the correct level and finally execute the script.
+      \end{itemize}
+
+    \item \textbf{Database connection has been lost when using \BIANA Cytoscape plugin. Should I restart the plugin?}
+      \begin{itemize}
+        \item MySQL server usually closes connection after some time the connection has not been used (this time will depend on your MySQL server configuration). It is not necessary to restart the plugin, right-click in the Biana Session and select the option ``Reconnect database''.
+      \end{itemize}
+
+    \item \textbf{When I execute \BIANA Cytoscape plugin, it is very slow or Cytoscape exits suddenly.}
+      \begin{itemize}
+      \item When executing \BIANA as a Cytoscape plugin, it consumes more time and memory than executing it as a command line application. You have different options:
+        \begin{itemize}
+        \item By default, cytoscape.sh uses a maximum memory limit of 512Mb. If the program exceeds it, it will automatically exit without saving anything. You can increase this memory limit by modifying the parameter -Xmx512M when executing cytoscape.
+        \item If you are creating a huge network and you are not interested in visualizing it but only in getting the data, use \BIANA scripts: it will be faster and it will require less computer resources. You can use the following trick to create the script you are interested in:
+          \begin{enumerate}
+          \item Run \BIANA Cytoscape plugin, create the network at level 0 and perform all the operations you are interested in.
+          \item In the Session Pop-up Menu (right-click on \BIANA Session), select the option ``Save commands history''.
+          \item Modify the saved script by changing all the parameters you want and execute it from command line.
+          \end{enumerate}
+        \end{itemize}
+      \end{itemize}
+    \end{itemize}
+    
+
+\end{itemize}
+
+\end{document}
