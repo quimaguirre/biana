@@ -1872,6 +1872,44 @@ Shell Command:
 \end{minipage}
 
 
+\begin{minipage}{\textwidth}
+\subsubsection{DrugBank}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & DrugBank is a database that combines detailed drug (i.e. chemical, pharmacological and pharmaceutical) data with comprehensive drug target (i.e. sequence, structure, and pathway) information.\\ \hline
+  Database Reference & DrugBank 4.0: shedding new light on drug metabolism. Nucleic Acids Res. 2014 Jan 1;42(1):D1091-7\\ \hline
+  Database Link & \url{https://www.drugbank.ca/releases/latest} \\ \hline
+  External Entity Types & drug, protein \\ \hline
+  External Entity Relation Types & interaction \\ \hline
+  Needed files & drugbank\_all\_full\_database.xml.zip (Uncompressed)\\ \hline
+  Parser name & drugbank\\ \hline
+  Input-identifier & File ``full database.xml''. Rename it as ``full\_database.xml'' \\ \hline
+  Checked version & Version 5.0, update 2017-01-09\\ \hline
+  Comments & The database file must be uncompressed!! \\ \hline
+  Approximate parsing time & 7 minutes \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py drugbank --input-identifier="full_database.xml"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="DrugBank"
+                                    --database-version="5.0 (update 2017-01-09)"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
 
 \section{Preparing my data to use the generic parser}
 \label{section:use_generic_parser}

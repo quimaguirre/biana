@@ -63,12 +63,13 @@
 \contentsline {subsubsection}{Protein Families database (PFAM)}{49}
 \contentsline {subsubsection}{Gene Ontology (GO)}{50}
 \contentsline {subsubsection}{STRING}{51}
-\contentsline {section}{\numberline {6.2}Preparing my data to use the generic parser}{51}
-\contentsline {section}{\numberline {6.3}Creating your own parser for your own data}{54}
-\contentsline {section}{\numberline {6.4}Command line arguments accepted by parsers}{57}
-\contentsline {section}{\numberline {6.5}Attributes and types recognized by \textit {BIANA} and defining new ones}{58}
-\contentsline {section}{\numberline {6.6}Proposed unification protocol}{61}
-\contentsline {chapter}{\numberline {7}Additional administration utilities}{63}
-\contentsline {section}{\numberline {7.1}BIANA database backup}{63}
-\contentsline {chapter}{\numberline {8}Glossary}{65}
-\contentsline {chapter}{\numberline {9}Frequently Asked Questions (FAQs)}{67}
+\contentsline {subsubsection}{DrugBank}{52}
+\contentsline {section}{\numberline {6.2}Preparing my data to use the generic parser}{52}
+\contentsline {section}{\numberline {6.3}Creating your own parser for your own data}{55}
+\contentsline {section}{\numberline {6.4}Command line arguments accepted by parsers}{58}
+\contentsline {section}{\numberline {6.5}Attributes and types recognized by \textit {BIANA} and defining new ones}{59}
+\contentsline {section}{\numberline {6.6}Proposed unification protocol}{62}
+\contentsline {chapter}{\numberline {7}Additional administration utilities}{64}
+\contentsline {section}{\numberline {7.1}BIANA database backup}{64}
+\contentsline {chapter}{\numberline {8}Glossary}{66}
+\contentsline {chapter}{\numberline {9}Frequently Asked Questions (FAQs)}{68}
