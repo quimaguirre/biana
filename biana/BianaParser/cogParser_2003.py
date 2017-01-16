@@ -24,7 +24,7 @@ class CogParser(BianaParser):
     COG Parser Class
     """
 
-    name = "cog"
+    name = "cog_2003"
     description = "Clusters of Orthologous Groups of proteins (COGs)"
     external_entity_definition = "An element in a COG"
     external_entity_relations = "A COG"
@@ -34,7 +34,7 @@ class CogParser(BianaParser):
         # Start with the default values
 
         BianaParser.__init__(self, default_db_description = "COG database",
-                             default_script_name = "cogParser.py",
+                             default_script_name = "cogParser_2003.py",
                              default_script_description = CogParser.description,
                              additional_optional_arguments = [])
         self.default_eE_attribute = "cog"
