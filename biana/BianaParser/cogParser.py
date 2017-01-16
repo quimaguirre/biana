@@ -172,13 +172,13 @@ class CogParser(BianaParser):
             if name2refseq_dict.has_key(protein_name.lower()):
                 # Add an attribute to the External Entity --> the RefSeq identifier
                 eE_object.add_attribute(ExternalEntityAttribute( attribute_identifier = "RefSeq", 
-                                                                 value = name2refseq_dict[protein_name.lower()],
+                                                                 value = name2refseq_dict[protein_name.lower()].upper(),
 								 type="cross-reference" ))
 
-            if name_to_gb_dict.has_key(protein_name.lower()):
+            if name2gb_dict.has_key(protein_name.lower()):
                 # Add an attribute to the External Entity --> the GeneBank accession
                 eE_object.add_attribute(ExternalEntityAttribute( attribute_identifier = "AccessionNumber", 
-                                                                 value = name_to_gb_dict[protein_name.lower()],
+                                                                 value = name2gb_dict[protein_name.lower()].upper(),
 								 type="cross-reference" ))
                 
             if name2species_dict.has_key(protein_name.lower()):
