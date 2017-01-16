@@ -25,7 +25,7 @@ class iRefIndexParser(BianaParser):
     Parser for iRefIndex MITAB 2.5 PPI files
     """
 
-    name = "iRefIndex"
+    name = "iRefIndex_old"
     description = "This file implements the parser for iRefIndex"
     external_entity_definition = "A protein"
     external_entity_relations = "physical interaction"
@@ -36,7 +36,7 @@ class iRefIndexParser(BianaParser):
         # Start with the default values
 
         BianaParser.__init__(self, default_db_description = "iRefIndex Database",
-                             default_script_name = "iRefIndexParser.py",
+                             default_script_name = "iRefIndexParser_old.py",
                              default_script_description = iRefIndexParser.description,
                              additional_optional_arguments = [])
         self.default_eE_attribute = "iRefIndex_ROGID"
