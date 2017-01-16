@@ -38,7 +38,7 @@ class HGNCParser(BianaParser):
     HGNC Parser Class
     """
 
-    name = "hgnc"
+    name = "hgnc_old"
     description = "This file implements a program that fills up tables in BIANA database with information from HGNC"
     external_entity_definition = "A external entity represents a protein"
     external_entity_relations = ""
@@ -48,7 +48,7 @@ class HGNCParser(BianaParser):
         # Start with the default values
 
         BianaParser.__init__(self, default_db_description = "HUGO Gene Nomenclature Committee",
-                             default_script_name = "hgncParser.py",
+                             default_script_name = "hgncParser_old.py",
                              default_script_description = HGNCParser.description,
                              additional_compulsory_arguments = [])
         self.default_eE_attribute = "hgnc"
