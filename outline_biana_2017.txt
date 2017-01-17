@@ -2301,7 +2301,7 @@ Then, we have a new cross-reference, which is the genbank accession. I will add 
 
 17.4) Parse the database
 
-$> /soft/devel/python-2.7/bin/python parse_database.py cog2014 --input-identifier=/home/quim/Databases/cog2014/ --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="COG" --database-version="2014 update" --promiscuous
+$> /soft/devel/python-2.7/bin/python parse_database.py cog --input-identifier=/home/quim/Databases/cog2014/ --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="COG" --database-version="2014 update" --promiscuous
 
 Total time: 1619.29103613 seconds = 27 minutes
 
@@ -2358,6 +2358,25 @@ $> git add cogParser.py
 
 $> git commit -m "Old version (2003) renamed to cogParser_2003.py. New version (2014) renamed to cogParser.py"
 
+$> git push -u origin master
+
+Now I will change the old parser (if not, the new one cannot work because the name of the parser is the same) and add it to github:
+
+- Line 27:    name = "cog_2003"
+- Line 37:                             default_script_name = "cogParser_2003.py",
+
+$> cd /home/quim/biana_git/biana/BianaParser
+$> cp /home/quim/BIANA/biana/BianaParser/cogParser_2003.py .
+$> git add cogParser_2003.py
+$> git commit -m "Modification in the name of the old cogParser, so that the new one can work properly"
+$> git push -u origin master
+
+Add modifications to COG parser:
+
+$> cd /home/quim/biana_git/biana/BianaParser
+$> cp /home/quim/BIANA/biana/BianaParser/cogParser.py .
+$> git add cogParser.py
+$> git commit -m "Change in name of the dict 'name_to_gb_dict' to 'name2gb_dict'"
 $> git push -u origin master
 
 
@@ -2482,6 +2501,17 @@ $> git commit -m "Old version (2007) renamed to hgncParser_old.py. New version (
 
 $> git push -u origin master
 
+Now I will change the old parser (if not, the new one cannot work because the name of the parser is the same) and add it to github:
+
+- Line 41:    name = "hgnc_old"
+- Line 51:                             default_script_name = "hgncParser_old.py",
+
+$> cd /home/quim/biana_git/biana/BianaParser
+$> cp /home/quim/BIANA/biana/BianaParser/hgncParser_old.py .
+$> git add hgncParser_old.py
+$> git commit -m "Modification in the name of the old hgncParser, so that the new one can work properly"
+$> git push -u origin master
+
 
 
 ------------------------
@@ -2543,7 +2573,7 @@ Look at the parser to see the changes and how it works.
 
 19.4) Parse the database
 
-$> /soft/devel/python-2.7/bin/python parse_database.py irefindex_2016 --input-identifier=/home/quim/Databases/irefindex/All.mitab.04072015.txt --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="iRefIndex" --database-version="14.0 (last edited in 2016-07-23)"
+$> /soft/devel/python-2.7/bin/python parse_database.py irefindex --input-identifier=/home/quim/Databases/irefindex/All.mitab.04072015.txt --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="iRefIndex" --database-version="14.0 (last edited in 2016-07-23)"
 
 Parsing time: 747.326686144 seconds = 12 minutes
 
@@ -2597,6 +2627,16 @@ $> git commit -m "Old version (2009) renamed to iRefIndexParser_old.py. New vers
 
 $> git push -u origin master
 
+Now I will change the old parser (if not, the new one cannot work because the name of the parser is the same) and add it to github:
+
+- Line 28:    name = "iRefIndex_old"
+- Line 39:                              default_script_name = "iRefIndexParser_old.py",
+
+$> cd /home/quim/biana_git/biana/BianaParser
+$> cp /home/quim/BIANA/biana/BianaParser/iRefIndexParser_old.py .
+$> git add iRefIndexParser_old.py
+$> git commit -m "Modification in the name of the old iRefIndexParser, so that the new one can work properly"
+$> git push -u origin master
 
 
 -------------------
@@ -2775,6 +2815,13 @@ The purpose is to:
 
 22.1) Create a DCDB parser for BIANA
 
+Real version
+
+$> /soft/devel/python-2.7/bin/python parse_database.py dcdb --input-identifier=/home/quim/Databases/DCDB/DCDB2_plaintxt/ --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="DCDB" --database-version="v2.0"
+
+CAUTION!!! I have detected the problem that if you parse badly and do not reset the database, the external entities remain there and are not removed!!
+
+Parsing time: 3.67 seconds
 
 22.2) Add the parser to Github
 
@@ -2793,7 +2840,7 @@ And now we can add and commit the changes:
 
 $> git add dcdbParser.py
 
-$> git commit -m "New DCDB parser for BIANA (not finished yet)"
+$> git commit -m "New DCDB parser for BIANA"
 
 And push it to the web repository:
 
@@ -2827,11 +2874,72 @@ W.2) Parsing of HPRD
 
 $> /soft/devel/python-2.7/bin/python parse_database.py psi_mi_2.5 --input-identifier=/home/quim/Databases/hprd/PSIMI_XML --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="HPRD" --database-version="Release 2010_04 of 13-Apr-2010" --default-attribute="hprd"
 
+Time: Total time: 630.12640214 seconds
 
-W.3) Parsing of BioGRID
+Checking:
+- Same problems as IntAct
+
+
+W.3) Parsing of Reactome
+
+$> /soft/devel/python-2.7/bin/python parse_database.py biopax_level_2 --input-identifier=/home/quim/Databases/reactome/biopax2/ --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="Reactome" --database-version="v58 (05-Oct-2016)" --default-attribute="reactome"
+
+Time: Total time: 1620.23863888 seconds
+
+Checking:
+- Good Reactome codes
+- Problems in GI as well for 0 entries
+
+
+W.4) Parsing of Taxonomy
+
+$> /soft/devel/python-2.7/bin/python parse_database.py taxonomy --input-identifier=/home/quim/Databases/taxonomy/taxdump/ --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="Taxonomy" --database-version="Release 2016_12 of 12-Dec-2016"
+
+Time: Total time: 7530.85074401 seconds
+
+Checking:
+- TaxID, TaxID_category, TaxID_name correct
+- Number of databases correct
+
+
+W.5) Parsing of iRefIndex
+
+$> /soft/devel/python-2.7/bin/python parse_database.py irefindex --input-identifier=/home/quim/Databases/irefindex/All.mitab.04072015.txt --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="iRefIndex" --database-version="14.0 (last edited in 2016-07-23)"
+
+Time: Total time: 1104.26533198 seconds
+
+Checking:
+- Number of databases correct
+- Some externalEntityGI have value 0
+- The rest seems to be OK
+
+
+W.6) Parsing of COG
+
+$> /soft/devel/python-2.7/bin/python parse_database.py cog --input-identifier=/home/quim/Databases/cog2014/ --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="COG" --database-version="2014 update" --promiscuous
+
+Time: Total time: 2043.24625015 seconds
+
+Checking:
+--> There was one error in the parser. It has been added again at GitHub corrected
+- Number of databases correct
+- All the fields seem to be correct
+
+
+W.7) Parsing of BioGRID
 
 $> /soft/devel/python-2.7/bin/python parse_database.py psi_mi_2.5 --input-identifier=/home/quim/Databases/biogrid/BIOGRID-ORGANISM-3.4.143.psi25/ --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="BioGrid" --database-version="Release 3.4.143 (25-Nov-2016)" --default-attribute="biogrid"
 
+Time: Total time: 3332.35186386 seconds = 55 min
+
+Checking:
+- Number of databases correct
+- Some gene names (AT3G61380, CAC2...) are added in the table externalEntityName which may not be the most appropriate. It would be better in GeneSymbol (which is empty) or depending on the entry, in AccessionNumber (also without entries in this database)
+  (SELECT * FROM externalEntityName G, externalEntity E WHERE E.externalEntityID = G.externalEntityID AND E.externalDatabaseID = 9 limit 1000;)
+- I have found all "0" entries in WormBaseGeneID
+
+It could be good to check the cross reference different types in psi-mi files. Maybe they have changed.
+And check this problem with Names and with WormBase
 
 
 ------------------
@@ -2925,8 +3033,8 @@ PSI-MI-OBO
 TAXONOMY
 --------
 - Version:		Release 2016_12 of 12-Dec-2016
-- Time:			20 minutes
-- Command: /soft/devel/python-2.7/bin/python parse_database.py taxonomy --input-identifier=/home/quim/Databases/taxonomy/taxdump/ --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="Taxonomy" --database-version="Release 2016_12 of 12-Dec-2016
+- Time:			7530 seconds = 125 minutes = 2h 5min
+- Command: /soft/devel/python-2.7/bin/python parse_database.py taxonomy --input-identifier=/home/quim/Databases/taxonomy/taxdump/ --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="Taxonomy" --database-version="Release 2016_12 of 12-Dec-2016"
 - Website: ftp://ftp.ncbi.nih.gov/pub/taxonomy/
 - Download: taxdump.tar.Z (uncompress)
 - Added to github: yes
@@ -2946,7 +3054,7 @@ COG 2014
 --------
 - Version:		2014 (with some modifications of 18-Oct-2016)
 - Time:			27 minutes
-- Command: /soft/devel/python-2.7/bin/python parse_database.py cog2014 --input-identifier=/home/quim/Databases/cog2014/ --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="COG" --database-version="2014 update" --promiscuous
+- Command: /soft/devel/python-2.7/bin/python parse_database.py cog --input-identifier=/home/quim/Databases/cog2014/ --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="COG" --database-version="2014 update" --promiscuous
 - Website: ftp://ftp.ncbi.nih.gov/pub/COG/COG2014/data/
 - Download: prot2003-2014.fa, prot2003-2014.tab, genomes2003-2014.tab, fun2003-2014.tab, cognames2003-2014.tab, cog2003-2014.csv, prot2003-2014.gi2gbk.tab
 - Added to github: yes
@@ -2966,7 +3074,7 @@ IREFINDEX
 ---------
 - Version:		14.0 (last edited in 2016-07-23)
 - Time:			15 minutes
-- Command: /soft/devel/python-2.7/bin/python parse_database.py irefindex_2016 --input-identifier=/home/quim/Databases/irefindex/All.mitab.04072015.txt --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="iRefIndex" --database-version="14.0 (last edited in 2016-07-23)"
+- Command: /soft/devel/python-2.7/bin/python parse_database.py irefindex --input-identifier=/home/quim/Databases/irefindex/All.mitab.04072015.txt --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="iRefIndex" --database-version="14.0 (last edited in 2016-07-23)"
 - Website: http://irefindex.org/download/irefindex/data/archive/release_14.0/psi_mitab/MITAB2.6/
 - Download: File All.mitab.??????.txt.zip
 - Added to github: yes
@@ -2986,8 +3094,17 @@ DRUGBANK
 --------
 - Version:		5.0 (update 2017-01-09)
 - Time:			7 minutes
-- Command: /soft/devel/python-2.7/bin/python parse_database.py drugbank --input-identifier=/home/quim/Databases/DrugBank/drugbank_proof.xml --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="DrugBank" --database-version="5.0 (update 2017-01-09)"
+- Command: /soft/devel/python-2.7/bin/python parse_database.py drugbank --input-identifier=/home/quim/Databases/DrugBank/full_database.xml --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="DrugBank" --database-version="Release 2017_01 of 01-Jan-2017"
 - Download: "full database.xml"
+- Added to github: yes
+- Modified manual: yes
+
+DCDB
+----
+- Version:		2.0
+- Time:			3 seconds
+- Command: /soft/devel/python-2.7/bin/python parse_database.py dcdb --input-identifier=/home/quim/Databases/DCDB/DCDB2_plaintxt/ --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="DCDB" --database-version="v2.0"
+- Download: "DCDB2_plaintxt.zip" (uncompress)
 - Added to github: yes
 - Modified manual: yes
 
@@ -3017,9 +3134,9 @@ TO DO
 
 Order of time:
 
-STRING (????) > PFAM (????) > Uniprot Swiss (1 day) > IntAct (2h 15 min) > BioGRID (50 min) > COG (27 min) > Reactome (21 min) > Taxonomy (20 min) > iRefIndex (15 min) > IPI (10 min) > HPRD (7 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min)
+STRING (????) > PFAM (????) > Uniprot Swiss (1 day) > IntAct (2h 15 min) > Taxonomy (2h 5 min) > BioGRID (50 min) > COG (27 min) > Reactome (21 min) > iRefIndex (15 min) > IPI (10 min) > HPRD (7 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min)
 
 Missing:
 
-STRING (????) > PFAM (????) > Uniprot Swiss (1 day) > BioGRID (50 min) > COG (27 min) > Reactome (21 min) > Taxonomy (20 min) > iRefIndex (15 min) > IPI (10 min) > HPRD (7 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min)
+STRING (????) > PFAM (????) > Uniprot Swiss (1 day) > IPI (10 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min)
 
