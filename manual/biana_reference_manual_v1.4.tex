@@ -1910,6 +1910,44 @@ Shell Command:
 \end{minipage}
 
 
+\begin{minipage}{\textwidth}
+\subsubsection{DCDB}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & Drug Combination Database (DCDB) collects 1363 drug combinations (330 approved and 1033 investigational, including 237 unsuccessful usages), involving 904 individual drugs, 805 targets.\\ \hline
+  Database Reference & DCDB 2.0: a major update of the drug combination database. Database (2014) 2014 : bau124\\ \hline
+  Database Link & \url{http://www.cls.zju.edu.cn/dcdb/download.jsf} \\ \hline
+  External Entity Types & drug, protein \\ \hline
+  External Entity Relation Types & interaction, drug\_combination \\ \hline
+  Needed files & Download the file of the link ``PlainTextDump.zip'' and uncompress it\\ \hline
+  Parser name & dcdb\\ \hline
+  Input-identifier & The path to the folder ``DCDB2\_plaintxt'' \\ \hline
+  Checked version & Version 2.0\\ \hline
+  Comments & The database file must be uncompressed!! \\ \hline
+  Approximate parsing time & Less than a minute \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py drugbank --input-identifier="/path/to/DCDB2_plaintxt/"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="DCDB"
+                                    --database-version="v2.0"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
 
 \section{Preparing my data to use the generic parser}
 \label{section:use_generic_parser}
