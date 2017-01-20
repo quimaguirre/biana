@@ -141,10 +141,18 @@ class DrugBankParser(BianaParser):
             #print("Description not available for %s" %(drug))
             pass
 
+        # Associate its name
+        if drug in parser.drug_to_pubchem:
+            print("PubChem of drug {}: {}".format(drug, parser.drug_to_pubchem[drug]))
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "PubChemCompound", value=parser.drug_to_pubchem[drug], type="cross-reference") )
+        else:
+            #print("Name not available for %s" %(drug))
+            pass
+
         # Associate its ATC codes
         if drug in parser.drug_to_atc_codes:
             for atc in parser.drug_to_atc_codes[drug]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "ATC", value=atc.upper() ) )
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "ATC", value=atc.upper(), type="cross-reference") )
         else:
             #print("ATC codes not available for %s" %(drug))
             pass
