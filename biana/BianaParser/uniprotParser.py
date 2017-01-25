@@ -67,10 +67,10 @@ class UniprotParser(BianaParser):
 
         # GeneName regex
         geneName_regex = re.compile("^GN")
-        gene_name_regex = re.compile("Name=([^;]+);")
-        gene_orf_name_regex = re.compile("ORFNames=([^;]+);")
+        gene_name_regex = re.compile("Name=([^;\{\}]+).*;")
+        gene_orf_name_regex = re.compile("ORFNames=([^;\{\}]+).*;")
         gene_synonyms_regex = re.compile("Synonyms=([^;]+);")
-        gene_orderedLocusNames = re.compile("OrderedLocusNames=([^;]+);")
+        gene_orderedLocusNames = re.compile("OrderedLocusNames=([^;\{\}]+).*;")
         
         #Cross-references regular expressions
         cross_regex = re.compile("^DR")
@@ -86,7 +86,8 @@ class UniprotParser(BianaParser):
         prints_regex = re.compile("^DR\s+PRINTS;\s*(\S+);")
         #ensembl_regex = re.compile("^DR\s+Ensembl;\s*(\S+);")
         #ensembl_regex = re.compile("^DR\s+Ensembl;((\s*\S+;)+)+")
-        ensembl_regex = re.compile("^DR\s+Ensembl;(.*)")
+        #ensembl_regex = re.compile("^DR\s+Ensembl;(.*)")
+        ensembl_regex = re.compile("^DR\s+Ensembl;(.*)\.")
         #embl_regex = re.compile("^DR\s+EMBL;\s*(\S+);")
 	#embl_regex = re.compile("^DR\s+EMBL;((\s*\S+;)+)+")
 	embl_regex = re.compile("^DR\s+EMBL;(.*)")
@@ -109,9 +110,9 @@ class UniprotParser(BianaParser):
         
 
         #tigr_regex = re.compile("^DR\s+TIGR\;\s+(.+)\;")
-        tigr_regex = re.compile("^DR\s+TIGRFAMs\;\s+(.+)\;") # Quim Aguirre: Change of the resource abbreviation
+        tigr_regex = re.compile("^DR\s+TIGRFAMs\;\s+([^;]+)\;") # Quim Aguirre: Change of the resource abbreviation and the format
         #intact_regex = re.compile("^DR\s+IntAct") # It's the same as UniprotAccession?
-        dip_regex = re.compile("^DR\s+DIP\;\s+DIP\:(.+)\;")
+        dip_regex = re.compile("^DR\s+DIP\;\s+DIP\-(.+)\;")
         cygd_regex = re.compile("^DR\s+CYGD\;\s+(.+)\;")
         #arrayexpress_regex = re.compile("")  # It's the same as UniprotAccession?
         WormPep_regex = re.compile("^DR\s+WormPep\;\s+(.+)\;\s*CE(\d+)\.\s*$")
