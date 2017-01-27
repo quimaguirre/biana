@@ -68,9 +68,9 @@ class UniprotParser(BianaParser):
         # GeneName regex
         geneName_regex = re.compile("^GN")
         gene_name_regex = re.compile("Name=([^;\{\}]+).*;")
-        gene_orf_name_regex = re.compile("ORFNames=([^;\{\}]+).*;")
+        gene_orf_name_regex = re.compile("ORFNames=([^;]+);")
         gene_synonyms_regex = re.compile("Synonyms=([^;]+);")
-        gene_orderedLocusNames = re.compile("OrderedLocusNames=([^;\{\}]+).*;")
+        gene_orderedLocusNames = re.compile("OrderedLocusNames=([^;]+);")
         
         #Cross-references regular expressions
         cross_regex = re.compile("^DR")
@@ -307,21 +307,21 @@ class UniprotParser(BianaParser):
                 m = gene_orf_name_regex.search(line)
                 if m:
 		    for x in m.group(1).split(","):
-			x = x.strip()
+			x = x.split("{")[0].strip()
 			self.verify_attribute_length("orfname", x)
 			uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="ORFName", value=x,type="alias")) 
                     
                 m = gene_synonyms_regex.search(line)
                 if m:
 		    for x in m.group(1).split(","):
-			x = x.strip()
+			x = x.split("{")[0].strip()
 			self.verify_attribute_length("genesymbol", x)
 			uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="geneSymbol", value=x, type="synonym")) 
 
                 m = gene_orderedLocusNames.search(line)
                 if m:
 		    for x in m.group(1).split(","):
-			x = x.strip()
+			x = x.split("{")[0].strip()
 			self.verify_attribute_length("orderedlocusname", x)
 			uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="OrderedLocusName", value=x, type="alias")) 
 
