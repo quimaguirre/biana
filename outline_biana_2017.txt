@@ -40,6 +40,7 @@ NEW DATABASES:
 -------------
 - HPRD (fix it)
 - INTACT (fix it)
+- PFAM (fix it)
 - STRING
 - DrugBank
 - DCDB
@@ -79,7 +80,8 @@ OUTLINE
 19) Parsing of iRefIndex
 20) Parsing of SCOP
 21) Parsing of DrugBank
-22)
+22) Parsing of DCDB
+23) Parsing of PFAM
 XX) Parsing summary
 
 
@@ -1095,21 +1097,21 @@ let it without STRING cross-reference)
 
 4.6) Final list of cross-references to be added:
 
-- ChEMBL
+- ChEMBL --> I will not add it for the moment
 (D) DIP
-- DisGeNET
-- DrugBank
+- DisGeNET --> It may not be necessary to add this geneid
+- DrugBank --> At the end I will not add it because it may not be necessary
 (D) Ensembl
 (D) FlyBase
 (D) GeneID
 (D) GO
 (D) HGNC
-- HPA
+- HPA --> The cross-reference provided may not be necessary
 (D) InterPro
 (D) KEGG
 (D) MGI
 (D) MIM
-- Orphanet ?
+- Orphanet --> I will not add this database for the moment
 (D) PDB
 (D) PIR
 (D) PRINTS
@@ -1118,7 +1120,7 @@ let it without STRING cross-reference)
 (D) RefSeq
 (D) RGD
 (D) SGD
-- STRING
+- STRING --> It may not be necessary
 (D) Tair
 (D) TIGRFAMs
 (D) UniGene
@@ -1174,7 +1176,80 @@ let it without STRING cross-reference)
         WormBase_regex = re.compile("^DR\s+WormBase;\s*.+;\s*.+;\s*WBGene(\d+);\s*(\S+)\.") # Quim Aguirre: Modification to obtain the numeric part of the WormBaseGeneID code
 
 
-4.8) Upload modifications to Github
+4.8) Parse the database
+
+Download:
+We can download Uniprot Swissprot at this website: http://www.uniprot.org/downloads
+It can also be found here: ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/
+We have to click at Swissprot "text" option (519 MB).
+
+Files needed:
+uniprot_sprot.dat.gz
+
+Version: Release 2016_11 of 30-Nov-2016
+
+$> /soft/devel/python-2.7/bin/python parse_database.py uniprot --input-identifier=/home/quim/Databases/uniprot/uniprot_sprot.dat.gz --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="uniprot swissprot" --database-version="Release 2016_11 of 30-Nov-2016"
+
+Parsing time: 4338.87 seconds = 72 min = 1h 12min
+
+Checking:
+- Number of databases correct
+(D) All the external entities except one have protein sequence --> everything seems correct, so maybe not all external entities are proteins, or one may not have sequence
+(D) Some of the gene symbols are obtained like this: apt {ECO:0000255|HAMAP-Rule:MF_00004}. Mainly unique gene symbols
+  --> They are the evidence codes: http://www.uniprot.org/help/evidences
+      I think that they are not necessary and they may should be avoided
+      I will change the regex in line 70 for:
+      gene_name_regex = re.compile("Name=([^;\{\}]+).*;")
+(D) Same happens with ORFName (type alias, all the ORF are alias): F35C8.3 {ECO:0000312|WormBase:F35C8.3}
+      I will do the same as the previous case. I have changed line 71:
+      gene_orf_name_regex = re.compile("ORFNames=([^;\{\}]+).*;")
+(D) Same happens with OrderedLocusName: At1g01530 {ECO:0000312|TAIR:AT1G01530}
+      Same. I will change line 73 by:
+      gene_orderedLocusNames = re.compile("OrderedLocusNames=([^;\{\}]+).*;")
+(D) WormBaseSequenceName is empty --> Yes, there is nothing.
+(D) DIP is empty
+   ---> There are DIP entries, but they have changed. We have to change the regex of line 114 to:
+        dip_regex = re.compile("^DR\s+DIP\;\s+DIP\-(.+)\;")
+(D) All the TIGR entities are like this: TIGR00177; molyb_syn
+                                       TIGR01525; ATPase-IB_hvy
+    ---> The regex must be changed, so line 113 has been changed by:
+         tigr_regex = re.compile("^DR\s+TIGRFAMs\;\s+([^;]+)\;")
+(D) CYGD is empty --> Yes, there is nothing.
+(D) Ensembl entities are in some cases like this:  ENSG00000097021. [O00154-3]
+    The regex must be changed. I have commented line 89 and added line 90:
+    ensembl_regex = re.compile("^DR\s+Ensembl;(.*)\.")
+
+2nd checking:
+- Number of databases correct
+- It happened the same problem of GeneSymbols but for some synonyms. So this should be changed as well for the synonyms
+  I will change line 317 to:
+  x = x.split("{")[0].strip()
+  I do it this way because there may be several entries in some cases, and the one with {} could be in the middle. For example:
+  GN   Synonyms=mtACP, mtacp1 {ECO:0000312|FlyBase:FBgn0011361}, ND-AcC;
+  In this case, the last entry ND-AcC is not detected because the regex cuts to "{".
+- The ORFName was badly fixed, because of the same thing as the previous case in GeneSymbol.
+  I returned the old regex in line 71:
+  gene_orf_name_regex = re.compile("ORFNames=([^;]+);")
+  And changed line 310 to:
+  x = x.split("{")[0].strip()
+- And the OrderedLocusName was also badly fixed for the same problem.
+  I returned the old regex in line 73:
+  gene_orderedLocusNames = re.compile("OrderedLocusNames=([^;]+);")
+  And changed line 324 to:
+  x = x.split("{")[0].strip()
+- This problem does not happen to gene_name_regex, because it is always a unique gene name
+
+3rd checking:
+- Number of databases correct
+- Names (uniques and synonyms) also have the same problem as GeneSymbols:
+  ACCD {ECO:0000255|HAMAP-Rule:MF_00807}
+  1-aminocyclopropane-1-carboxylate deaminase {ECO:0000255|HAMAP-Rule:MF_00807}
+  In this case, we can avoid it but it would not be so important
+  I will not change it because it is not a very important column, and the information is not necessarily bad
+- The rest is correct
+
+
+4.9) Upload modifications to Github
 
 We can check if there are changes in our repository by using the "pull" command:
 
@@ -1196,7 +1271,6 @@ $> git commit -m "Changes in Uniprot database cross-references"
 And push it to the web repository:
 
 $> git push -u origin master
-
 
 
 
@@ -2776,6 +2850,14 @@ mysql> select * from externalEntityRelationParticipant P1, externalEntityRelatio
 # Check if it interacts with the target "DRD1_HUMAN"
 mysql> select * from externalEntityRelationParticipant P1, externalEntityRelationParticipant P2, externalEntityUniprotEntry D where P1.externalEntityRelationID = P2.externalEntityRelationID and P1.externalEntityID != P2.externalEntityID and P2.externalEntityID = D.externalEntityID and P1.externalEntityID = 15812 and D.value = "DRD2_HUMAN";
 
+# Check if drug interacts with targets:
+mysql> SELECT U.value FROM externalEntityRelationParticipant P1, externalEntityRelationParticipant P2, externalEntityUniprotEntry U, externalEntityDrugBankID D, externalEntity E WHERE P1.externalEntityRelationID = P2.externalEntityRelationID AND P1.externalEntityID != P2.externalEntityID AND P1.externalEntityID = D.externalEntityID AND P2.externalEntityID = U.externalEntityID AND P1.externalEntityID = E.externalEntityID AND E.externalDatabaseID = 1 AND D.value = "DB00502";
+
+mysql> SELECT U.value FROM externalEntityRelationParticipant P1, externalEntityRelationParticipant P2, externalEntityUniprotEntry U, externalEntityDrugBankID D, externalEntity E WHERE P1.externalEntityRelationID = P2.externalEntityRelationID AND P1.externalEntityID != P2.externalEntityID AND P1.externalEntityID = D.externalEntityID AND P2.externalEntityID = U.externalEntityID AND P1.externalEntityID = E.externalEntityID AND E.externalDatabaseID = 1 AND D.value = "DB00502";
+
+- I have included the PubChemCompound cross-reference
+
+
 21.2) Add the modified parser to Github
 
 We can check if there are changes in our repository by using the "pull" command:
@@ -2845,6 +2927,69 @@ $> git commit -m "New DCDB parser for BIANA"
 And push it to the web repository:
 
 $> git push -u origin master
+
+
+
+-------------------
+23. PARSING OF PFAM
+-------------------
+
+The purpose is to: 
+
+- Fix the old parser of PFAM, or create a new one
+- Parse the database
+- Add the modified parser to Github
+- Change the manual
+
+
+23.1) Download the data of SCOP
+
+Website: http://pfam.xfam.org/
+
+Download: Pfam-A.full.gz, pfamseq.gz
+
+Input identifier: Path were files are found
+
+Version: 30.0 (17-05-2016)
+
+   # Note: Pfam is a collection of protein family alignments which were
+   constructed semi-automatically using hidden Markov models (HMMs).
+   Sequences that are not covered by Pfam were previously clustered
+   and aligned automatically, and released as Pfam-B. 
+   Pfam-B has been discontinued with effect from release 28.0.
+
+   ---> PFAM-B will not be added
+
+
+23.2) Analyse the data and parser
+
+We will look at the file "pfamParser.py".
+
+First, this file parses the sequences file "pfamseq.gz". The procedure is easy:
+- When a header (>) is found, it introduces the sequence of the previous protein at BIANA
+- The header is processed with a regex. So if we have a header like the following:
+  ">A0A010PZJ8.1 A0A010PZJ8_9PEZI COP9 signalosome complex subunit 2 {ECO:0000313|EMBL:EXF72907.1}"
+  It uses the function "parse_pfam_seq_record()":
+    - It introduces "A0A010PZJ8" as UniprotAccession of version "1".
+    - It introduces "A0A010PZJ8_9PEZI" as UniprotEntry
+    - It introduces the sequence as ProteinSequence
+
+Then, using the function "parse_pfam_file()", it parses the file "Pfam-A.full.gz".
+But how does it work this function?
+It is a function that detects the regexes of the external entity attributes of interest and adds them into the main external entity
+
+I have detected one problem:
+- I was using the file "pfamseq.gz" to parse the sequences of PFAM. But this file is the sequence database from which PFAM was constructed.
+  It is not necessary to use such a large file (it contains 17 million sequences).
+  "Pfam-A.fasta" contains the range of sequence of a PFAM domain in each protein
+
+
+
+23.3) Parse the database
+
+$> /soft/devel/python-2.7/bin/python parse_database.py pfam --input-identifier=/home/quim/Databases/pfam/ --pfamA-file-name=Pfam-A.full.gz --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="PFAM" --database-version="30.0" --promiscuous
+
+$> /soft/devel/python-2.7/bin/python parse_database.py pfam --input-identifier=/home/quim/Databases/pfam/ --pfamA-file-name=Pfam-A.full.gz --pfamSeq-file-name=Pfam-A.fasta.gz --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="PFAM" --database-version="30.0" --promiscuous
 
 
 
@@ -3108,6 +3253,15 @@ DCDB
 - Added to github: yes
 - Modified manual: yes
 
+UNIPROT SWISSPROT
+-----------------
+- Version:		Release 2016_11 of 30-Nov-2016
+- Time:			1 h 12 min
+- Command: /soft/devel/python-2.7/bin/python parse_database.py uniprot --input-identifier=/home/quim/Databases/uniprot/uniprot_sprot.dat.gz --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="uniprot swissprot" --database-version="Release 2016_11 of 30-Nov-2016"
+- Download: http://www.uniprot.org/downloads (Swissprot "text" option)
+- Added to github: yes
+- Modified manual: yes
+
 DATABASE
 --------
 - Version:		
@@ -3134,9 +3288,9 @@ TO DO
 
 Order of time:
 
-STRING (????) > PFAM (????) > Uniprot Swiss (1 day) > IntAct (2h 15 min) > Taxonomy (2h 5 min) > BioGRID (50 min) > COG (27 min) > Reactome (21 min) > iRefIndex (15 min) > IPI (10 min) > HPRD (7 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min)
+STRING (????) > PFAM (????) > IntAct (2h 15 min) > Taxonomy (2h 5 min) > Uniprot Swiss (1h 12min) > BioGRID (50 min) > COG (27 min) > Reactome (21 min) > iRefIndex (15 min) > IPI (10 min) > HPRD (7 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min)
 
 Missing:
 
-STRING (????) > PFAM (????) > Uniprot Swiss (1 day) > IPI (10 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min)
+STRING (????) > PFAM (????) > Uniprot Swiss (1h 12min) > IPI (10 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min)
 
