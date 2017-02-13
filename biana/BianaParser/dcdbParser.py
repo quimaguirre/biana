@@ -27,18 +27,18 @@ class dcdbParser(BianaParser):
         Method that implements the specific operations of a MyData formatted file
         """
 
-        # Add DrugCombinationID as a valid external entity attribute since it is not recognized by BIANA
-        self.biana_access.add_valid_external_entity_attribute_type( name = "DrugCombinationID",
+        # Add DCDB_combinationID as a valid external entity attribute since it is not recognized by BIANA
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DCDB_combinationID",
                                                                     data_type = "varchar(370)",
                                                                     category = "eE identifier attribute")
 
-        # Add DrugCombinationComponentID as a valid external entity attribute since it is not recognized by BIANA
-        self.biana_access.add_valid_external_entity_attribute_type( name = "DrugCombinationComponentID",
+        # Add DCDB_drugID as a valid external entity attribute since it is not recognized by BIANA
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DCDB_drugID",
                                                                     data_type = "varchar(370)",
                                                                     category = "eE identifier attribute")
 
-        # Add DrugCombinationTargetID as a valid external entity attribute since it is not recognized by BIANA
-        self.biana_access.add_valid_external_entity_attribute_type( name = "DrugCombinationTargetID",
+        # Add DCDB_targetID as a valid external entity attribute since it is not recognized by BIANA
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DCDB_targetID",
                                                                     data_type = "varchar(370)",
                                                                     category = "eE identifier attribute")
 
@@ -109,11 +109,11 @@ class dcdbParser(BianaParser):
                 new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[component] )
 
             # Associate the drug combination id, name and mechanism of the combination with this relation
-            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "DrugCombinationID",
+            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "DCDB_combinationID",
                                                                                                                  value = combination, type = "unique" ) )
             if combination in parser.combination2name:
                 new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Name",
-                                                                                                                     value = parser.combination2name[combination] ) )
+                                                                                                                     value = parser.combination2name[combination], type="cross-reference" ) )
             if combination in parser.combination2mechanism:
                 new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Description",
                                                                                                                      value = parser.combination2mechanism[combination] ) )
@@ -131,12 +131,12 @@ class dcdbParser(BianaParser):
 
         new_external_entity = ExternalEntity( source_database = self.database, type = "drug" )
 
-        # Annotate it as DrugCombinationComponentID
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugCombinationComponentID", value=component, type="unique") )
+        # Annotate it as DCDB_drugID
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DCDB_drugID", value=component, type="unique") )
 
         # Associate its name
         if component in parser.component2name:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.component2name[component]) )
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.component2name[component], type="cross-reference") )
         else:
             print("Name not available for %s" %(component))
             pass
@@ -182,7 +182,7 @@ class dcdbParser(BianaParser):
 
                 if not self.external_entity_ids_dict.has_key(target):
                     target_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
-                    target_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugCombinationTargetID", value=target, type="unique") )
+                    target_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DCDB_targetID", value=target, type="unique") )
 
                     if target in parser.target2genename:
                         target_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.target2genename[target], type="cross-reference") )
