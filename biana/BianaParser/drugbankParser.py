@@ -34,8 +34,8 @@ class DrugBankParser(BianaParser):
                                                                     data_type = "varchar(370)",
                                                                     category = "eE identifier attribute")
 
-        # Add TargetID as a valid external entity attribute since it is not recognized by BIANA
-        self.biana_access.add_valid_external_entity_attribute_type( name = "TargetID",
+        # Add DrugBank_targetID as a valid external entity attribute since it is not recognized by BIANA
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DrugBank_targetID",
                                                                     data_type = "varchar(370)",
                                                                     category = "eE identifier attribute")
 
@@ -43,6 +43,11 @@ class DrugBankParser(BianaParser):
         self.biana_access.add_valid_external_entity_attribute_type( name = "ATC",
                                                                     data_type = "varchar(370)",
                                                                     category = "eE identifier attribute")
+
+        # Add Indication as a valid external entity attribute since it is not recognized by BIANA
+        self.biana_access.add_valid_external_entity_attribute_type( name = "Indication",
+                                                                    data_type = "text",
+                                                                    category = "eE descriptive attribute")
 
         # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
         self.biana_access.refresh_database_information()
@@ -129,7 +134,7 @@ class DrugBankParser(BianaParser):
 
         # Associate its name
         if drug in parser.drug_to_name:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.drug_to_name[drug]) )
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.drug_to_name[drug], type="cross-reference") )
         else:
             #print("Name not available for %s" %(drug))
             pass
@@ -141,9 +146,20 @@ class DrugBankParser(BianaParser):
             #print("Description not available for %s" %(drug))
             pass
 
-        # Associate its name
+        # Associate its indication
+        if drug in parser.drug_to_indication:
+            for indication in parser.drug_to_indication[drug]:
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Indication", value=indication, type="unique") )
+
+        	if len(parser.drug_to_indication[drug]) > 1:
+	            print("INDICATION of drug {}: {}".format(drug, parser.drug_to_indication[drug]))
+        else:
+            #print("Name not available for %s" %(drug))
+            pass
+
+        # Associate its PubChem Compound
         if drug in parser.drug_to_pubchem:
-            print("PubChem of drug {}: {}".format(drug, parser.drug_to_pubchem[drug]))
+            #print("PubChem of drug {}: {}".format(drug, parser.drug_to_pubchem[drug]))
             new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "PubChemCompound", value=parser.drug_to_pubchem[drug], type="cross-reference") )
         else:
             #print("Name not available for %s" %(drug))
@@ -173,7 +189,7 @@ class DrugBankParser(BianaParser):
                     if not self.external_entity_ids_dict.has_key(target):
                         target_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
-                        target_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "TargetID", value=target.upper(), type="unique") )
+                        target_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugBank_targetID", value=target.upper(), type="unique") )
 
                         if target in parser.target_to_uniprot:
                             target_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UniprotAccession", value=parser.target_to_uniprot[target], type="cross-reference") )
@@ -326,7 +342,8 @@ class DrugBankXMLParser(object):
 			self.drug_to_groups.setdefault(drug_id, set()).add(elem.text)
 		elif elem.tag == self.NS+"indication":
 		    if state_stack[-2] == self.NS+"drug":
-			self.drug_to_indication[drug_id] = elem.text
+			self.drug_to_indication.setdefault(drug_id, [])
+			self.drug_to_indication[drug_id].append(elem.text)
 		elif elem.tag == self.NS+"pharmacodynamics":
 		    if state_stack[-2] == self.NS+"drug":
 			self.drug_to_pharmacodynamics[drug_id] = elem.text
