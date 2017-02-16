@@ -27,36 +27,36 @@ class dcdbParser(BianaParser):
         Method that implements the specific operations of a MyData formatted file
         """
 
-        # Add DCDB_combinationID as a valid external entity attribute since it is not recognized by BIANA
-        self.biana_access.add_valid_external_entity_attribute_type( name = "DCDB_combinationID",
-                                                                    data_type = "varchar(370)",
-                                                                    category = "eE identifier attribute")
+        # # Add DCDB_combinationID as a valid external entity attribute since it is not recognized by BIANA
+        # self.biana_access.add_valid_external_entity_attribute_type( name = "DCDB_combinationID",
+        #                                                             data_type = "varchar(370)",
+        #                                                             category = "eE identifier attribute")
 
-        # Add DCDB_drugID as a valid external entity attribute since it is not recognized by BIANA
-        self.biana_access.add_valid_external_entity_attribute_type( name = "DCDB_drugID",
-                                                                    data_type = "varchar(370)",
-                                                                    category = "eE identifier attribute")
+        # # Add DCDB_drugID as a valid external entity attribute since it is not recognized by BIANA
+        # self.biana_access.add_valid_external_entity_attribute_type( name = "DCDB_drugID",
+        #                                                             data_type = "varchar(370)",
+        #                                                             category = "eE identifier attribute")
 
-        # Add DCDB_targetID as a valid external entity attribute since it is not recognized by BIANA
-        self.biana_access.add_valid_external_entity_attribute_type( name = "DCDB_targetID",
-                                                                    data_type = "varchar(370)",
-                                                                    category = "eE identifier attribute")
+        # # Add DCDB_targetID as a valid external entity attribute since it is not recognized by BIANA
+        # self.biana_access.add_valid_external_entity_attribute_type( name = "DCDB_targetID",
+        #                                                             data_type = "varchar(370)",
+        #                                                             category = "eE identifier attribute")
 
-        # Add ATC as a valid external entity attribute since it is not recognized by BIANA
-        self.biana_access.add_valid_external_entity_attribute_type( name = "ATC",
-                                                                    data_type = "varchar(370)",
-                                                                    category = "eE identifier attribute")
+        # # Add ATC as a valid external entity attribute since it is not recognized by BIANA
+        # self.biana_access.add_valid_external_entity_attribute_type( name = "ATC",
+        #                                                             data_type = "varchar(370)",
+        #                                                             category = "eE identifier attribute")
 
-        # Add DrugBankID as a valid external entity attribute since it is not recognized by BIANA
-        self.biana_access.add_valid_external_entity_attribute_type( name = "DrugBankID",
-                                                                    data_type = "varchar(370)",
-                                                                    category = "eE identifier attribute")
+        # # Add DrugBankID as a valid external entity attribute since it is not recognized by BIANA
+        # self.biana_access.add_valid_external_entity_attribute_type( name = "DrugBankID",
+        #                                                             data_type = "varchar(370)",
+        #                                                             category = "eE identifier attribute")
 
-        # Add a different type of relation type. In this case, it will be "drug combination", as it is different from a drug-drug interaction 
-        self.biana_access.add_valid_external_entity_relation_type( type = "drug_combination" )
+        # # Add a different type of relation type. In this case, it will be "drug combination", as it is different from a drug-drug interaction 
+        # self.biana_access.add_valid_external_entity_relation_type( type = "drug_combination" )
 
-        # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
-        self.biana_access.refresh_database_information()
+        # # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
+        # self.biana_access.refresh_database_information()
 
 
         # Check that all the files exist
