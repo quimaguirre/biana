@@ -71,14 +71,20 @@ EXTERNAL_ENTITY_RELATION_TYPES = [ "interaction",
                                    "regulation",
                                    "cooperation",
                                    "forward_reaction",
-                                   "backward_reaction" 
+                                   "backward_reaction",
+                                   "drug_combination" 
                                    ]
 
 # EXTERNAL ENTITY ATTRIBUTE TYPES
-EXTERNAL_ENTITY_IDENTIFIER_ATTRIBUTES = [ ("CHEBI", "integer unsigned"),
+EXTERNAL_ENTITY_IDENTIFIER_ATTRIBUTES = [ ("ATC", "varchar(30)"),
+                                          ("CHEBI", "integer unsigned"),
                                           ("COG", "varchar(10)"),
                                           ("CYGD", "varchar(15)"), # normally 7 (YDR172w) but sometimes 9 (YLR312w-a) (in mips there are some errors... because of that, we increase it to 15
+                                          ("DCDB_combinationID", "varchar(30)"),
+                                          ("DCDB_drugID", "varchar(30)"),
+                                          ("DCDB_targetID", "varchar(30)"),
                                           ("DIP", "varchar(6)"), # DIP:216N (~17000 entries)
+                                          ("DrugBankID", "varchar(30)"),
                                           ("EC", "varchar(30)"),
                                           ("Encode", "varchar(14)"),
                                           ("Ensembl", "varchar(40)"),
@@ -154,6 +160,7 @@ EXTERNAL_ENTITY_VERSIONABLE_IDENTIFIER_ATTRIBUTE_TYPES = [("AccessionNumber", "v
 
 EXTERNAL_ENTITY_DESCRIPTIVE_SEARCHABLE_ATTRIBUTE_TYPES = [("Disease", "text"),
                                                           ("Function", "text"),
+                                                          ("Indication", "text"),
                                                           ("Keyword", "varchar(255)"),
                                                           ("Description", "text"),
                                                           ("SubcellularLocation", "text"),
@@ -199,6 +206,10 @@ EXTERNAL_ENTITY_SPECIAL_ATTRIBUTE_TYPES = { "PDB": {"fields": [ ("value","char(4
                                             
                                             "Pattern": { "fields": [ ("value","varchar(255)"),
                                                                      ("patternExpression","varchar(255)",False)], 
+                                                         "indices": ("value",)}, # Stores a regex
+
+                                            "DrugBank_targetID": { "fields": [ ("value","varchar(255)"),
+                                                                     ("targetType","ENUM(\"therapeutic\",\"enzyme\",\"carrier\",\"transporter\")",False)], 
                                                          "indices": ("value",)}, # Stores a regex
                                             
                                             #"STRINGScore": { "fields": [ ("value","int(2)"), # moved to regular attributes as seperate score attributes
