@@ -82,7 +82,9 @@ OUTLINE
 21) Parsing of DrugBank
 22) Parsing of DCDB
 23) Parsing of PFAM
-XX) Parsing summary
+WW) Parsing of BIANA_JAN_2017
+XX) Unification protocol
+YY) Parsing summary
 
 
 -------------------------------------
@@ -2857,6 +2859,13 @@ mysql> SELECT U.value FROM externalEntityRelationParticipant P1, externalEntityR
 
 - I have included the PubChemCompound cross-reference
 
+- I have included:
+	- ChEMBL
+	- ChEBI
+	- InChiKey
+	- SMILES
+	- type of target
+
 
 21.2) Add the modified parser to Github
 
@@ -2942,7 +2951,7 @@ The purpose is to:
 - Change the manual
 
 
-23.1) Download the data of SCOP
+23.1) Download the data of PFAM
 
 Website: http://pfam.xfam.org/
 
@@ -2982,6 +2991,10 @@ I have detected one problem:
 - I was using the file "pfamseq.gz" to parse the sequences of PFAM. But this file is the sequence database from which PFAM was constructed.
   It is not necessary to use such a large file (it contains 17 million sequences).
   "Pfam-A.fasta" contains the range of sequence of a PFAM domain in each protein
+- HOWEVER: this is not a correct solution, because it only contains the part of the sequence where the PFAM domain appears... this may not be useful
+
+Another possibility would be to skip the parsing of pfamseq. If we think about it properly, we may not need the sequences because
+they are already provided by uniprot. So, we may be able to skip parsing this file.
 
 
 
@@ -2991,6 +3004,7 @@ $> /soft/devel/python-2.7/bin/python parse_database.py pfam --input-identifier=/
 
 $> /soft/devel/python-2.7/bin/python parse_database.py pfam --input-identifier=/home/quim/Databases/pfam/ --pfamA-file-name=Pfam-A.full.gz --pfamSeq-file-name=Pfam-A.fasta.gz --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="PFAM" --database-version="30.0" --promiscuous
 
+$> /soft/devel/python-2.7/bin/python parse_database.py pfam --input-identifier=/home/quim/Databases/pfam/ --pfamA-file-name=Pfam-A.full.gz --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="PFAM" --database-version="30.0" --promiscuous
 
 
 ----------------------------
@@ -3087,8 +3101,144 @@ It could be good to check the cross reference different types in psi-mi files. M
 And check this problem with Names and with WormBase
 
 
+W.8) Parsing of Uniprot Swissprot
+
+$> /soft/devel/python-2.7/bin/python parse_database.py uniprot --input-identifier=/home/quim/Databases/uniprot/uniprot_sprot.dat.gz --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="uniprot swissprot" --database-version="Release 2016_11 of 30-Nov-2016"
+
+Time: Total time: 7950.935426 seconds = 2h 10 min
+
+Checking:
+- Number of databases correct
+- Everything correct
+
+
+W.9) Parsing of psi-mi-obo
+
+$> /soft/devel/python-2.7/bin/python parse_database.py psi_mi_obo --input-identifier=/home/quim/Databases/psi_mi_obo/psi-mi.obo --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="PSI-MI Obo" --database-version="VERSION 1.2 (October 22, 2014)"
+
+Time: Total time: 6.28789401054 seconds
+
+Checking:
+- Number of databases correct
+- Everything correct
+
+
+W.10) Parsing of DIP
+
+$> /soft/devel/python-2.7/bin/python parse_database.py psi_mi_2.5 --input-identifier=/home/quim/Databases/dip/dip20160731.mif25 --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="DIP" --database-version="Release 2016_07 of 31-Jul-2016" --default-attribute="dip"
+
+Time: Total time: 898.414480925 seconds = 15 min
+
+Checking:
+- Number of databases correct
+- Correct
+
+
+W.11) Parsing of HGNC
+
+$> /soft/devel/python-2.7/bin/python parse_database.py hgnc --input-identifier=/home/quim/Databases/hgnc/hgnc_complete_set.txt --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="HGNC" --database-version="Release 2016_12 of 13-Dec-2016"
+
+Time: Total time: 30.3507959843 seconds
+
+Checking:
+- Number of databases correct
+- Everything correct
+
+
+W.12) Parsing of SCOP
+
+$> /soft/devel/python-2.7/bin/python parse_database.py scop --input-identifier=/home/quim/Databases/scop/ --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="SCOP" --database-version="2.06" --promiscuous
+
+Time: Total time: 205 seconds
+
+Checking:
+- Number of databases correct
+- Everything correct
+
+
+W.13) Parsing of GO
+
+$> /soft/devel/python-2.7/bin/python parse_database.py go_obo --input-identifier=/home/quim/Databases/go/gene_ontology_edit.obo --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="GO" --database-version="VERSION 1.2 (December 8, 2016)"
+
+Time: Total time: 63.9689891338 seconds
+
+Checking:
+- Number of databases correct
+- Everything correct
+
+
+W.14) Parsing of DrugBank
+
+$> /soft/devel/python-2.7/bin/python parse_database.py drugbank --input-identifier=/home/quim/Databases/DrugBank/full_database.xml --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="DrugBank" --database-version="Release 2017_01 of 01-Jan-2017"
+
+Time: 420 seconds
+
+Checking:
+- Number of databases correct
+- Everything correct
+
+
+W.15) Parsing of DCDB
+
+$> /soft/devel/python-2.7/bin/python parse_database.py dcdb --input-identifier=/home/quim/Databases/DCDB/DCDB2_plaintxt/ --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="DCDB" --database-version="v2.0"
+
+Time: Total time: 10.0512001514 seconds
+
+Checking:
+- Number of databases correct
+- Everything correct
+
+
+
+-----------------------
+X. UNIFICATION PROTOCOL
+-----------------------
+
+X.1) First unification protocol for master's project
+
+The databases selected will be:
+
+mysql> select externalDatabaseID, DatabaseName from externalDatabase;
++--------------------+-------------------+
+| externalDatabaseID | DatabaseName      |
++--------------------+-------------------+
+|                  1 | intact            |
+|                  2 | hprd              |
+|                  3 | reactome          |
+|                  4 | taxonomy          |
+|                  6 | irefindex         |
+|                  8 | cog               |
+|                  9 | biogrid           |
+|                 10 | uniprot swissprot |
+|                 11 | psi-mi obo        |
+|                 12 | dip               |
+|                 13 | hgnc              |
+|                 14 | scop              |
+|                 15 | go                |
+|                 16 | drugbank          |
+|                 17 | dcdb              |
++--------------------+-------------------+
+
+
+databases_list = [1,2,3,4,6,8,9,10,11,12,13,14,15,16,17]
+
+attributes_list = [ ["geneid"],
+                     ["taxid","proteinsequence"] ]
+
+
+There is the problem that in DrugBank, the targets are only in UniprotEntry.
+For this reason, if I do not unify by uniprotentry, I will not have the targets unified with the proteins.
+But in some databases, the uniprotentries are not accurate and it is dangerous to unify by uniprotentry.
+
+For this reason, I will do it personalized.
+I will unify by Geneid or Proteinsequence+Taxid in most of the databases.
+But for Uniprot Swissprot, DrugBank and DCDB, I will unify for UniprotEntry as well.
+
+I should include the parsing of InChiKey, SMILES, Chembl and Chebi in DrugBank and DCDB. And include all types of targets, and a column "type".
+
+
 ------------------
-X. PARSING SUMMARY
+Y. PARSING SUMMARY
 ------------------
 
 STRING
@@ -3209,7 +3359,7 @@ HGNC
 ----
 - Version:		Release 2016_12 of 13-Dec-2016
 - Time:			30 seconds
-- Command: /soft/devel/python-2.7/bin/python parse_database.py hgnc_2016 --input-identifier=/home/quim/Databases/hgnc/hgnc_complete_set.txt --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="HGNC" --database-version="Release 2016_12 of 13-Dec-2016"
+- Command: /soft/devel/python-2.7/bin/python parse_database.py hgnc --input-identifier=/home/quim/Databases/hgnc/hgnc_complete_set.txt --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="HGNC" --database-version="Release 2016_12 of 13-Dec-2016"
 - Website: http://www.genenames.org/cgi-bin/statistics
 - Download: hgnc complete set.txt
 - Added to github: yes
@@ -3288,9 +3438,10 @@ TO DO
 
 Order of time:
 
-STRING (????) > PFAM (????) > IntAct (2h 15 min) > Taxonomy (2h 5 min) > Uniprot Swiss (1h 12min) > BioGRID (50 min) > COG (27 min) > Reactome (21 min) > iRefIndex (15 min) > IPI (10 min) > HPRD (7 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min)
+STRING (????) > PFAM (????) > IntAct (2h 15 min) > Taxonomy (2h 5 min) > Uniprot Swiss (1h 12min) > BioGRID (50 min) > COG (27 min) > Reactome (21 min) > iRefIndex (15 min) > IPI (10 min) > HPRD (7 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min) > DCDB (4 seconds)
 
 Missing:
 
-STRING (????) > PFAM (????) > Uniprot Swiss (1h 12min) > IPI (10 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min)
+STRING (????) > PFAM (????) > IPI (I will not parse it)
 
+OMIM, SIDER, STITCH...
