@@ -65,12 +65,13 @@
 \contentsline {subsubsection}{STRING}{51}
 \contentsline {subsubsection}{DrugBank}{52}
 \contentsline {subsubsection}{DCDB}{53}
-\contentsline {section}{\numberline {6.2}Preparing my data to use the generic parser}{53}
-\contentsline {section}{\numberline {6.3}Creating your own parser for your own data}{56}
-\contentsline {section}{\numberline {6.4}Command line arguments accepted by parsers}{59}
-\contentsline {section}{\numberline {6.5}Attributes and types recognized by \textit {BIANA} and defining new ones}{60}
-\contentsline {section}{\numberline {6.6}Proposed unification protocol}{63}
-\contentsline {chapter}{\numberline {7}Additional administration utilities}{65}
-\contentsline {section}{\numberline {7.1}BIANA database backup}{65}
-\contentsline {chapter}{\numberline {8}Glossary}{67}
-\contentsline {chapter}{\numberline {9}Frequently Asked Questions (FAQs)}{69}
+\contentsline {subsubsection}{DisGeNET}{54}
+\contentsline {section}{\numberline {6.2}Preparing my data to use the generic parser}{54}
+\contentsline {section}{\numberline {6.3}Creating your own parser for your own data}{57}
+\contentsline {section}{\numberline {6.4}Command line arguments accepted by parsers}{60}
+\contentsline {section}{\numberline {6.5}Attributes and types recognized by \textit {BIANA} and defining new ones}{61}
+\contentsline {section}{\numberline {6.6}Proposed unification protocol}{64}
+\contentsline {chapter}{\numberline {7}Additional administration utilities}{66}
+\contentsline {section}{\numberline {7.1}BIANA database backup}{66}
+\contentsline {chapter}{\numberline {8}Glossary}{68}
+\contentsline {chapter}{\numberline {9}Frequently Asked Questions (FAQs)}{70}

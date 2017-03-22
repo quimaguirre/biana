@@ -1948,6 +1948,44 @@ Shell Command:
 \end{minipage}
 
 
+\begin{minipage}{\textwidth}
+\subsubsection{DisGeNET}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & The DisGeNET database integrates human gene-disease associations (GDAs) from various expert curated databases and text-mining derived associations including Mendelian, complex and environmental diseases.\\ \hline
+  Database Reference & DisGeNET: a discovery platform for the dynamical exploration of human diseases and their genes. Database (2015) : bav028\\ \hline
+  Database Link & \url{http://www.disgenet.org/web/DisGeNET/menu/downloads} \\ \hline
+  External Entity Types & gene, SNP, disease \\ \hline
+  External Entity Relation Types & gene\_disease\_association, SNP\_disease\_association \\ \hline
+  Needed files & Download the files of the links ``3. ALL gene-disease associations'' and ``5. All SNP-gene-disease associations'' and uncompress them\\ \hline
+  Parser name & disgenet\\ \hline
+  Input-identifier & The path to the folder containing the uncompressed files \\ \hline
+  Checked version & October of 2016\\ \hline
+  Comments & The database files must be uncompressed!! \\ \hline
+  Approximate parsing time & 5 minutes \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py drugbank --input-identifier="/path/to/folder/with/files/"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="DisGeNET"
+                                    --database-version="October_2016"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
 
 \section{Preparing my data to use the generic parser}
 \label{section:use_generic_parser}
