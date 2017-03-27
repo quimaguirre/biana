@@ -57,21 +57,22 @@
 \contentsline {subsubsection}{Cluster Of Orthologous Genes Database (COGs)}{41}
 \contentsline {subsubsection}{HUGO Gene Nomenclature Committee (HGNC)}{42}
 \contentsline {subsubsection}{KEGG: Kyoto Encyclopedia of Genes and Genomes}{43}
-\contentsline {subsubsection}{PSI-MI 2.5 Formatted databases}{44}
-\contentsline {subsubsection}{Biopax Level 2 Formatted databases}{47}
-\contentsline {subsubsection}{Structural Classification of Proteins (SCOP)}{48}
-\contentsline {subsubsection}{Protein Families database (PFAM)}{49}
-\contentsline {subsubsection}{Gene Ontology (GO)}{50}
-\contentsline {subsubsection}{STRING}{51}
-\contentsline {subsubsection}{DrugBank}{52}
-\contentsline {subsubsection}{DCDB}{53}
-\contentsline {subsubsection}{DisGeNET}{54}
-\contentsline {section}{\numberline {6.2}Preparing my data to use the generic parser}{54}
-\contentsline {section}{\numberline {6.3}Creating your own parser for your own data}{57}
-\contentsline {section}{\numberline {6.4}Command line arguments accepted by parsers}{60}
-\contentsline {section}{\numberline {6.5}Attributes and types recognized by \textit {BIANA} and defining new ones}{61}
-\contentsline {section}{\numberline {6.6}Proposed unification protocol}{64}
-\contentsline {chapter}{\numberline {7}Additional administration utilities}{66}
-\contentsline {section}{\numberline {7.1}BIANA database backup}{66}
-\contentsline {chapter}{\numberline {8}Glossary}{68}
-\contentsline {chapter}{\numberline {9}Frequently Asked Questions (FAQs)}{70}
+\contentsline {subsubsection}{IntAct}{44}
+\contentsline {subsubsection}{PSI-MI 2.5 Formatted databases}{45}
+\contentsline {subsubsection}{Biopax Level 2 Formatted databases}{48}
+\contentsline {subsubsection}{Structural Classification of Proteins (SCOP)}{49}
+\contentsline {subsubsection}{Protein Families database (PFAM)}{50}
+\contentsline {subsubsection}{Gene Ontology (GO)}{51}
+\contentsline {subsubsection}{STRING}{52}
+\contentsline {subsubsection}{DrugBank}{53}
+\contentsline {subsubsection}{DCDB}{54}
+\contentsline {subsubsection}{DisGeNET}{55}
+\contentsline {section}{\numberline {6.2}Preparing my data to use the generic parser}{55}
+\contentsline {section}{\numberline {6.3}Creating your own parser for your own data}{58}
+\contentsline {section}{\numberline {6.4}Command line arguments accepted by parsers}{61}
+\contentsline {section}{\numberline {6.5}Attributes and types recognized by \textit {BIANA} and defining new ones}{62}
+\contentsline {section}{\numberline {6.6}Proposed unification protocol}{65}
+\contentsline {chapter}{\numberline {7}Additional administration utilities}{67}
+\contentsline {section}{\numberline {7.1}BIANA database backup}{67}
+\contentsline {chapter}{\numberline {8}Glossary}{69}
+\contentsline {chapter}{\numberline {9}Frequently Asked Questions (FAQs)}{71}

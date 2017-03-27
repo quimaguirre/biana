@@ -1535,6 +1535,48 @@ Peptide sequences:
 \printcommand{parser_command}
 \end{minipage}
 
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{IntAct}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & IntAct provides a freely available, open source database system and analysis tools for molecular interaction data. All interactions are derived from literature curation or direct user submissions and are freely available. \\ \hline
+  Database Reference & The MIntAct project - IntAct as a common curation platform for 11 molecular interaction databases. Nucl. Acids Res. (1 January 2014) 42  \\ \hline
+  Database Link & \url{ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psi25/species/} \\ \hline
+  External Entity Types & Protein\\ \hline
+  External Entity Relation Types & Interaction\\ \hline
+  Needed files & All xml files in psi25/species/ \\ \hline
+  Parser name & intact \\ \hline
+  Input-identifier & Path containing the xml files \\ \hline
+  Checked version & Version of October 2016\\ \hline
+  Comments & \- \\ \hline
+  Approximate parsing time & 2 hours 15 minutes\\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+
+\smallskip
+
+Shell Command:
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py intact --input-identifier=FOLDER_WHERE_DATA_IS_SAVED
+                                  --biana-dbname="BIANA_DB"
+                                  --biana-dbuser="root"
+                                  --biana-dbpass="PASSWORD"
+                                  --time-control
+                                  --database-name="IntAct"
+                                  --database-version="Release 2016_10 of 06-Oct-2016"
+                                  --default-attribute="intact"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
 %\begin{minipage}{\textwidth}
 \subsubsection{PSI-MI 2.5 Formatted databases}
 
@@ -1575,19 +1617,6 @@ Shell Command:
 
 This parser has been tested for PSI-MI 2.5 formatted databases:
 \begin{itemize}
-
-\item IntAct
-  \begin{description}
-    \item[Description:] IntAct provides a freely available, open source database system and analysis tools for molecular interaction data. All interactions are derived from literature curation or direct user submissions and are freely available
-    \item[Reference:] The MIntAct project - IntAct as a common curation platform for 11 molecular interaction databases. Nucl. Acids Res. (1 January 2014) 42 
-    \item[Website:] http://www.ebi.ac.uk/intact/
-    \item[Download:] All xml files in ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psi25/species/
-    \item[Database name:] IntAct
-    \item[Default attribute:] intact
-    \item[Input identifier:] Path containing the xml files
-    \item[Checked:] for version of October 2016
-    \item[Parsing time:] 2 hours 15 minutes
-  \end{description}
 
 \item BioGrid
   \begin{description}

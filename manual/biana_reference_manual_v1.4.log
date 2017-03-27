@@ -1,4 +1,4 @@
-This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2015.4.1)  22 MAR 2017 17:57
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2015.4.1)  27 MAR 2017 10:31
 entering extended mode
  %&-line parsing enabled.
 **biana_reference_manual_v1.4.tex
@@ -661,604 +661,633 @@ Overfull \vbox (24.3187pt too high) has occurred while \output is active []
 
 
 [43]
-Underfull \hbox (badness 10000) in paragraph at lines 1545--1545
+Underfull \hbox (badness 10000) in paragraph at lines 1547--1547
 []\OT1/cmr/m/n/10.95 Database Ref-er-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1547--1547
+Underfull \hbox (badness 10000) in paragraph at lines 1549--1549
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1548--1548
+Underfull \hbox (badness 10000) in paragraph at lines 1550--1550
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1554--1554
+Underfull \hbox (badness 10000) in paragraph at lines 1556--1556
 []\OT1/cmr/m/n/10.95 Approximate
  []
 
 
-Overfull \hbox (33.88582pt too wide) in paragraph at lines 1542--1558
+Overfull \hbox (33.88582pt too wide) in paragraph at lines 1544--1560
 [] 
  []
 
 
-Overfull \hbox (15.75507pt too wide) in paragraph at lines 1573--1574
+Overfull \hbox (7.25519pt too wide) in paragraph at lines 1575--1576
 [][][][][][][] 
  []
 
 
-Overfull \hbox (109.15445pt too wide) in paragraph at lines 1584--1585
-[]\OT1/cmr/m/n/10.95 All xml files in ftp://ftp.ebi.ac.uk/pub/databases/intact/
-current/psi25/species/ 
+Overfull \hbox (17.0pt too wide) in paragraph at lines 1540--1577
+[]$[]$ 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1587--1587
+[]\OT1/cmr/m/n/10.95 Database Ref-er-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1589--1589
+[]\OT1/cmr/m/n/10.95 External En-tity
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1590--1590
+[]\OT1/cmr/m/n/10.95 External En-tity
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1596--1596
+[]\OT1/cmr/m/n/10.95 Approximate
+ []
+
+
+Overfull \hbox (33.88582pt too wide) in paragraph at lines 1584--1600
+[] 
  []
 
 [44]
-Overfull \hbox (15.81465pt too wide) in paragraph at lines 1594--1595
+Overfull \hbox (15.75507pt too wide) in paragraph at lines 1615--1616
+[][][][][][][] 
+ []
+
+
+Overfull \hbox (15.81465pt too wide) in paragraph at lines 1623--1624
 []\OT1/cmr/m/n/10.95 The Bi-o-log-i-cal Gen-eral Repos-i-tory for In-ter-ac-tio
 n Datasets
  []
 
 
-Overfull \hbox (91.01624pt too wide) in paragraph at lines 1597--1598
+Overfull \hbox (91.01624pt too wide) in paragraph at lines 1626--1627
 \OT1/cmr/m/n/10.95 to un-com-press man-u-ally the zip file ([]\OT1/cmtt/m/n/10.
 95 unzip BIOGRID-ORGANISM-x.x.xx.psi25.zip\OT1/cmr/m/n/10.95 ) 
  []
 
 
-Overfull \hbox (13.97346pt too wide) in paragraph at lines 1600--1601
+Overfull \hbox (13.97346pt too wide) in paragraph at lines 1629--1630
 \OT1/cmr/m/n/10.95 com-presses it into a folder named ``BIOGRID-ORGANISM-x.x.xx
 ''). 
  []
 
-
-Overfull \hbox (0.74684pt too wide) in paragraph at lines 1610--1611
+[45]
+Overfull \hbox (0.74684pt too wide) in paragraph at lines 1639--1640
 []\OT1/cmr/m/n/10.95 FULL file from down-loads, which is com-plete DIP dataset
  []
 
-[45]
-Overfull \hbox (35.51563pt too wide) in paragraph at lines 1635--1636
+[46]
+Overfull \hbox (35.51563pt too wide) in paragraph at lines 1664--1665
 []\OT1/cmr/m/n/10.95 file ftp://ftpmips.gsf.de/yeast/PPI/mpact-complete.psi25.x
 ml.gz 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1670--1670
+Underfull \hbox (badness 10000) in paragraph at lines 1699--1699
 []\OT1/cmr/m/n/10.95 Database Ref-er-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1672--1672
+Underfull \hbox (badness 10000) in paragraph at lines 1701--1701
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1673--1673
+Underfull \hbox (badness 10000) in paragraph at lines 1702--1702
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1679--1679
+Underfull \hbox (badness 10000) in paragraph at lines 1708--1708
 []\OT1/cmr/m/n/10.95 Approximate
  []
 
 
-Overfull \hbox (33.88582pt too wide) in paragraph at lines 1667--1683
+Overfull \hbox (33.88582pt too wide) in paragraph at lines 1696--1712
 [] 
  []
 
 Missing character: There is no È in font cmtt8!
 
-Overfull \hbox (15.75531pt too wide) in paragraph at lines 1696--1697
+Overfull \hbox (15.75531pt too wide) in paragraph at lines 1725--1726
 [][][][][][][] 
  []
 
 
-Overfull \hbox (17.0pt too wide) in paragraph at lines 1663--1716
+Overfull \hbox (17.0pt too wide) in paragraph at lines 1692--1745
 []$[]$ 
  []
 
-[46]
+[47]
 Overfull \vbox (51.9465pt too high) has occurred while \output is active []
 
 
-[47]
-Underfull \hbox (badness 10000) in paragraph at lines 1724--1724
+[48]
+Underfull \hbox (badness 10000) in paragraph at lines 1753--1753
 []\OT1/cmr/m/n/10.95 Database Ref-er-
  []
 
 
-Underfull \hbox (badness 1365) in paragraph at lines 1724--1724
+Underfull \hbox (badness 1365) in paragraph at lines 1753--1753
 \OT1/cmr/m/n/10.95 (1995). SCOP: a struc-tural clas-si-fi-ca-tion of pro-teins
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1726--1726
+Underfull \hbox (badness 10000) in paragraph at lines 1755--1755
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1727--1727
+Underfull \hbox (badness 10000) in paragraph at lines 1756--1756
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1733--1733
+Underfull \hbox (badness 10000) in paragraph at lines 1762--1762
 []\OT1/cmr/m/n/10.95 Approximate
  []
 
 
-Overfull \hbox (33.88582pt too wide) in paragraph at lines 1721--1737
+Overfull \hbox (33.88582pt too wide) in paragraph at lines 1750--1766
 [] 
  []
 
 
-Overfull \hbox (17.0pt too wide) in paragraph at lines 1717--1754
+Overfull \hbox (17.0pt too wide) in paragraph at lines 1746--1783
 []$[]$ 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1763--1763
+Underfull \hbox (badness 10000) in paragraph at lines 1792--1792
 []\OT1/cmr/m/n/10.95 Database Ref-er-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1765--1765
+Underfull \hbox (badness 10000) in paragraph at lines 1794--1794
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1766--1766
+Underfull \hbox (badness 10000) in paragraph at lines 1795--1795
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 8056) in paragraph at lines 1767--1767
+Underfull \hbox (badness 8056) in paragraph at lines 1796--1796
 []\OT1/cmr/m/n/10.95 pfamA-file-name=Pfam-A.full.gz pfamB-file-name=Pfam-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1772--1772
+Underfull \hbox (badness 10000) in paragraph at lines 1801--1801
 []\OT1/cmr/m/n/10.95 Approximate
  []
 
 
-Overfull \hbox (33.88582pt too wide) in paragraph at lines 1760--1776
+Overfull \hbox (33.88582pt too wide) in paragraph at lines 1789--1805
 [] 
  []
 
 
-Overfull \hbox (17.0pt too wide) in paragraph at lines 1756--1796
-[]$[]$ 
- []
-
-[48]
-Underfull \hbox (badness 10000) in paragraph at lines 1805--1805
-[]\OT1/cmr/m/n/10.95 Database Ref-er-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1807--1807
-[]\OT1/cmr/m/n/10.95 External En-tity
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1808--1808
-[]\OT1/cmr/m/n/10.95 External En-tity
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1814--1814
-[]\OT1/cmr/m/n/10.95 Approximate
- []
-
-
-Overfull \hbox (33.88582pt too wide) in paragraph at lines 1802--1818
-[] 
- []
-
-
-Overfull \hbox (17.0pt too wide) in paragraph at lines 1798--1834
+Overfull \hbox (17.0pt too wide) in paragraph at lines 1785--1825
 []$[]$ 
  []
 
 [49]
-Underfull \hbox (badness 10000) in paragraph at lines 1843--1843
+Underfull \hbox (badness 10000) in paragraph at lines 1834--1834
 []\OT1/cmr/m/n/10.95 Database Ref-er-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1846--1846
+Underfull \hbox (badness 10000) in paragraph at lines 1836--1836
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1847--1847
+Underfull \hbox (badness 10000) in paragraph at lines 1837--1837
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 6157) in paragraph at lines 1848--1848
+Underfull \hbox (badness 10000) in paragraph at lines 1843--1843
+[]\OT1/cmr/m/n/10.95 Approximate
+ []
+
+
+Overfull \hbox (33.88582pt too wide) in paragraph at lines 1831--1847
+[] 
+ []
+
+
+Overfull \hbox (17.0pt too wide) in paragraph at lines 1827--1863
+[]$[]$ 
+ []
+
+[50]
+Underfull \hbox (badness 10000) in paragraph at lines 1872--1872
+[]\OT1/cmr/m/n/10.95 Database Ref-er-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1875--1875
+[]\OT1/cmr/m/n/10.95 External En-tity
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1876--1876
+[]\OT1/cmr/m/n/10.95 External En-tity
+ []
+
+
+Underfull \hbox (badness 6157) in paragraph at lines 1877--1877
 []\OT1/cmr/m/n/10.95 protein.aliases.v10.txt.gz, pro-tein.links.detailed.v10.tx
 t.gz
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1853--1853
+Underfull \hbox (badness 10000) in paragraph at lines 1882--1882
 []\OT1/cmr/m/n/10.95 Approximate
  []
 
 
-Overfull \hbox (33.88582pt too wide) in paragraph at lines 1840--1857
+Overfull \hbox (33.88582pt too wide) in paragraph at lines 1869--1886
 [] 
  []
 
 
-Overfull \hbox (7.25519pt too wide) in paragraph at lines 1871--1872
+Overfull \hbox (7.25519pt too wide) in paragraph at lines 1900--1901
 [][][][][][][] 
  []
 
 
-Overfull \hbox (17.0pt too wide) in paragraph at lines 1836--1873
-[]$[]$ 
- []
-
-[50]
-Underfull \hbox (badness 10000) in paragraph at lines 1882--1882
-[]\OT1/cmr/m/n/10.95 Database Ref-er-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1884--1884
-[]\OT1/cmr/m/n/10.95 External En-tity
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1885--1885
-[]\OT1/cmr/m/n/10.95 External En-tity
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1891--1891
-[]\OT1/cmr/m/n/10.95 Approximate
- []
-
-
-Overfull \hbox (33.88582pt too wide) in paragraph at lines 1879--1895
-[] 
- []
-
-
-Overfull \hbox (17.0pt too wide) in paragraph at lines 1875--1911
+Overfull \hbox (17.0pt too wide) in paragraph at lines 1865--1902
 []$[]$ 
  []
 
 [51]
-Underfull \hbox (badness 10000) in paragraph at lines 1920--1920
+Underfull \hbox (badness 10000) in paragraph at lines 1911--1911
 []\OT1/cmr/m/n/10.95 Database Ref-er-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1922--1922
+Underfull \hbox (badness 10000) in paragraph at lines 1913--1913
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1923--1923
+Underfull \hbox (badness 10000) in paragraph at lines 1914--1914
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1929--1929
+Underfull \hbox (badness 10000) in paragraph at lines 1920--1920
 []\OT1/cmr/m/n/10.95 Approximate
  []
 
 
-Overfull \hbox (33.88582pt too wide) in paragraph at lines 1917--1933
+Overfull \hbox (33.88582pt too wide) in paragraph at lines 1908--1924
 [] 
  []
 
 
-Overfull \hbox (17.0pt too wide) in paragraph at lines 1913--1949
+Overfull \hbox (17.0pt too wide) in paragraph at lines 1904--1940
 []$[]$ 
  []
 
 [52]
-Underfull \hbox (badness 10000) in paragraph at lines 1958--1958
+Underfull \hbox (badness 10000) in paragraph at lines 1949--1949
 []\OT1/cmr/m/n/10.95 Database Ref-er-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1960--1960
+Underfull \hbox (badness 10000) in paragraph at lines 1951--1951
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1961--1961
+Underfull \hbox (badness 10000) in paragraph at lines 1952--1952
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1967--1967
+Underfull \hbox (badness 10000) in paragraph at lines 1958--1958
 []\OT1/cmr/m/n/10.95 Approximate
  []
 
 
-Overfull \hbox (33.88582pt too wide) in paragraph at lines 1955--1971
+Overfull \hbox (33.88582pt too wide) in paragraph at lines 1946--1962
 [] 
  []
 
 
-Overfull \hbox (11.50525pt too wide) in paragraph at lines 1985--1986
-[][][][][][][] 
- []
-
-
-Overfull \hbox (17.0pt too wide) in paragraph at lines 1951--1987
+Overfull \hbox (17.0pt too wide) in paragraph at lines 1942--1978
 []$[]$ 
  []
 
 [53]
-Underfull \hbox (badness 10000) in paragraph at lines 1999--1999
+Underfull \hbox (badness 10000) in paragraph at lines 1987--1987
+[]\OT1/cmr/m/n/10.95 Database Ref-er-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1989--1989
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2000--2000
+Underfull \hbox (badness 10000) in paragraph at lines 1990--1990
 []\OT1/cmr/m/n/10.95 External En-tity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2004--2004
+Underfull \hbox (badness 10000) in paragraph at lines 1996--1996
 []\OT1/cmr/m/n/10.95 Approximate
  []
 
 
-Overfull \hbox (50.88582pt too wide) in paragraph at lines 1996--2008
+Overfull \hbox (33.88582pt too wide) in paragraph at lines 1984--2000
+[] 
+ []
+
+
+Overfull \hbox (11.50525pt too wide) in paragraph at lines 2014--2015
+[][][][][][][] 
+ []
+
+
+Overfull \hbox (17.0pt too wide) in paragraph at lines 1980--2016
+[]$[]$ 
+ []
+
+[54]
+Underfull \hbox (badness 10000) in paragraph at lines 2028--2028
+[]\OT1/cmr/m/n/10.95 External En-tity
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2029--2029
+[]\OT1/cmr/m/n/10.95 External En-tity
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2033--2033
+[]\OT1/cmr/m/n/10.95 Approximate
+ []
+
+
+Overfull \hbox (50.88582pt too wide) in paragraph at lines 2025--2037
 [][] 
  []
 
-[54] [55]
-Overfull \hbox (13.6647pt too wide) in paragraph at lines 2052--2052
+[55] [56]
+Overfull \hbox (13.6647pt too wide) in paragraph at lines 2081--2081
 []\OT1/cmtt/m/n/10.95 C1      compound        -       15422   Adenosine 5'-trip
 hosphate[] 
  []
 
 
-Overfull \hbox (7.91602pt too wide) in paragraph at lines 2053--2053
+Overfull \hbox (7.91602pt too wide) in paragraph at lines 2082--2082
 []\OT1/cmtt/m/n/10.95 C2      compound        -       16761   Adenosine 5'-diph
 osphate[] 
  []
 
 
-Overfull \hbox (243.61221pt too wide) in paragraph at lines 2058--2058
+Overfull \hbox (243.61221pt too wide) in paragraph at lines 2087--2087
 []\OT1/cmtt/m/n/10.95 id      interactor_id_list      type            name     
                method_ID       participants:role[] 
  []
 
 
-Overfull \hbox (232.11484pt too wide) in paragraph at lines 2059--2059
+Overfull \hbox (232.11484pt too wide) in paragraph at lines 2088--2088
 []\OT1/cmtt/m/n/10.95 R1      6|7                     interaction     -        
                18              6: bait| 7:prey[] 
  []
 
 
-Overfull \hbox (151.63321pt too wide) in paragraph at lines 2060--2060
+Overfull \hbox (151.63321pt too wide) in paragraph at lines 2089--2089
 []\OT1/cmtt/m/n/10.95 R2      2|3                     interaction     -        
                18              -[] 
  []
 
 
-Overfull \hbox (151.63321pt too wide) in paragraph at lines 2061--2061
+Overfull \hbox (151.63321pt too wide) in paragraph at lines 2090--2090
 []\OT1/cmtt/m/n/10.95 R3      3|4                     interaction     -        
                18              -[] 
  []
 
 
-Overfull \hbox (151.63321pt too wide) in paragraph at lines 2062--2062
+Overfull \hbox (151.63321pt too wide) in paragraph at lines 2091--2091
 []\OT1/cmtt/m/n/10.95 R4      100|101|102|103         complex         ABC compl
 ex             109             -[] 
  []
 
 
-Overfull \hbox (151.63321pt too wide) in paragraph at lines 2063--2063
+Overfull \hbox (151.63321pt too wide) in paragraph at lines 2092--2092
 []\OT1/cmtt/m/n/10.95 R5      103|104                 interaction     -        
                109             -[] 
  []
 
 
-Overfull \hbox (151.63321pt too wide) in paragraph at lines 2064--2064
+Overfull \hbox (151.63321pt too wide) in paragraph at lines 2093--2093
 []\OT1/cmtt/m/n/10.95 R6      104|105                 interaction     -        
                109             -[] 
  []
 
 
-Overfull \hbox (151.63321pt too wide) in paragraph at lines 2065--2065
+Overfull \hbox (151.63321pt too wide) in paragraph at lines 2094--2094
 []\OT1/cmtt/m/n/10.95 R7      105|106                 interaction     -        
                109             -[] 
  []
 
 
-Overfull \hbox (151.63321pt too wide) in paragraph at lines 2066--2066
+Overfull \hbox (151.63321pt too wide) in paragraph at lines 2095--2095
 []\OT1/cmtt/m/n/10.95 R8      4|105                   interaction     -        
                18              -[] 
  []
 
 
-Overfull \hbox (519.54922pt too wide) in paragraph at lines 2067--2067
+Overfull \hbox (519.54922pt too wide) in paragraph at lines 2096--2096
 []\OT1/cmtt/m/n/10.95 R9      W|B12|C1|C2|C3          reaction        reaction_
 sample         -               B12: substrate|C1: substrate|C2: substrate|C3: p
 roduct|W: product[] 
  []
 
 
-Overfull \hbox (151.63321pt too wide) in paragraph at lines 2068--2068
+Overfull \hbox (151.63321pt too wide) in paragraph at lines 2097--2097
 []\OT1/cmtt/m/n/10.95 R10     R4|R5|R6|R7             pathway         first_pat
 hway           -               -[] 
  []
 
 
-Overfull \hbox (151.63321pt too wide) in paragraph at lines 2069--2069
+Overfull \hbox (151.63321pt too wide) in paragraph at lines 2098--2098
 []\OT1/cmtt/m/n/10.95 R11     R2|R3|R8                pathway         pathway2 
                -               -[] 
  []
 
-[56]
-Overfull \hbox (151.63321pt too wide) in paragraph at lines 2070--2070
+[57]
+Overfull \hbox (151.63321pt too wide) in paragraph at lines 2099--2099
 []\OT1/cmtt/m/n/10.95 R12     R10|R11                 pathway         global pa
 thway          -               -[] 
  []
 
 
-Overfull \hbox (113.46489pt too wide) in paragraph at lines 2078--2080
+Overfull \hbox (113.46489pt too wide) in paragraph at lines 2107--2109
 \OT1/cmr/m/n/10.95 All parsers writ-ten in \OT1/cmr/m/it/10.95 BIANA \OT1/cmr/m
 /n/10.95 in-her-its Biana-Parser class found in biana/BianaParser/bianaParser.p
 y.
  []
 
 
-Overfull \hbox (88.0061pt too wide) in paragraph at lines 2103--2104
+Overfull \hbox (88.0061pt too wide) in paragraph at lines 2132--2133
 [][][][][][][] 
  []
 
-[57]
-Overfull \hbox (96.50623pt too wide) in paragraph at lines 2145--2146
+[58]
+Overfull \hbox (96.50623pt too wide) in paragraph at lines 2174--2175
 [][][][][][][] 
  []
 
 
-Overfull \hbox (21.08665pt too wide) in paragraph at lines 2148--2149
+Overfull \hbox (21.08665pt too wide) in paragraph at lines 2177--2178
 []\OT1/cmtt/m/n/10.95 add_valid_external_entity_relation_participant_attribute_
 type \OT1/cmr/m/n/10.95 meth-
  []
 
 
-Overfull \hbox (49.75555pt too wide) in paragraph at lines 2161--2162
+Overfull \hbox (49.75555pt too wide) in paragraph at lines 2190--2191
 [][][][][][][] 
  []
 
-[58]
-Overfull \hbox (122.00659pt too wide) in paragraph at lines 2193--2194
+[59]
+Overfull \hbox (122.00659pt too wide) in paragraph at lines 2222--2223
 [][][][][][][] 
  []
 
 
-Overfull \hbox (156.00708pt too wide) in paragraph at lines 2233--2234
+Overfull \hbox (156.00708pt too wide) in paragraph at lines 2262--2263
 [][][][][][][] 
  []
 
-[59] [60]
+[60] [61]
 
 Package Fancyhdr Warning: \headheight is too small (13.59999pt): 
  Make it at least 25.2842pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
-[61]
+[62]
 Overfull \vbox (601.4985pt too high) has occurred while \output is active []
 
 
-[62] [63]
-Overfull \hbox (40.87894pt too wide) in paragraph at lines 2437--2438
+[63] [64]
+Overfull \hbox (40.87894pt too wide) in paragraph at lines 2466--2467
 []\OT1/cmr/m/n/10.95 add[]valid[]external[]entity[]relation[]type( new[]type
  []
 
 
-Overfull \hbox (62.1595pt too wide) in paragraph at lines 2441--2442
+Overfull \hbox (62.1595pt too wide) in paragraph at lines 2470--2471
 []\OT1/cmr/m/n/10.95 add[]valid[]external[]entity[]attribute[]type(
  []
 
 
-Overfull \hbox (67.91588pt too wide) in paragraph at lines 2445--2446
+Overfull \hbox (67.91588pt too wide) in paragraph at lines 2474--2475
 []\OT1/cmr/m/n/10.95 add[]valid[]external[]entity[]attribute[]type(
  []
 
 
-Overfull \hbox (112.87895pt too wide) in paragraph at lines 2449--2450
+Overfull \hbox (112.87895pt too wide) in paragraph at lines 2478--2479
 []\OT1/cmr/m/n/10.95 add[]valid[]external[]entity[]attribute[]type(
  []
 
 
-Overfull \hbox (118.63533pt too wide) in paragraph at lines 2453--2454
+Overfull \hbox (118.63533pt too wide) in paragraph at lines 2482--2483
 []\OT1/cmr/m/n/10.95 add[]valid[]external[]entity[]attribute[]type(
  []
 
 
-Overfull \hbox (220.22554pt too wide) in paragraph at lines 2457--2458
+Overfull \hbox (220.22554pt too wide) in paragraph at lines 2486--2487
 []\OT1/cmr/m/n/10.95 add[]valid[]external[]entity[]relation[]participant[]attri
 bute[]type(
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2467--2468
+Underfull \hbox (badness 10000) in paragraph at lines 2496--2497
 []\OT1/cmr/bx/n/10.95 Attributes
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2470--2471
+Underfull \hbox (badness 10000) in paragraph at lines 2499--2500
 []\OT1/cmr/m/n/10.95 ProteinSequence
  []
 
 
-Overfull \hbox (4.9978pt too wide) in paragraph at lines 2466--2477
+Overfull \hbox (4.9978pt too wide) in paragraph at lines 2495--2506
 [][] 
  []
 
-[64] [65]
+[65] [66]
 Chapter 7.
 
-Overfull \hbox (7.25494pt too wide) in paragraph at lines 2501--2502
+Overfull \hbox (7.25494pt too wide) in paragraph at lines 2530--2531
 [][][][][][][] 
  []
 
-[66
+[67
 
-] [67]
+] [68]
 Chapter 8.
 
-Overfull \hbox (20.83806pt too wide) in paragraph at lines 2532--2533
+Overfull \hbox (20.83806pt too wide) in paragraph at lines 2561--2562
 []\OT1/cmr/m/n/10.95 A repos-i-tory of \OT1/cmr/m/it/10.95 BIANA \OT1/cmr/m/n/1
 0.95 con-tain-ing set of ex-ter-nal databases
  []
 
 
-Overfull \hbox (0.16423pt too wide) in paragraph at lines 2532--2533
+Overfull \hbox (0.16423pt too wide) in paragraph at lines 2561--2562
 \OT1/cmr/m/n/10.95 and uni-fied en-tries com-piled from all avail-able ex-ter-n
 al databases based
  []
 
-[68
+[69
 
-] [69]
+] [70]
 Chapter 9.
 
-Underfull \hbox (badness 10000) in paragraph at lines 2563--2567
+Underfull \hbox (badness 10000) in paragraph at lines 2592--2596
 
  []
 
-[70
+[71
 
 ]
-Overfull \hbox (8.07745pt too wide) in paragraph at lines 2585--2586
+Overfull \hbox (8.07745pt too wide) in paragraph at lines 2614--2615
 []\OT1/cmr/m/n/10.95 If you are MySQL server in your lo-cal host try us-ing ``1
 27.0.0.1''
  []
 
 
-Overfull \hbox (13.49736pt too wide) in paragraph at lines 2600--2602
+Overfull \hbox (13.49736pt too wide) in paragraph at lines 2629--2631
 []\OT1/cmr/m/n/10.95 Make sure you copied your new parser into \OT1/cmr/m/it/10
 .95 BIANA []\OT1/cmr/m/n/10.95 Installation[]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2600--2602
+Underfull \hbox (badness 10000) in paragraph at lines 2629--2631
 
  []
 
-[71] [72] [73] (./biana_reference_manual_v1.4.aux) ) 
+[72] [73] [74] (./biana_reference_manual_v1.4.aux) ) 
 Here is how much of TeX's memory you used:
  1304 strings out of 256216
  18012 string characters out of 1917073
@@ -1275,9 +1304,9 @@ r/share/texmf/fonts/type1/bluesky/cm/cmr17.pfb></usr/share/texmf/fonts/type1/bl
 uesky/cm/cmr6.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmsy10.pfb></usr/sha
 re/texmf/fonts/type1/bluesky/cm/cmti10.pfb></usr/share/texmf/fonts/type1/bluesk
 y/cm/cmtt10.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmtt8.pfb>
-Output written on biana_reference_manual_v1.4.pdf (74 pages, 500350 bytes).
+Output written on biana_reference_manual_v1.4.pdf (75 pages, 502004 bytes).
 PDF statistics:
- 291 PDF objects out of 1000 (max. 8388607)
+ 294 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 131072)
  16 words of extra memory for PDF output out of 10000 (max. 10000000)
 
