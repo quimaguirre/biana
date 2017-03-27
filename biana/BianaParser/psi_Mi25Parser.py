@@ -574,7 +574,12 @@ class Psi_MiFormattedDBParser(BianaParser):
             elif indexDigit == 1:
                 dbNameConverted = "UniprotAccession"
         elif dbUpper == "PROTEIN GI":
-            dbNameConverted = "GI"
+            gi_regex = re.compile('^[0-9]+$')
+            m = gi_regex.match(id)
+            if m:
+                dbNameConverted = "GI"
+            else:
+                dbNameConverted = 'ignore'
         elif dbUpper == "RCSB PDB" or dbUpper == "PDB" or dbUpper == "WWPDB":
             dbNameConverted = "pdb"
         elif dbUpper == "REACTOME COMPLEX" or dbUpper == "REACTOME PROTEIN" or dbUpper == "REACTOME":
@@ -594,7 +599,17 @@ class Psi_MiFormattedDBParser(BianaParser):
             if self.sourcedb_name == "mint":
                 dictFieldValue = secondary
 	elif dbUpper == "GENBANK_NUCL_GI" or dbUpper == "GENBANK INDENTIFIER" or dbUpper=="NUCLEOTIDE GENBANK IDENTIFIER":
-            dbNameConverted = "GI"
+            refseq_regex = re.compile('(NC|AC|NG|NT|NW|NZ|NM|NR|XM|XR|NP|AP|XP|YP|ZP)_[0-9]+')
+            m = refseq_regex.match(id)
+            if m:
+                dbNameConverted = "RefSeq"
+            else:
+                gi_regex = re.compile('^[0-9]+$')
+                m = gi_regex.match(id)
+                if m:
+                    dbNameConverted = "GI"
+                else:
+                    dbNameConverted = "ignore"
         elif dbUpper == "GENBANK_PROTEIN_GI" or dbUpper == "PROTEIN GENBANK IDENTIFIER":
             if id.lower().startswith("gi:"):
                 dictFieldValue = id[3:]
@@ -608,7 +623,14 @@ class Psi_MiFormattedDBParser(BianaParser):
             dictFieldValue = id[4:]
             self.checkOrInsertDBNamePrefix(dbNameConverted, id[:4])
         elif dbUpper == "WORMBASE": # wormbase, WormBase
-            dbNameConverted = "wormbasegeneid"
+            # WBGENE00018724
+            wormbasegeneid_regex = re.compile('WBGENE([0-9]+)', re.IGNORECASE)
+            m = wormbasegeneid_regex.match(id)
+            if m:
+                dbNameConverted = "wormbasegeneid"
+                dictFieldValue = id[6:]
+            else:
+                dbNameConverted = "ignore"
             #dictFieldValue = id[6:]
             #self.checkOrInsertDBNamePrefix(dbNameConverted, id[:6])
         elif dbUpper == "PUBMED":
