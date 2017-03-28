@@ -682,6 +682,8 @@ class Psi_MiFormattedDBParser(BianaParser):
         elif dbUpper == "IMGT/GENE-DB":
             dbNameConverted = "IMGT"
         elif dbUpper == "PSI-MI":
+            if id.lower().startswith("mi:"):
+                dictFieldValue = id[3:]
             dbNameConverted = "method_id"
         elif dbUpper == "N/A":
             dbNameConverted = "ignore"
