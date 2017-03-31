@@ -41,15 +41,19 @@ class GPCRParser(BianaParser):
         self.external_entity_ids_dict = {}
 
 
-        print("\n.....INSERTING THE GENES IN THE DATABASE.....\n")
+        print("\n.....INSERTING THE PROTEINS IN THE DATABASE.....\n")
 
-        for geneID in parser.geneIDs:
+        for uniprot in parser.uniprots:
 
             # Create an external entity corresponding to the geneID in the database (if it is not already created)
-            if not self.external_entity_ids_dict.has_key(geneID):
+            if not self.external_entity_ids_dict.has_key(uniprot):
 
-                #print("Adding gene %s" %(geneID))
-                self.create_gene_external_entity(parser, geneID)
+                #print("Adding protein %s" %(uniprot))
+                self.create_protein_external_entity(parser, uniprot) 
+
+                # HEEEEEEEERE
+
+
 
 
         print("\n.....INSERTING THE DISEASES IN THE DATABASE.....\n")
@@ -96,12 +100,12 @@ class GPCRParser(BianaParser):
 
 
 
-    def create_gene_external_entity(self, parser, geneID):
+    def create_protein_external_entity(self, parser, geneID):
         """
         Create an external entity of a gene and add it in BIANA
         """
 
-        new_external_entity = ExternalEntity( source_database = self.database, type = "gene" )
+        new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
         # Annotate its GeneID
         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=geneID, type="cross-reference") )
@@ -282,30 +286,14 @@ class GPCR_Interactome(object):
     def __init__(self, input_file):
 
         self.GPCR_file = input_file
-        self.snp_file = path + '/all_snps_sentences_pubmeds_position.tsv'
 
-        self.geneIDs = set()
-        self.geneID2name = {}
-        self.geneID2description = {}
+        self.uniprots = set()
+        self.uniprot2genesymbol = {}
 
-        self.diseaseUMLS = set()
-        self.disease2name = {}
-
-        self.GDassociation2disease = {}
-        self.GDassociation2geneID = {}
-        self.GDassociation2score = {}
-        self.GDassociation2source = {}
-
-        self.snpIDs = set()
-        self.snpID2geneID = {}
-        self.snpID2geneSymbol = {}
-
-        self.SDassociation2disease = {}
-        self.SDassociation2snpID = {}
-        self.SDassociation2score = {}
-        self.SDassociation2source = {}
-        self.SDassociation2pubmedID = {}
-        self.SDassociation2sentence = {}
+        self.interaction2uniprot = {}
+        self.interaction2species = {}
+        self.interaction2evidence = {}
+        self.interaction2method = {}
 
         return
 
@@ -341,93 +329,24 @@ class GPCR_Interactome(object):
             evidence_type = fields[ fields_dict['Evidence Type'] ]
             detection_method = fields[ fields_dict['Detection Method'] ]
 
-            # Create an association id for the gene-disease association
-            # ---> association id = geneID + '---' + disease_UMLS
-            association = geneID + '---' + disease_UMLS
+            # Create an interaction id for the protein-protein interaction
+            # ---> interaction id = uniprot1 + '---' + uniprot2
+            interaction = uniprot1 + '---' + uniprot2
 
             # Insert the fields into dictionaries
-            self.geneIDs.add(geneID)
-            if geneName != 'NA':
-                self.geneID2name[geneID] = geneName
-            if description != 'NA':
-                self.geneID2description[geneID] = description
+            self.uniprots.add(uniprot1)
+            self.uniprot2genesymbol[uniprot1] = symbol1
+            self.uniprots.add(uniprot2)
+            self.uniprot2genesymbol[uniprot2] = symbol2
 
-            self.diseaseUMLS.add(disease_UMLS)
-            if diseaseName != 'NA':
-                self.disease2name[disease_UMLS] = diseaseName
-            
-            self.GDassociation2disease[association] = disease_UMLS
-            self.GDassociation2geneID[association] = geneID
-            self.GDassociation2score[association] = score
-            self.GDassociation2source[association] = source
+            self.interaction2uniprot.setdefault(interaction, [])
+            self.interaction2uniprot[interaction].append(uniprot1)
+            self.interaction2uniprot[interaction].append(uniprot2)
+            self.interaction2species[interaction] = specie
+            self.interaction2evidence[interaction] = evidence_type
+            self.interaction2method[interaction] = detection_method
 
-        gene_disease_file_fd.close()
-
-
-
-        ########################
-        #### PARSE SNP FILE ####
-        ########################
-
-        print("\n.....PARSING GENE-DISEASE ASSOCIATIONS FILE.....\n")
-
-        snp_file_fd = open(self.snp_file,'r')
-
-        num_line = 0
-
-        for line in snp_file_fd:
-
-            # Skip comments
-            if line[0] == '#':
-                continue
-
-            num_line += 1
-
-            # Obtain a dictionary: "field_name" => "position"
-            if num_line == 1:
-                fields_dict = self.obtain_header_fields(line)
-                continue
-
-            # Split the line in fields
-            fields = line.strip().split("\t")
-
-            # Obtain the fields of interest
-            snpID = fields[ fields_dict['snpId'] ]
-            pubmedID = fields[ fields_dict['pubmedId'] ]
-            geneID = fields[ fields_dict['geneId'] ]
-            geneSymbol = fields[ fields_dict['geneSymbol'] ]
-            disease_UMLS = fields[ fields_dict['diseaseId'] ]
-            diseaseName = fields[ fields_dict['diseaseName'] ]
-            source = fields[ fields_dict['sourceId'] ].split(',')
-            sentence = fields[ fields_dict['sentence'] ]
-            score = fields[ fields_dict['score'] ]
-            year = fields[ fields_dict['year'] ]
-
-            # Create an association id for the SNP-disease association
-            # ---> association id = snpID + '---' + disease_UMLS
-            association = snpID + '---' + disease_UMLS
-
-            # Insert the fields into dictionaries
-            self.snpIDs.add(snpID)
-            if geneID != 'NA':
-                self.snpID2geneID[snpID] = geneID
-            if geneSymbol != 'NA':
-                self.snpID2geneSymbol[snpID] = geneSymbol
-
-            self.diseaseUMLS.add(disease_UMLS)
-            if diseaseName != 'NA':
-                self.disease2name[disease_UMLS] = diseaseName
-
-            self.SDassociation2disease[association] = disease_UMLS
-            self.SDassociation2snpID[association] = snpID
-            self.SDassociation2score[association] = score
-            self.SDassociation2source[association] = source
-            if pubmedID != 'NA':
-                self.SDassociation2pubmedID[association] = pubmedID
-            if sentence != 'NA':
-                self.SDassociation2sentence[association] = sentence
-
-        snp_file_fd.close()
+        gpcr_file_fd.close()
 
         return
 
