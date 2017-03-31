@@ -1793,7 +1793,17 @@ Now let's check the tables:
 So I should include a regex in "psi_Mi25Parser.py" for these cases, to get only the number.
 --> I will introduce the regexes of GI as well in "psi_Mi25Parser.py"
 
-I have added the new psi-mi 25 parser in GitHub, but I should parse BioGRID and check that it is parsed correctly.
+I have added the new psi-mi 25 parser in GitHub, but I should parse BioGRID and check that it is parsed correctly:
+
+$> /soft/devel/python-2.7/bin/python parse_database.py psi_mi_2.5 --input-identifier=/home/quim/Databases/biogrid/BIOGRID-ORGANISM-3.4.143.psi25/ --biana-dbname="test_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="BioGrid" --database-version="Release 3.4.143 (25-Nov-2016)" --default-attribute="biogrid"
+
+Total time: 2992.23692203 seconds
+
+Checking of tables:
+- There was an error in Method ID. The id of the psi-mi methods when they are cross-references was not parsed well
+  I have corrected the parser in psi_Mi25Parser.py and intactParser.py
+The rest is correct. I have parsed BioGRID again and everything is correct.
+The changes have been uploaded to GitHub.
 
 
 7.6) Add the modified parser to GitHub
@@ -3564,7 +3574,7 @@ $> /soft/devel/python-2.7/bin/python create_new_biana_database.py -n BIANA_MAR_2
 
 Z0.1) Parsing of IntAct
 
-$> /soft/devel/python-2.7/bin/python parse_database.py psi_mi_2.5 --input-identifier=/home/quim/Databases/intact/ --biana-dbname="BIANA_JAN_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="IntAct" --database-version="Release 2016_10 of 06-Oct-2016" --default-attribute="intact"
+$> /soft/devel/python-2.7/bin/python parse_database.py intact --input-identifier=/home/quim/Databases/intact/ --biana-dbname="BIANA_MAR_2017" --biana-dbhost="localhost" --biana-dbuser="quim" --time-control --database-name="IntAct" --database-version="Release 2016_10 of 06-Oct-2016" --default-attribute="intact"
 
 
 Order of time:
@@ -3573,7 +3583,7 @@ STRING (????) > PFAM (????) > IntAct (2h 15 min) > Taxonomy (2h 5 min) > Uniprot
 
 Missing:
 
-STRING (????) > PFAM (????) > DISGENET (????) > SIDER (????) > STITCH (????) > IntAct (2h 15 min) > Taxonomy (2h 5 min) > Uniprot Swiss (1h 12min) > BioGRID (50 min) > COG (27 min) > Reactome (21 min) > iRefIndex (15 min) > IPI (10 min) > HPRD (7 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min) > DCDB (4 seconds)
+STRING (????) > PFAM (????) > DISGENET (????) > SIDER (????) > STITCH (????) > Human Protein Atlas (????) > IntAct (2h 15 min) > Taxonomy (2h 5 min) > Uniprot Swiss (1h 12min) > BioGRID (50 min) > COG (27 min) > Reactome (21 min) > iRefIndex (15 min) > IPI (10 min) > HPRD (7 min) > DrugBank (7 min) > DIP (3 min) > SCOP (1 min) > HGNC (1 min) > GO (1 min) > PSI-MI-OBO (1 min) > DCDB (4 seconds)
 
 
 
