@@ -8,7 +8,7 @@ class GPCRParser(BianaParser):
 
     """                 
                                                                                          
-    name = "GPCR"
+    name = "gpcr"
     description = "This file implements a program that fills up tables in BIANA database from data in the GPCR Interactome"
     external_entity_definition = "An external entity represents a protein"
     external_entity_relations = "An external relation represents a interaction"
@@ -35,7 +35,15 @@ class GPCRParser(BianaParser):
         # Parse the database
         parser = GPCR_Interactome(self.input_file)
         parser.parse()
-
+        species = set()
+        methods = set()
+        for interaction in parser.interaction2species:
+            species.add(parser.interaction2species[interaction])
+        for interaction in parser.interaction2method:
+            methods.add(parser.interaction2method[interaction])
+        print(species)
+        print(methods)
+        sys.exit(10)
 
         # Defining the dict in which we will store the created external entities
         self.external_entity_ids_dict = {}
@@ -51,39 +59,13 @@ class GPCRParser(BianaParser):
                 #print("Adding protein %s" %(uniprot))
                 self.create_protein_external_entity(parser, uniprot) 
 
-                # HEEEEEEEERE
 
+        print("\n.....INSERTING THE INTERACTIONS IN THE DATABASE.....\n")
 
+        for interaction in parser.interaction2uniprot.keys():
 
-
-        print("\n.....INSERTING THE DISEASES IN THE DATABASE.....\n")
-
-        for disease_UMLS in parser.diseaseUMLS:
-
-            # Create an external entity corresponding to the disease in the database (if it is not already created)
-            if not self.external_entity_ids_dict.has_key(disease_UMLS):
-
-                #print("Adding disease %s" %(disease_UMLS))
-                self.create_disease_external_entity(parser, disease_UMLS)
-
-
-        print("\n.....INSERTING THE SNPs IN THE DATABASE.....\n")
-
-        for snpID in parser.snpIDs:
-
-            # Create an external entity corresponding to the SNP in the database (if it is not already created)
-            if not self.external_entity_ids_dict.has_key(snpID):
-
-                #print("Adding SNP %s" %(snpID))
-                self.create_SNP_external_entity(parser, snpID)
-
-
-        print("\n.....INSERTING THE GENE-DISEASE ASSOCIATIONS IN THE DATABASE.....\n")
-
-        for GDassociation in parser.GDassociation2geneID.keys():
-
-            #print("Adding gene-disease association: {}".format(GDassociation))
-            self.create_gene_disease_association_entity(parser, GDassociation)
+            #print("Adding interaction: {}".format(interaction))
+            self.create_gene_disease_association_entity(parser, interaction)
 
 
         print("\n.....INSERTING THE SNP-DISEASE ASSOCIATIONS IN THE DATABASE.....\n")
@@ -100,28 +82,21 @@ class GPCRParser(BianaParser):
 
 
 
-    def create_protein_external_entity(self, parser, geneID):
+    def create_protein_external_entity(self, parser, uniprot):
         """
-        Create an external entity of a gene and add it in BIANA
+        Create an external entity of a protein and add it in BIANA
         """
 
         new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
         # Annotate its GeneID
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=geneID, type="cross-reference") )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UniprotAccession", value=uniprot, type="cross-reference") )
 
         # Associate its GeneSymbol
-        if geneID in parser.geneID2name:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.geneID2name[geneID].upper(), type="cross-reference") )
+        if uniprot in parser.uniprot2genesymbol:
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.uniprot2genesymbol[uniprot].upper(), type="cross-reference") )
         else:
-            print("Name not available for %s" %(geneID))
-            pass
-
-        # Associate its description
-        if geneID in parser.geneID2description:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Description", value=parser.geneID2description[geneID] ) )
-        else:
-            print("Description not available for %s" %(geneID))
+            print("Gene Symbol not available for %s" %(uniprot))
             pass
 
         # Insert this external entity into BIANA
@@ -130,82 +105,35 @@ class GPCRParser(BianaParser):
         return
 
 
-    def create_disease_external_entity(self, parser, disease_UMLS):
+    def create_interaction_entity(self, parser, interaction):
         """
-        Create an external entity of a disease and add it in BIANA
-        """
-
-        new_external_entity = ExternalEntity( source_database = self.database, type = "disease" )
-
-        # Annotate its disease_UMLS
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UMLS_diseaseID", value=disease_UMLS, type="cross-reference") )
-
-        # Associate its name
-        if disease_UMLS in parser.disease2name:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.disease2name[disease_UMLS], type="cross-reference") )
-        else:
-            print("Name not available for %s" %(disease_UMLS))
-            pass
-
-        # Insert this external entity into BIANA
-        self.external_entity_ids_dict[disease_UMLS] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
-
-        return
-
-
-    def create_SNP_external_entity(self, parser, snpID):
-        """
-        Create an external entity of a SNP and add it in BIANA
-        """
-
-        new_external_entity = ExternalEntity( source_database = self.database, type = "SNP" )
-
-        # Annotate its snpID
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "SNP", value=snpID, type="cross-reference") )
-
-        # Associate the GeneID of its gene
-        if snpID in parser.snpID2geneID:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=parser.snpID2geneID[snpID], type="cross-reference") )
-        else:
-            print("GeneID not available for %s" %(snpID))
-            pass
-
-        # Associate the GeneSymbol of its gene
-        if snpID in parser.snpID2geneSymbol:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.snpID2geneSymbol[snpID].upper(), type="cross-reference") )
-        else:
-            print("GeneSymbol not available for %s" %(snpID))
-            pass
-
-        # Insert this external entity into BIANA
-        self.external_entity_ids_dict[snpID] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
-
-        return
-
-
-    def create_gene_disease_association_entity(self, parser, GDassociation):
-        """
-        Create an external entity relation of a gene-disease association and add it in BIANA
+        Create an external entity relation of an interaction and add it in BIANA
         """
 
         # CREATE THE EXTERNAL ENTITY RELATION
-        # Create an external entity relation corresponding to association between gene and disease in database
-        new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "gene_disease_association" )
+        # Create an external entity relation corresponding to a protein-protein interaction
+        new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "interaction" )
 
-        # Add the gene in the association
-        geneID = parser.GDassociation2geneID[GDassociation]
-        new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[geneID] )
+        # Add the proteins in the association
+        for uniprot in parser.interaction2uniprot[interaction]:
+            new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[uniprot] )
 
-        # Add the disease in the association
-        disease_UMLS = parser.GDassociation2disease[GDassociation]
-        new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[disease_UMLS] )
+        self.interaction2uniprot = {}
+        self.interaction2species = {}
+        self.interaction2evidence = {}
+        self.interaction2method = {}
 
-        # Add the DisGeNET score of the association
-        if GDassociation in parser.GDassociation2score:
-            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "DisGeNET_score",
-                                                                                                             value = parser.GDassociation2score[GDassociation], type = "unique" ) )
+        # Add the species of the interaction
+        if species in parser.interaction2species[interaction]:
+            if species == 'human':
+                taxID = 9606
+                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "taxID",
+                                                                                                                 value = taxID, type = "cross-reference" ) )
+            else:
+                print("THE INTERACTION IS NOT HUMAN!!")
+                sys.exit(10)
         else:
-            print("DisGeNET score not available for %s" %(GDassociation))
+            print("Species not available for %s" %(interaction))
             pass
 
         # Add the DisGeNET source of the association
