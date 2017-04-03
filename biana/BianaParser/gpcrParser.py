@@ -103,7 +103,7 @@ class GPCRParser(BianaParser):
 
         new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
-        # Annotate its GeneID
+        # Annotate its Uniprot Accession
         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UniprotAccession", value=uniprot, type="cross-reference") )
 
         # Associate its GeneSymbol
@@ -128,7 +128,7 @@ class GPCRParser(BianaParser):
         # Create an external entity relation corresponding to a protein-protein interaction
         new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "interaction" )
 
-        # Add the proteins in the association
+        # Add the proteins in the interaction
         for uniprot in parser.interaction2uniprot[interaction]:
             new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[uniprot] )
 
