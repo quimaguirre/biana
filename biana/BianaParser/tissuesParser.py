@@ -92,12 +92,13 @@ class tissuesParser(BianaParser):
 
         # Associate its synonym
         if gene in parser.gene2synonym:
-            if gene.startswith('ENS'):
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Ensembl", value=parser.gene2synonym[gene].upper(), type="synonym") )
+            synonym = parser.gene2synonym[gene].upper()
+            if synonym.startswith('ENS'):
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Ensembl", value=synonym, type="synonym") )
             else:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.gene2synonym[gene].upper(), type="synonym") )
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=synonym, type="synonym") )
         else:
-            print("No synonym for {}".format(gene))
+            print("No synonym for {}".format(synonym))
             sys.exit(10)
 
         # Associate its BRENDA Tissue Ontology term (BTO term)
