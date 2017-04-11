@@ -52,6 +52,19 @@ class dcdbParser(BianaParser):
         #                                                             data_type = "varchar(370)",
         #                                                             category = "eE identifier attribute")
 
+        data_type_dict = {"fields": [ ("value","varchar(50)"),
+                                     ("interactionType","ENUM(\"pharmacodynamical\",\"pharmacokinetical\")",False),
+                                     ("classification","varchar(255)", False)
+                                   ],
+                          "indices": ("value",)} # Stores a regex
+
+
+        # Add different type of external entity attribute
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DCDB_druginteractionID",
+                                                                        data_type = data_type_dict,
+                                                                        category = "eE special attribute")
+
+
         # # Add a different type of relation type. In this case, it will be "drug combination", as it is different from a drug-drug interaction 
         # self.biana_access.add_valid_external_entity_relation_type( type = "drug_combination" )
 
@@ -77,6 +90,7 @@ class dcdbParser(BianaParser):
 
         parser = DCDB(self.input_path)
         parser.parse()
+
 
         print("\n.....INSERTING THE COMPONENT DRUGS IN THE DATABASE.....\n")
 
@@ -117,6 +131,34 @@ class dcdbParser(BianaParser):
             if combination in parser.combination2mechanism:
                 new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Description",
                                                                                                                      value = parser.combination2mechanism[combination] ) )
+
+            # Insert this external entity relation into database
+            self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
+
+
+        print("\n.....INSERTING THE DRUG INTERACTIONS IN THE DATABASE.....\n")
+
+        for interaction in parser.interactions:
+
+            #print("Adding interaction: {}".format(interaction))
+
+            # CREATE THE EXTERNAL ENTITY RELATION
+            # Create an external entity relation corresponding to interaction between two drugs in the database
+            new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "interaction" )
+
+            for component in parser.interaction2component[interaction]:
+
+                #print("Adding component: {}".format(component))
+
+                # Associate the components as participants of the interaction
+                new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[component] )
+
+            interaction_type = parser.interaction2type[interaction].lower()
+            classification = parser.interaction2classification[interaction]
+
+            # Associate the drug interaction id, type and classification with this relation
+            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier= "DCDB_druginteractionID", value=interaction.upper(), type="unique",
+                                                                                         additional_fields = {"interactionType": interaction_type, "classification": classification} ) )
 
             # Insert this external entity relation into database
             self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
@@ -246,7 +288,6 @@ class DCDB(object):
         self.component2target = {}
         self.component2atcid = {}
         self.component2outlink = {}
-        #self.component2interaction = {}
 
         self.combinations = set()
         self.combination2component = {}
@@ -263,6 +304,13 @@ class DCDB(object):
         self.atcid2atccode = {}
 
         self.outlink2sourcelink = {}
+
+        self.interactions = set()
+        self.interaction2combination = {}
+        self.interaction2type = {}
+        self.interaction2classification = {}
+        self.interaction2component = {}
+
 
         return
 
@@ -518,7 +566,134 @@ class DCDB(object):
         outlink_file_fd.close()
         #print(self.outlink2sourcelink)
 
+
+        #####################################
+        #### PARSE DC 2 INTERACTION FILE ####
+        #####################################
+
+        print("\n.....PARSING DC_TO_INTERACTION FILE.....\n")
+
+        dc2interaction_file_fd = open(self.dc2interaction_file,'r')
+
+        first_line = dc2interaction_file_fd.readline()
+
+        # Obtain a dictionary: "field_name" => "position"
+        fields_dict = self.obtain_header_fields(first_line)
+
+        # Obtain the interaction ID and the combination id
+        # Introduce them in the dictionary combination2interaction: "combination_id" => "[interaction_id1, ... , interaction_idn]"
+        for line in dc2interaction_file_fd:
+            fields = line.strip().split("\t")
+            combination = fields[ fields_dict['dc_id'] ]
+            interaction = fields[ fields_dict['di_id'] ]
+            self.interaction2combination.setdefault(interaction, [])
+            self.interaction2combination[interaction].append(combination)
+
+        dc2interaction_file_fd.close()
+        #print(self.combination2interaction)
+
+
+        #####################################
+        #### PARSE DRUG INTERACTION FILE ####
+        #####################################
+
+        print("\n.....PARSING DRUG INTERACTION FILE.....\n")
+
+        drug_interaction_file_fd = open(self.interaction_file,'r')
+
+        first_line = drug_interaction_file_fd.readline()
+
+        fields_dict = self.obtain_header_fields(first_line)
+
+        for line in drug_interaction_file_fd:
+            fields = line.strip().split("\t")
+            interaction = fields[ fields_dict['di_id'] ]
+            type_int = fields[ fields_dict['type'] ]
+            #set(['Pharmacodynical', 'Pharmacokinetical', 'Pharmacodynamical'])
+            if type_int == 'Pharmacodynical':
+                type_int = 'Pharmacodynamical'
+            classification = fields[ fields_dict['classification'] ]
+            #set(['Enhancement of metabolism', 'Same target', 'Inhibition of metabolism', 'Different targets in same biological process', 'anti-acid in blood', 'Different targets of different biological processes', 'Different targets in related biological processes', 'Different targets in different biological processes', 'Inhibtion of metabolism'])
+            if classification == 'Inhibtion of metabolism':
+                classification = 'Inhibition of metabolism'
+            if classification == 'Different targets of different biological processes':
+                classification = 'Different targets in different biological processes'
+
+            if type_int != "null" and type_int != "":
+                self.interaction2type[interaction] = type_int
+            if classification != "null" and classification != "":
+                self.interaction2classification[interaction] = classification
+            self.interactions.add(interaction)
+
+            components = fields[ fields_dict['component'] ]
+            (component1, component2) = components.split(' - ')
+
+            compid1 = None
+            compid2 = None
+
+            component1 = self.check_exception(component1)
+            component2 = self.check_exception(component2)
+
+            for component in self.component2name:
+                if self.component2name[component].lower() == component1.lower():
+                    compid1 = component
+                elif self.component2name[component].lower() == component2.lower():
+                    compid2 = component
+                elif component1.lower() in self.component2name[component].lower():
+                    compid1 = component
+                elif component2.lower() in self.component2name[component].lower():
+                    compid2 = component
+
+            if compid1 != None and compid2 != None:
+                self.interaction2component.setdefault(interaction, set())
+                self.interaction2component[interaction].add(compid1)
+                self.interaction2component[interaction].add(compid2)
+            else:
+                if compid1 == None and compid2 == None:
+                    print('The components {} and {} of the drug interaction {} do not have ID\n'.format(component1, component2, interaction))
+                elif compid1 == None and compid2 != None:
+                    print('The component {} of the drug interaction {} does not have ID\n'.format(component1, interaction))
+                elif compid2 == None and compid1 != None:
+                    print('The component {} of the drug interaction {} does not have ID\n'.format(component2, interaction))
+                sys.exit(10)
+
+
+        drug_interaction_file_fd.close()
+        #print(self.interactions)
+        #print(self.interaction2type)
+        #print(self.interaction2classification)
+
         return
+
+
+    def check_exception(self, drug_name):
+        """ 
+        Obtain a dictionary: "field_name" => "position" 
+        """
+        exception = {
+            'Cholecacliferol':'Cholecalciferol',
+            'Alemtuzumab':'Campath 1H',
+            'Etanercept':'Enbrel',
+            'LY294002 ':'LY294002',
+            'Progesterone':'Progestrone',
+            'Epoetin-alfa':'Epoetin-alpha',
+            'Medroxyprogesterone acetate':'Medroxyprogeterone acetate',
+            'Risperidone':'Risperidoene',
+            'Mecasermin':'Iplex',
+            'Insulin lispro':'Humalog',
+            'Ec107 fabI':'Ec107fabI',
+            '"Fluorouracil': 'Fluorouracil',
+            'Idronoxil':'Phenoxodiol'
+        }
+
+        if drug_name in exception:
+            drug_name = exception[drug_name]
+        else:
+            if len(drug_name.split(' ')) > 1:
+                if drug_name.split(' ')[1] in ('hydrochloride','cypionate','trifenatate','sodium','acetate','kamedoxomil','hydrobromide'):
+                    drug_name = drug_name.split(' ')[0]
+
+        return drug_name
 
 
     def obtain_header_fields(self, first_line):
