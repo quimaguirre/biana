@@ -613,7 +613,19 @@ class Psi_MiFormattedDBParser(BianaParser):
         elif dbUpper == "GENBANK_PROTEIN_GI" or dbUpper == "PROTEIN GENBANK IDENTIFIER":
             if id.lower().startswith("gi:"):
                 dictFieldValue = id[3:]
-            dbNameConverted = "GI"
+                dbNameConverted = "GI"
+            else:
+                refseq_regex = re.compile('(NC|AC|NG|NT|NW|NZ|NM|NR|XM|XR|NP|AP|XP|YP|ZP)_[0-9]+')
+                m = refseq_regex.match(id)
+                if m:
+                    dbNameConverted = "RefSeq"
+                else:
+                    gi_regex = re.compile('^[0-9]+$')
+                    m = gi_regex.match(id)
+                    if m:
+                        dbNameConverted = "GI"
+                    else:
+                        dbNameConverted = "ignore"
         elif dbUpper == "IPI":
             dbNameConverted = "IPI"
             #dictFieldValue = id[3:]
