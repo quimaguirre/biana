@@ -68,8 +68,8 @@ class dcdbParser(BianaParser):
         # # Add a different type of relation type. In this case, it will be "drug combination", as it is different from a drug-drug interaction 
         # self.biana_access.add_valid_external_entity_relation_type( type = "drug_combination" )
 
-        # # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
-        # self.biana_access.refresh_database_information()
+        # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
+        self.biana_access.refresh_database_information()
 
 
         # Check that all the files exist
