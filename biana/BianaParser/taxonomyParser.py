@@ -61,11 +61,11 @@ class TaxonomyParser(BianaParser):
         # Add the possibility to transfer taxonomy name and taxonomy category using taxID as a key
         self.biana_access._add_transfer_attribute( externalDatabaseID = self.database.get_id(), # A single taxonomy element can have multiple names
                                                    key_attribute = "taxID",
-                                                   transfer_attribute="TaxID_name" )
+                                                   transfer_attribute="TaxID_name", unlock = True )
 
         self.biana_access._add_transfer_attribute( externalDatabaseID = self.database.get_id(),   # Category is stored in a different attribute, as a single taxonomy can have multiple names
                                                    key_attribute = "taxID",
-                                                   transfer_attribute = "TaxID_category" )
+                                                   transfer_attribute = "TaxID_category", unlock = True )
 
         nodes_dmp_file = None
         names_dmp_file = None
