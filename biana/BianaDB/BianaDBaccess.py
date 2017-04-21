@@ -21,7 +21,7 @@
 # Python library
 import time
 import sys
-import md5
+import hashlib
 import traceback
 import copy
 from math import ceil
@@ -224,7 +224,7 @@ class BianaDBaccess(object):
 
         self._load_biana_types_and_attributes()
         self._load_biana_database_information()
-        self.db.check_database(self.biana_database)
+        self.db.check_database(self.biana_database, unlock=True)
 
           
     def add_valid_external_entity_type(self, type):
@@ -480,7 +480,7 @@ class BianaDBaccess(object):
         return False
 
 
-    def _add_key_attribute(self, external_database_id, key_attribute):
+    def _add_key_attribute(self, external_database_id, key_attribute, unlock = False):
         """
         Adds a key attribute, used in transfer attributes (key attribute) and ontologies (linked attribute)
 
@@ -507,7 +507,7 @@ class BianaDBaccess(object):
                                                                             null = False ) ],
                                           indices = [("value","externalEntityID")] )
             
-            self.db.insert_db_content( sql_query = new_table.create_mysql_query(), answer_mode = None )
+            self.db.insert_db_content( sql_query = new_table.create_mysql_query(), answer_mode = None, unlock = unlock )
 
             self.key_attribute_ids.setdefault((external_database_id,key_attribute.lower()),new_id)
             
@@ -516,10 +516,11 @@ class BianaDBaccess(object):
         
 
 
-    def _add_transfer_attribute(self, externalDatabaseID, key_attribute, transfer_attribute):
+    def _add_transfer_attribute(self, externalDatabaseID, key_attribute, transfer_attribute, unlock = True):
 
         key_id = self._add_key_attribute( external_database_id = externalDatabaseID,
-                                          key_attribute = key_attribute )
+                                          key_attribute = key_attribute, 
+                                          unlock = unlock)
 
         self.db.insert_db_content( sql_query = self.db._get_insert_sql_query(table = self.biana_database.EXTERNAL_DATABASE_ATTRIBUTE_TRANSFER_TABLE.get_table_name(),
                                                                              column_values = (("keyID",key_id),
@@ -527,7 +528,7 @@ class BianaDBaccess(object):
                                                                                               ("attributeKey", key_attribute),
                                                                                               ("transferAttribute", transfer_attribute)),
                                                                              use_buffer = False ),
-                                   answer_mode = None )
+                                   answer_mode = None, unlock = unlock )
 
         self.transferred_attributes.setdefault(transfer_attribute.lower(),set()).add((externalDatabaseID,key_attribute.lower()))
         
@@ -692,7 +693,7 @@ class BianaDBaccess(object):
         actual_date = "%s-%s-%s" %(date[0],date[1],date[2])
         
         self.db.insert_db_content( self.db._get_insert_sql_query(table = self.biana_database.DATABASE_VERSION_TABLE.get_table_name(),
-                                                                 column_values = (("dbControlID", md5.new(str(time.localtime())+str(time.time())).hexdigest()),
+                                                                 column_values = (("dbControlID", hashlib.md5(str(time.localtime())+str(time.time())).hexdigest()),
                                                                                   ("date", actual_date),
                                                                                   #("stable_externalEntityID",self._get_new_external_entity_id()-1),
                                                                                   ("stable_externalEntityID",self._get_last_external_entity_id()),
@@ -3660,6 +3661,7 @@ class BianaDBaccess(object):
 
             actual_attribute = attribute_list[attribute_index]
 
+            print("Actual attribute: %s. Attribute index: %s" %(actual_attribute.lower(), attribute_index))
             tables.append( (self.biana_database.EXTERNAL_ENTITY_ATTRIBUTE_TABLES_DICT[actual_attribute.lower()],"a%s" %(attribute_index)) )
             tables.append( (self.biana_database.EXTERNAL_ENTITY_ATTRIBUTE_TABLES_DICT[actual_attribute.lower()],"b%s" %(attribute_index)) )
             
