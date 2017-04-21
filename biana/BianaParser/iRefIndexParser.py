@@ -122,7 +122,11 @@ class iRefIndexParser(BianaParser):
                             if refseq_pattern.match(idvalue) != None:
                                 eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "refseq", value=idvalue, type="cross-reference") )
                             elif gbaccession_pattern.match(idvalue) != None:
-                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=idvalue, type="cross-reference") )
+                                version = idvalue.split('.')
+                                if len(version) > 1:
+                                    eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                                else:
+                                    eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="entrezgene/locuslink":
                             eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "geneID", value=idvalue, type="cross-reference") )
                         elif idtype=="cygd":
@@ -139,15 +143,27 @@ class iRefIndexParser(BianaParser):
                             else:
                                 eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "pdb", value=idvalue[0:4], type="cross-reference" ) )
                         elif idtype=="gb":
-                            eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="dbj":
-                            eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="pir":
                             eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "pir", value = idvalue, type="cross-reference" ) )
                         elif idtype=="kegg":
                             eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "keggCode", value = idvalue, type="cross-reference" ) )
                         elif idtype=="emb":
-                            eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="uniprot":
                             eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "uniprotaccession", value = idvalue, type="cross-reference" ) )
                         elif idtype=="swiss-prot":
@@ -186,7 +202,11 @@ class iRefIndexParser(BianaParser):
                             if refseq_pattern.match(idvalue) != None:
                                 eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "refseq", value=idvalue, type="cross-reference") )
                             elif gbaccession_pattern.match(idvalue) != None:
-                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=idvalue, type="cross-reference") )
+                                version = idvalue.split('.')
+                                if len(version) > 1:
+                                    eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                                else:
+                                    eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="entrezgene/locuslink":
                             eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "geneID", value=idvalue, type="cross-reference") )
                         elif idtype=="cygd":
@@ -203,15 +223,27 @@ class iRefIndexParser(BianaParser):
                             else:
                                 eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "pdb", value=idvalue[0:4], type="cross-reference" ) )
                         elif idtype=="gb":
-                            eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="dbj":
-                            eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="pir":
                             eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "pir", value = idvalue, type="cross-reference" ) )
                         elif idtype=="kegg":
                             eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "keggCode", value = idvalue, type="cross-reference" ) )
                         elif idtype=="emb":
-                            eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="uniprot":
                             eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "uniprotaccession", value = idvalue, type="cross-reference" ) )
                         elif idtype=="swiss-prot":
@@ -273,7 +305,11 @@ class iRefIndexParser(BianaParser):
                             if refseq_pattern.match(idvalue) != None:
                                 eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "refseq", value=idvalue, type="cross-reference") )
                             elif gbaccession_pattern.match(idvalue) != None:
-                                eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=idvalue, type="cross-reference") )
+                                version = idvalue.split('.')
+                                if len(version) > 1:
+                                    eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                                else:
+                                    eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="entrezgene/locuslink":
                             eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "geneID", value=idvalue, type="cross-reference") )
                         elif idtype=="cygd":
@@ -290,15 +326,27 @@ class iRefIndexParser(BianaParser):
                             else:
                                 eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "pdb", value=idvalue[0:4], type="cross-reference" ) )
                         elif idtype=="gb":
-                            eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="dbj":
-                            eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="pir":
                             eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "pir", value = idvalue, type="cross-reference" ) )
                         elif idtype=="kegg":
                             eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "keggCode", value = idvalue, type="cross-reference" ) )
                         elif idtype=="emb":
-                            eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="uniprot":
                             eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "uniprotaccession", value = idvalue, type="cross-reference" ) )
                         elif idtype=="swiss-prot":
@@ -337,7 +385,11 @@ class iRefIndexParser(BianaParser):
                             if refseq_pattern.match(idvalue) != None:
                                 eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "refseq", value=idvalue, type="cross-reference") )
                             elif gbaccession_pattern.match(idvalue) != None:
-                                eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=idvalue, type="cross-reference") )
+                                version = idvalue.split('.')
+                                if len(version) > 1:
+                                    eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                                else:
+                                    eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="entrezgene/locuslink":
                             eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "geneID", value=idvalue, type="cross-reference") )
                         elif idtype=="cygd":
@@ -354,15 +406,27 @@ class iRefIndexParser(BianaParser):
                             else:
                                 eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "pdb", value=idvalue[0:4], type="cross-reference" ) )
                         elif idtype=="gb":
-                            eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="dbj":
-                            eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="pir":
                             eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "pir", value = idvalue, type="cross-reference" ) )
                         elif idtype=="kegg":
                             eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "keggCode", value = idvalue, type="cross-reference" ) )
                         elif idtype=="emb":
-                            eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value = idvalue, type="cross-reference" ) )
+                            version = idvalue.split('.')
+                            if len(version) > 1:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], version=version[1], type="cross-reference") )
+                            else:
+                                eE1.add_attribute( ExternalEntityAttribute( attribute_identifier= "accessionnumber", value=version[0], type="cross-reference") )
                         elif idtype=="uniprot":
                             eE2.add_attribute( ExternalEntityAttribute( attribute_identifier= "uniprotaccession", value = idvalue, type="cross-reference" ) )
                         elif idtype=="swiss-prot":
