@@ -215,10 +215,6 @@ class GPCR_Interactome(object):
             evidence_type = fields[ fields_dict['Evidence Type'] ]
             detection_method = fields[ fields_dict['Detection Method'] ]
 
-            # Skip the interaction if it is the same protein
-            if uniprot1 == uniprot2:
-                continue
-
             # Create an interaction id for the protein-protein interaction
             # ---> interaction id = uniprot1 + '---' + uniprot2
             interaction_1 = uniprot1 + '---' + uniprot2
