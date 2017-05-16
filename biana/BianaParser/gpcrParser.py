@@ -113,6 +113,16 @@ class GPCRParser(BianaParser):
             print("Gene Symbol not available for %s" %(uniprot))
             pass
 
+        for interaction in parser.interaction2uniprot:
+            for prot in parser.interaction2uniprot[interaction]:
+                if prot == uniprot:
+                    for species in parser.interaction2species[interaction]:
+                        if species in self.species2taxid:
+                            taxID = self.species2taxid[species]
+                            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier = "taxID",
+                                                                                        value = taxID, type = "cross-reference" ) )
+                    break
+
         # Insert this external entity into BIANA
         self.external_entity_ids_dict[uniprot] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
 
