@@ -32,6 +32,14 @@ class hippieParser(BianaParser):
             raise ValueError("The input file is missing. Please, download the file \'HIPPIE-current.mitab.txt\'")
 
 
+        #########################################################################
+        #### NOTE: We are adding only the interactions that have reported methods
+        #### The interactions without method are excluded.
+        #### We are only adding the interactions with score >= 0.5
+        #### The interactions with score < 0.5 are excluded.
+        #########################################################################
+
+
         # Add HIPPIE_score as a valid external entity attribute since it is not recognized by BIANA
         self.biana_access.add_valid_external_entity_attribute_type( name = "HIPPIE_score",
                                                                     data_type = "varchar(20)",
