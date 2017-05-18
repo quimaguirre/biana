@@ -151,7 +151,7 @@ class tissuesParser(BianaParser):
         Create an external entity of a gene and add it in BIANA
         """
 
-        new_external_entity = ExternalEntity( source_database = self.database, type = "gene" )
+        new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
         gene = parser.genetax2gene[genetax]
         taxID = parser.genetax2tax[genetax]
@@ -210,36 +210,38 @@ class tissuesParser(BianaParser):
 
         for type_file in parser.genetax2BTO[genetax][BTO]:
 
-            source = parser.genetax2BTO[genetax][BTO][type_file]['source']
-            confidence = parser.genetax2BTO[genetax][BTO][type_file]['confidence']
+            for x in xrange(len(parser.genetax2BTO[genetax][BTO][type_file]['source'])):
 
-            if 'evidence' in parser.genetax2BTO[genetax][BTO][type_file]:
-                evidence = parser.genetax2BTO[genetax][BTO][type_file]['evidence']
-            else:
-                evidence = "text-mining"
+                source = parser.genetax2BTO[genetax][BTO][type_file]['source'][x]
+                confidence = parser.genetax2BTO[genetax][BTO][type_file]['confidence'][x]
 
-
-            # CREATE THE EXTERNAL ENTITY RELATION
-            # Create an external entity relation corresponding to association between gene and disease in database
-            new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "gene_tissue_association" )
+                if 'evidence' in parser.genetax2BTO[genetax][BTO][type_file]:
+                    evidence = parser.genetax2BTO[genetax][BTO][type_file]['evidence'][x]
+                else:
+                    evidence = "text-mining"
 
 
-            # Add the gene in the association
-            new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[genetax] )
+                # CREATE THE EXTERNAL ENTITY RELATION
+                # Create an external entity relation corresponding to association between gene and disease in database
+                new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "gene_tissue_association" )
 
-            # Add the tissue in the association
-            new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[BTO] )
 
-            # Add the additional attributes of the association
-            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "TissuesSource",
-                                                                                                             value = source, type = "unique" ) )
-            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "TissuesEvidence",
-                                                                                                             value = evidence, type = "unique" ) )
-            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "TissuesConfidence",
-                                                                                                             value = confidence, type = "unique" ) )
+                # Add the gene in the association
+                new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[genetax] )
 
-            # Insert this external entity relation into database
-            self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
+                # Add the tissue in the association
+                new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[BTO] )
+
+                # Add the additional attributes of the association
+                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "TissuesSource",
+                                                                                                                 value = source, type = "unique" ) )
+                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "TissuesEvidence",
+                                                                                                                 value = evidence, type = "unique" ) )
+                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "TissuesConfidence",
+                                                                                                                 value = confidence, type = "unique" ) )
+
+                # Insert this external entity relation into database
+                self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
 
         return
 
@@ -294,9 +296,12 @@ class Tissues(object):
                 self.genetax2BTO.setdefault(genetax, {})
                 self.genetax2BTO[genetax].setdefault(BTO, {})
                 self.genetax2BTO[genetax][BTO].setdefault(type_file, {})
-                self.genetax2BTO[genetax][BTO][type_file]['source'] = source
-                self.genetax2BTO[genetax][BTO][type_file]['evidence'] = evidence
-                self.genetax2BTO[genetax][BTO][type_file]['confidence'] = confidence
+                self.genetax2BTO[genetax][BTO][type_file].setdefault('source', [])
+                self.genetax2BTO[genetax][BTO][type_file].setdefault('evidence', [])
+                self.genetax2BTO[genetax][BTO][type_file].setdefault('confidence', [])
+                self.genetax2BTO[genetax][BTO][type_file]['source'].append(source)
+                self.genetax2BTO[genetax][BTO][type_file]['evidence'].append(evidence)
+                self.genetax2BTO[genetax][BTO][type_file]['confidence'].append(confidence)
 
 
             f.close()
@@ -327,8 +332,10 @@ class Tissues(object):
                 self.genetax2BTO.setdefault(genetax, {})
                 self.genetax2BTO[genetax].setdefault(BTO, {})
                 self.genetax2BTO[genetax][BTO].setdefault(type_file, {})
-                self.genetax2BTO[genetax][BTO][type_file]['source'] = 'text-mining'
-                self.genetax2BTO[genetax][BTO][type_file]['confidence'] = confidence
+                self.genetax2BTO[genetax][BTO][type_file].setdefault('source', [])
+                self.genetax2BTO[genetax][BTO][type_file].setdefault('confidence', [])
+                self.genetax2BTO[genetax][BTO][type_file]['source'].append('text-mining')
+                self.genetax2BTO[genetax][BTO][type_file]['confidence'].append(confidence)
                 self.BTO2name[BTO] = BTO_name
 
             f.close()
