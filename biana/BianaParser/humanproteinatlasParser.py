@@ -136,7 +136,7 @@ class humanproteinatlasParser(BianaParser):
         Create an external entity of a gene and add it in BIANA
         """
 
-        new_external_entity = ExternalEntity( source_database = self.database, type = "gene" )
+        new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
         # Annotate its gene identifier
         if gene.startswith('ENS'):
