@@ -62,11 +62,11 @@ class tissuesParser(BianaParser):
         self.biana_access.add_valid_external_entity_relation_type( type = "gene_tissue_association" )
 
         # Add different type of external entity attributes
-        self.biana_access.add_valid_external_entity_attribute_type( name = "BTO_term",
-                                                                        data_type = "varchar(30)",
-                                                                        category = "eE identifier attribute")
+        self.biana_access.add_valid_external_entity_attribute_type( name = "BTO",
+                                                                        data_type = "integer(7) unsigned",
+                                                                        category = "eE attribute")
         self.biana_access.add_valid_external_entity_attribute_type( name = "BTO_name",
-                                                                        data_type = "varchar(100)",
+                                                                        data_type = "varchar(370)",
                                                                         category = "eE identifier attribute")
         self.biana_access.add_valid_external_entity_attribute_type( name = "TissuesSource",
                                                                         data_type = "varchar(30)",
@@ -192,10 +192,10 @@ class tissuesParser(BianaParser):
         new_external_entity = ExternalEntity( source_database = self.database, type = "tissue" )
 
         # Annotate its BTO term
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "BTO_term", value=BTO.upper(), type="unique") )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "BTO", value=BTO, type="unique") )
 
-        # Annotate its BTO name
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "BTO_name", value=parser.BTO2name[BTO], type="unique") )
+        # # Annotate its BTO name
+        # new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "BTO_name", value=parser.BTO2name[BTO], type="unique") )
 
         # Insert this external entity into BIANA
         self.external_entity_ids_dict[BTO] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
@@ -275,11 +275,18 @@ class Tissues(object):
             for line in f:
                 # Split the line in fields
                 # Snord14d  Snord14d    BTO:0001042 Amygdala    GNF V3  16955 expression units  2
-                (gene, synonym, BTO, BTO_name, source, evidence, confidence) = line.strip().split("\t")
+                (gene, synonym, BTO_term, BTO_name, source, evidence, confidence) = line.strip().split("\t")
 
                 # Skip the cases of 0 confidence
                 if float(confidence) <= 0:
                     continue
+
+                # Obtain the BTO number
+                temp = re.search("BTO\:(\d+)",BTO_term)
+                if temp:
+                    BTO = temp.group(1)
+                else:
+                    continue # If it is not in Brenda Tissue Ontology, we skip it
 
                 genetax = '{}---{}'.format(gene, taxID)
                 self.genetax_ids.add(genetax)
@@ -311,11 +318,18 @@ class Tissues(object):
             for line in f:
                 # Split the line in fields
                 # Snord14d  Snord14d    BTO:0001042 Amygdala    GNF V3  16955 expression units  2
-                (gene, synonym, BTO, BTO_name, score, confidence, url) = line.strip().split("\t")
+                (gene, synonym, BTO_term, BTO_name, score, confidence, url) = line.strip().split("\t")
 
                 # Skip the cases of 0 confidence
                 if float(confidence) <= 0:
                     continue
+
+                # Obtain the BTO number
+                temp = re.search("BTO\:(\d+)",BTO_term)
+                if temp:
+                    BTO = temp.group(1)
+                else:
+                    continue # If it is not in Brenda Tissue Ontology, we skip it
 
                 genetax = '{}---{}'.format(gene, taxID)
                 self.genetax_ids.add(genetax)
