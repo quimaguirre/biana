@@ -37,7 +37,7 @@ class humanproteinatlasParser(BianaParser):
 
         files_list = [f for f in os.listdir(self.input_path) if os.path.isfile(os.path.join(self.input_path, f))]
 
-        files = ["normal_tissue.csv", "cancer.csv", "subcellular_location.csv"]
+        files = ["normal_tissue.csv", "rna_tissue.csv"]
 
         for current_file in files:
             if current_file not in files_list:
@@ -66,6 +66,18 @@ class humanproteinatlasParser(BianaParser):
                                                                         data_type = 'ENUM("supported", "approved", "uncertain")',
                                                                         category = "eE identifier attribute")
 
+        data_type_dict = {"fields": [ ("value","double"),
+                                     ("unit","varchar(15)", False)
+                                   ],
+                          "indices": ("value",)} # Stores a regex
+
+        # Add different type of external entity attribute
+        self.biana_access.add_valid_external_entity_attribute_type( name = "HumanProteinAtlas_RNAseq_value",
+                                                                        data_type = data_type_dict,
+                                                                        category = "eE special attribute")
+
+
+
         # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
         self.biana_access.refresh_database_information()
 
@@ -87,7 +99,7 @@ class humanproteinatlasParser(BianaParser):
         #### Parse the database ####
 
         parser = HumanProteinAtlas(self.input_path)
-        parser.parse_tissues()
+        parser.parse_HPA()
 
 
         
@@ -106,18 +118,29 @@ class humanproteinatlasParser(BianaParser):
 
 
 
-        print("\n.....ADDING THE TISSUE EXTERNAL ENTITIES.....\n")
+        print("\n.....ADDING THE TISSUE-CELL EXTERNAL ENTITIES.....\n")
 
         # Create the external entities of tissues
         for tissuecell in parser.tissuecells:
 
             if not self.external_entity_ids_dict.has_key(tissuecell):
                 #print("Adding tissue %s" %(BTO))
-                self.create_tissue_external_entity(parser, tissuecell)
+                self.create_tissuecell_external_entity(parser, tissuecell)
 
 
 
-        print("\n.....ADDING THE GENE-TISSUE ASSOCIATIONS.....\n")
+        print("\n.....ADDING THE TISSUE EXTERNAL ENTITIES.....\n")
+
+        # Create the external entities of tissues
+        for tissue in parser.tissues:
+
+            if not self.external_entity_ids_dict.has_key(tissue):
+                #print("Adding tissue %s" %(BTO))
+                self.create_tissue_external_entity(parser, tissue)
+
+
+
+        print("\n.....ADDING THE GENE-TISSUE MICROARRAY ASSOCIATIONS.....\n")
 
         # Create the associations
         for gene in parser.gene2tissuecell2evidence:
@@ -125,6 +148,16 @@ class humanproteinatlasParser(BianaParser):
             for tissuecell in parser.gene2tissuecell2evidence[gene]:
 
                 self.create_gene_tissue_association_entity(parser, gene, tissuecell)
+
+
+        print("\n.....ADDING THE GENE-TISSUE RNA-SEQ ASSOCIATIONS.....\n")
+
+        # Create the associations
+        for gene in parser.gene2tissue2values:
+
+            for tissue in parser.gene2tissue2values[gene]:
+
+                self.create_gene_tissue_rnaseq_association_entity(parser, gene, tissue)
 
 
         return
@@ -162,7 +195,7 @@ class humanproteinatlasParser(BianaParser):
         return
 
 
-    def create_tissue_external_entity(self, parser, tissuecell):
+    def create_tissuecell_external_entity(self, parser, tissuecell):
         """
         Create an external entity of a cell type inside a tissue and add it in BIANA
         """
@@ -180,6 +213,22 @@ class humanproteinatlasParser(BianaParser):
 
         # Insert this external entity into BIANA
         self.external_entity_ids_dict[tissuecell] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
+
+        return
+
+
+    def create_tissue_external_entity(self, parser, tissue):
+        """
+        Create an external entity of a tissue and add it in BIANA
+        """
+
+        new_external_entity = ExternalEntity( source_database = self.database, type = "tissue" )
+
+        # Annotate the tissue name
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "HumanProteinAtlas_tissue", value=tissue, type="unique") )
+
+        # Insert this external entity into BIANA
+        self.external_entity_ids_dict[tissue] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
 
         return
 
@@ -214,11 +263,40 @@ class humanproteinatlasParser(BianaParser):
         return
 
 
+    def create_gene_tissue_rnaseq_association_entity(self, parser, gene, tissue):
+        """
+        Create an external entity relation of a gene-tissue association from RNAseq data and add it in BIANA
+        """
+
+        # CREATE THE EXTERNAL ENTITY RELATION
+        # Create an external entity relation corresponding to association between gene and disease in database
+        new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "gene_tissue_association" )
+
+        # Add the gene in the association
+        new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[gene] )
+
+        # Add the tissue + cell_type in the association
+        new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[tissue] )
+
+        value = parser.gene2tissue2values[gene][tissue]['value']
+        unit = parser.gene2tissue2values[gene][tissue]['unit']
+
+        # Add the additional attributes of the association
+        new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "HumanProteinAtlas_RNAseq_value", value=value, type="unique",
+                                                                                         additional_fields = {"unit": unit} ) )
+
+        # Insert this external entity relation into database
+        self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
+
+        return
+
+
 
 class HumanProteinAtlas(object):
 
     def __init__(self, input_path):
 
+        # For normal_tissue file
         self.tissue_file = os.path.join(input_path, "normal_tissue.csv")
 
         self.tissuecells = set()
@@ -228,10 +306,16 @@ class HumanProteinAtlas(object):
         self.gene2genesymbol = {}
         self.gene2tissuecell2evidence = {}
 
+        # For rna_tissue file
+        self.rnaseq_file = os.path.join(input_path, "rna_tissue.csv")
+
+        self.tissues = set()
+        self.gene2tissue2values = {}
+
         return
 
 
-    def parse_tissues(self):
+    def parse_HPA(self):
 
         print("\n.....PARSING THE NORMAL TISSUE FILE.....\n")
 
@@ -266,6 +350,34 @@ class HumanProteinAtlas(object):
             self.gene2tissuecell2evidence[ensembl][tissuecell]['reliability'] = reliability.lower()
 
         normal_tissue_fd.close()
+
+
+        print("\n.....PARSING THE RNASEQ FILE.....\n")
+
+        rnaseq_fd = open(self.rnaseq_file,'r')
+
+        rnaseq_fd.readline()
+
+        data = csv.reader(rnaseq_fd, delimiter=',')
+
+        #"Gene","Gene name","Sample","Value","Unit"
+        #"ENSG00000000003","TSPAN6","adipose tissue","31.5","TPM"
+        for fields in data:
+            (ensembl, genesymbol, tissue, value, unit) = fields
+
+            tissue = tissue.lower()
+
+            self.genes.add(ensembl)
+            self.gene2genesymbol[ensembl] = genesymbol
+
+            self.tissues.add(tissue)
+
+            self.gene2tissue2values.setdefault(ensembl, {})
+            self.gene2tissue2values[ensembl].setdefault(tissue, {})
+            self.gene2tissue2values[ensembl][tissue]['value'] = float(value)
+            self.gene2tissue2values[ensembl][tissue]['unit'] = unit.upper()
+
+        rnaseq_fd.close()
 
 
         return
