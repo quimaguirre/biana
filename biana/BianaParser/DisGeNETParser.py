@@ -35,14 +35,14 @@ class DisGeNETParser(BianaParser):
 
         # Check that the necessary files exist
         self.gene_disease_file = self.input_path + '/all_gene_disease_associations.tsv'
-        self.snp_file = self.input_path + '/all_snps_sentences_pubmeds_position.tsv'
+        self.snp_file = self.input_path + '/all_variant_disease_associations.tsv'
 
         if not os.path.isfile(self.gene_disease_file):
             print('The file \'all_gene_disease_associations.tsv\' is not in the input path!')
             sys.exit(10)
 
         if not os.path.isfile(self.snp_file):
-            print('The file \'all_snps_sentences_pubmeds_position.tsv\' is not in the input path!')
+            print('The file \'all_variant_disease_associations.tsv\' is not in the input path!')
             sys.exit(10)
 
         # Parse the database
@@ -52,6 +52,35 @@ class DisGeNETParser(BianaParser):
 
         # Defining the dict in which we will store the created external entities
         self.external_entity_ids_dict = {}
+
+
+        # Add a different type of external entity
+        self.biana_access.add_valid_external_entity_type( type = "SNP" )
+        self.biana_access.add_valid_external_entity_type( type = "disease" )
+
+        # Add a different type of relation
+        self.biana_access.add_valid_external_entity_relation_type( type = "gene_disease_association" )
+        self.biana_access.add_valid_external_entity_relation_type( type = "SNP_disease_association" )
+
+        # Add different type of external entity attributes
+        self.biana_access.add_valid_external_entity_attribute_type( name = "UMLS_diseaseID",
+                                                                        data_type = "varchar(30)",
+                                                                        category = "eE identifier attribute")
+
+        self.biana_access.add_valid_external_entity_attribute_type( name = "dbSNP",
+                                                                        data_type = "varchar(30)",
+                                                                        category = "eE identifier attribute")
+
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DisGeNET_score",
+                                                                        data_type = "double",
+                                                                        category = "eE identifier attribute")
+
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DisGeNET_source",
+                                                                        data_type = "varchar(30)",
+                                                                        category = "eE identifier attribute")
+
+        # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
+        self.biana_access.refresh_database_information()
 
 
         print("\n.....INSERTING THE GENES IN THE DATABASE.....\n")
@@ -117,20 +146,13 @@ class DisGeNETParser(BianaParser):
         new_external_entity = ExternalEntity( source_database = self.database, type = "gene" )
 
         # Annotate its GeneID
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=geneID, type="cross-reference") )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=geneID, type="unique") )
 
         # Associate its GeneSymbol
-        if geneID in parser.geneID2name:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.geneID2name[geneID].upper(), type="cross-reference") )
+        if geneID in parser.geneID2genesymbol:
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.geneID2genesymbol[geneID].upper(), type="cross-reference") )
         else:
             print("Name not available for %s" %(geneID))
-            pass
-
-        # Associate its description
-        if geneID in parser.geneID2description:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Description", value=parser.geneID2description[geneID] ) )
-        else:
-            print("Description not available for %s" %(geneID))
             pass
 
         # Insert this external entity into BIANA
@@ -147,11 +169,11 @@ class DisGeNETParser(BianaParser):
         new_external_entity = ExternalEntity( source_database = self.database, type = "disease" )
 
         # Annotate its disease_UMLS
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UMLS_diseaseID", value=disease_UMLS, type="cross-reference") )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UMLS_diseaseID", value=disease_UMLS, type="unique") )
 
         # Associate its name
         if disease_UMLS in parser.disease2name:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.disease2name[disease_UMLS], type="cross-reference") )
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.disease2name[disease_UMLS], type="unique") )
         else:
             print("Name not available for %s" %(disease_UMLS))
             pass
@@ -170,21 +192,21 @@ class DisGeNETParser(BianaParser):
         new_external_entity = ExternalEntity( source_database = self.database, type = "SNP" )
 
         # Annotate its snpID
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "SNP", value=snpID, type="cross-reference") )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "dbSNP", value=snpID, type="unique") )
 
-        # Associate the GeneID of its gene
-        if snpID in parser.snpID2geneID:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=parser.snpID2geneID[snpID], type="cross-reference") )
-        else:
-            print("GeneID not available for %s" %(snpID))
-            pass
+        # # Associate the GeneID of its gene
+        # if snpID in parser.snpID2geneID:
+        #     new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=parser.snpID2geneID[snpID], type="cross-reference") )
+        # else:
+        #     print("GeneID not available for %s" %(snpID))
+        #     pass
 
-        # Associate the GeneSymbol of its gene
-        if snpID in parser.snpID2geneSymbol:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.snpID2geneSymbol[snpID].upper(), type="cross-reference") )
-        else:
-            print("GeneSymbol not available for %s" %(snpID))
-            pass
+        # # Associate the GeneSymbol of its gene
+        # if snpID in parser.snpID2geneSymbol:
+        #     new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.snpID2geneSymbol[snpID].upper(), type="cross-reference") )
+        # else:
+        #     print("GeneSymbol not available for %s" %(snpID))
+        #     pass
 
         # Insert this external entity into BIANA
         self.external_entity_ids_dict[snpID] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
@@ -266,21 +288,21 @@ class DisGeNETParser(BianaParser):
             print("DisGeNET source not available for %s" %(SDassociation))
             pass
 
-        # Add the PubMed id of the association
-        if SDassociation in parser.SDassociation2pubmedID:
-            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Pubmed",
-                                                                                                             value = parser.SDassociation2pubmedID[SDassociation], type = "cross-reference" ) )
-        else:
-            print("Pubmed not available for %s" %(SDassociation))
-            pass
+        # # Add the PubMed id of the association
+        # if SDassociation in parser.SDassociation2pubmedID:
+        #     new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Pubmed",
+        #                                                                                                      value = parser.SDassociation2pubmedID[SDassociation], type = "cross-reference" ) )
+        # else:
+        #     print("Pubmed not available for %s" %(SDassociation))
+        #     pass
 
-        # Add the sentence of the association
-        if SDassociation in parser.SDassociation2sentence:
-            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Description",
-                                                                                                             value = parser.SDassociation2sentence[SDassociation] ) )
-        else:
-            print("Sentence not available for %s" %(SDassociation))
-            pass
+        # # Add the sentence of the association
+        # if SDassociation in parser.SDassociation2sentence:
+        #     new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Description",
+        #                                                                                                      value = parser.SDassociation2sentence[SDassociation] ) )
+        # else:
+        #     print("Sentence not available for %s" %(SDassociation))
+        #     pass
 
         # Insert this external entity relation into database
         self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
@@ -295,11 +317,10 @@ class DisGeNET(object):
     def __init__(self, path):
 
         self.gene_disease_file = path + '/all_gene_disease_associations.tsv'
-        self.snp_file = path + '/all_snps_sentences_pubmeds_position.tsv'
+        self.snp_file = path + '/all_variant_disease_associations.tsv'
 
         self.geneIDs = set()
-        self.geneID2name = {}
-        self.geneID2description = {}
+        self.geneID2genesymbol = {}
 
         self.diseaseUMLS = set()
         self.disease2name = {}
@@ -353,13 +374,13 @@ class DisGeNET(object):
             fields = line.strip().split("\t")
 
             # Obtain the fields of interest
+            # geneId    geneSymbol  diseaseId   diseaseName score   NofPmids    NofSnps source
             geneID = fields[ fields_dict['geneId'] ]
-            geneName = fields[ fields_dict['geneName'] ]
-            description = fields[ fields_dict['description'] ]
+            geneSymbol = fields[ fields_dict['geneSymbol'] ]
             disease_UMLS = fields[ fields_dict['diseaseId'] ]
             diseaseName = fields[ fields_dict['diseaseName'] ]
-            score = fields[ fields_dict['score'] ]
-            source = fields[ fields_dict['sources'] ].split(',')
+            score = float(fields[ fields_dict['score'] ])
+            source = fields[ fields_dict['source'] ].split(';')
 
             # Create an association id for the gene-disease association
             # ---> association id = geneID + '---' + disease_UMLS
@@ -367,10 +388,8 @@ class DisGeNET(object):
 
             # Insert the fields into dictionaries
             self.geneIDs.add(geneID)
-            if geneName != 'NA':
-                self.geneID2name[geneID] = geneName
-            if description != 'NA':
-                self.geneID2description[geneID] = description
+            if geneSymbol != 'NA':
+                self.geneID2genesymbol[geneID] = geneSymbol
 
             self.diseaseUMLS.add(disease_UMLS)
             if diseaseName != 'NA':
@@ -389,7 +408,7 @@ class DisGeNET(object):
         #### PARSE SNP FILE ####
         ########################
 
-        print("\n.....PARSING GENE-DISEASE ASSOCIATIONS FILE.....\n")
+        print("\n.....PARSING SNP-DISEASE ASSOCIATIONS FILE.....\n")
 
         snp_file_fd = open(self.snp_file,'r')
 
@@ -412,16 +431,17 @@ class DisGeNET(object):
             fields = line.strip().split("\t")
 
             # Obtain the fields of interest
+            # snpId   diseaseId   diseaseName score   NofPmids    source
             snpID = fields[ fields_dict['snpId'] ]
-            pubmedID = fields[ fields_dict['pubmedId'] ]
-            geneID = fields[ fields_dict['geneId'] ]
-            geneSymbol = fields[ fields_dict['geneSymbol'] ]
+            #pubmedID = fields[ fields_dict['pubmedId'] ]
+            #geneID = fields[ fields_dict['geneId'] ]
+            #geneSymbol = fields[ fields_dict['geneSymbol'] ]
             disease_UMLS = fields[ fields_dict['diseaseId'] ]
             diseaseName = fields[ fields_dict['diseaseName'] ]
-            source = fields[ fields_dict['sourceId'] ].split(',')
-            sentence = fields[ fields_dict['sentence'] ]
-            score = fields[ fields_dict['score'] ]
-            year = fields[ fields_dict['year'] ]
+            score = float(fields[ fields_dict['score'] ])
+            source = fields[ fields_dict['source'] ].split(';')
+            #sentence = fields[ fields_dict['sentence'] ]
+            #year = fields[ fields_dict['year'] ]
 
             # Create an association id for the SNP-disease association
             # ---> association id = snpID + '---' + disease_UMLS
@@ -429,10 +449,11 @@ class DisGeNET(object):
 
             # Insert the fields into dictionaries
             self.snpIDs.add(snpID)
-            if geneID != 'NA':
-                self.snpID2geneID[snpID] = geneID
-            if geneSymbol != 'NA':
-                self.snpID2geneSymbol[snpID] = geneSymbol
+
+            # if geneID != 'NA':
+            #     self.snpID2geneID[snpID] = geneID
+            # if geneSymbol != 'NA':
+            #     self.snpID2geneSymbol[snpID] = geneSymbol
 
             self.diseaseUMLS.add(disease_UMLS)
             if diseaseName != 'NA':
@@ -442,10 +463,10 @@ class DisGeNET(object):
             self.SDassociation2snpID[association] = snpID
             self.SDassociation2score[association] = score
             self.SDassociation2source[association] = source
-            if pubmedID != 'NA':
-                self.SDassociation2pubmedID[association] = pubmedID
-            if sentence != 'NA':
-                self.SDassociation2sentence[association] = sentence
+            # if pubmedID != 'NA':
+            #     self.SDassociation2pubmedID[association] = pubmedID
+            # if sentence != 'NA':
+            #     self.SDassociation2sentence[association] = sentence
 
         snp_file_fd.close()
 
