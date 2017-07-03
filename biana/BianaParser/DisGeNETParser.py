@@ -34,15 +34,20 @@ class DisGeNETParser(BianaParser):
             raise ValueError("You must specify a path instead of a file")
 
         # Check that the necessary files exist
-        self.gene_disease_file = self.input_path + '/all_gene_disease_associations.tsv'
-        self.snp_file = self.input_path + '/all_variant_disease_associations.tsv'
+        self.gene_disease_file = self.input_path + '/all_gene_disease_pmid_associations.tsv'
+        self.snp_disease_file = self.input_path + '/all_variant_disease_pmid_associations.tsv'
+        self.snp_file = self.input_path + '/snp_genes.gz'
 
         if not os.path.isfile(self.gene_disease_file):
-            print('The file \'all_gene_disease_associations.tsv\' is not in the input path!')
+            print('The file \'all_gene_disease_pmid_associations.tsv\' is not in the input path!')
+            sys.exit(10)
+
+        if not os.path.isfile(self.snp_disease_file):
+            print('The file \'all_variant_disease_pmid_associations.tsv\' is not in the input path!')
             sys.exit(10)
 
         if not os.path.isfile(self.snp_file):
-            print('The file \'all_variant_disease_associations.tsv\' is not in the input path!')
+            print('The file \'snp_genes.gz\' is not in the input path!')
             sys.exit(10)
 
         # Parse the database
@@ -63,9 +68,15 @@ class DisGeNETParser(BianaParser):
         self.biana_access.add_valid_external_entity_relation_type( type = "SNP_disease_association" )
 
         # Add different type of external entity attributes
+
+        data_type_dict = {"fields": [ ("value","varchar(30)"),
+                                     ("diseaseType","ENUM(\"disease\",\"phenotype\",\"group\")",False)
+                                   ],
+                          "indices": ("value",)} # Stores a regex
+
         self.biana_access.add_valid_external_entity_attribute_type( name = "UMLS_diseaseID",
-                                                                        data_type = "varchar(30)",
-                                                                        category = "eE identifier attribute")
+                                                                        data_type = data_type_dict,
+                                                                        category = "eE special attribute")
 
         self.biana_access.add_valid_external_entity_attribute_type( name = "dbSNP",
                                                                         data_type = "varchar(30)",
@@ -76,6 +87,10 @@ class DisGeNETParser(BianaParser):
                                                                         category = "eE identifier attribute")
 
         self.biana_access.add_valid_external_entity_attribute_type( name = "DisGeNET_source",
+                                                                        data_type = "varchar(30)",
+                                                                        category = "eE identifier attribute")
+
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DisGeNET_type_association",
                                                                         data_type = "varchar(30)",
                                                                         category = "eE identifier attribute")
 
@@ -170,6 +185,8 @@ class DisGeNETParser(BianaParser):
 
         # Annotate its disease_UMLS
         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UMLS_diseaseID", value=disease_UMLS, type="unique") )
+        new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier= "UMLS_diseaseID", value=disease_UMLS, type="unique",
+                                                                                     additional_fields = {"diseaseType": self.disease2type[disease_UMLS]} ) )
 
         # Associate its name
         if disease_UMLS in parser.disease2name:
@@ -248,6 +265,24 @@ class DisGeNETParser(BianaParser):
             print("DisGeNET source not available for %s" %(GDassociation))
             pass
 
+        # Add the PubMed ids of the association
+        if GDassociation in parser.GDassociation2pubmedID:
+            for pmid in GDassociation2pubmedID[GDassociation]:
+                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Pubmed",
+                                                                                                                 value = pmid, type = "unique" ) )
+        else:
+            print("Pubmed not available for %s" %(GDassociation))
+            pass
+
+        # Add the type of associations
+        if GDassociation in parser.GDassociation2type:
+            for type_assoc in GDassociation2type[GDassociation]:
+                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "DisGeNET_type_association",
+                                                                                                                 value = type_assoc, type = "unique" ) )
+        else:
+            print("Type of association not available for %s" %(GDassociation))
+            pass
+
         # Insert this external entity relation into database
         self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
 
@@ -288,13 +323,14 @@ class DisGeNETParser(BianaParser):
             print("DisGeNET source not available for %s" %(SDassociation))
             pass
 
-        # # Add the PubMed id of the association
-        # if SDassociation in parser.SDassociation2pubmedID:
-        #     new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Pubmed",
-        #                                                                                                      value = parser.SDassociation2pubmedID[SDassociation], type = "cross-reference" ) )
-        # else:
-        #     print("Pubmed not available for %s" %(SDassociation))
-        #     pass
+        # Add the PubMed id of the association
+        if SDassociation in parser.SDassociation2pubmedID:
+            for pmid in SDassociation2pubmedID[SDassociation]:
+                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Pubmed",
+                                                                                                                 value = pmid, type = "unique" ) )
+        else:
+            print("Pubmed not available for %s" %(SDassociation))
+            pass
 
         # # Add the sentence of the association
         # if SDassociation in parser.SDassociation2sentence:
@@ -316,30 +352,34 @@ class DisGeNET(object):
 
     def __init__(self, path):
 
-        self.gene_disease_file = path + '/all_gene_disease_associations.tsv'
-        self.snp_file = path + '/all_variant_disease_associations.tsv'
+        self.gene_disease_file = path + '/all_gene_disease_pmid_associations.tsv'
+        self.snp_disease_file = path + '/all_variant_disease_pmid_associations.tsv'
+        self.snp_file = path + '/snp_genes.gz'
 
         self.geneIDs = set()
         self.geneID2genesymbol = {}
 
         self.diseaseUMLS = set()
         self.disease2name = {}
+        self.disease2type = {}
 
         self.GDassociation2disease = {}
         self.GDassociation2geneID = {}
         self.GDassociation2score = {}
         self.GDassociation2source = {}
+        self.GDassociation2type = {}
+        self.GDassociation2pubmedID = {}
 
         self.snpIDs = set()
-        self.snpID2geneID = {}
-        self.snpID2geneSymbol = {}
+        #self.snpID2geneID = {}
+        #self.snpID2geneSymbol = {}
 
         self.SDassociation2disease = {}
         self.SDassociation2snpID = {}
         self.SDassociation2score = {}
         self.SDassociation2source = {}
         self.SDassociation2pubmedID = {}
-        self.SDassociation2sentence = {}
+        #self.SDassociation2sentence = {}
 
         return
 
@@ -374,13 +414,16 @@ class DisGeNET(object):
             fields = line.strip().split("\t")
 
             # Obtain the fields of interest
-            # geneId    geneSymbol  diseaseId   diseaseName score   NofPmids    NofSnps source
+            # geneId    diseaseId   associationType sentence    pmid    score   originalSource  diseaseName diseaseType geneSymbol
             geneID = fields[ fields_dict['geneId'] ]
             geneSymbol = fields[ fields_dict['geneSymbol'] ]
             disease_UMLS = fields[ fields_dict['diseaseId'] ]
             diseaseName = fields[ fields_dict['diseaseName'] ]
+            diseaseType = fields[ fields_dict['diseaseType'] ]
             score = float(fields[ fields_dict['score'] ])
-            source = fields[ fields_dict['source'] ].split(';')
+            source = fields[ fields_dict['originalSource'] ]
+            associationType = fields[ fields_dict['associationType'] ]
+            pubmedID = fields[ fields_dict['pmid'] ]
 
             # Create an association id for the gene-disease association
             # ---> association id = geneID + '---' + disease_UMLS
@@ -394,27 +437,38 @@ class DisGeNET(object):
             self.diseaseUMLS.add(disease_UMLS)
             if diseaseName != 'NA':
                 self.disease2name[disease_UMLS] = diseaseName
-            
+            if diseaseType != 'NA':
+                self.disease2type[disease_UMLS] = diseaseType
+
             self.GDassociation2disease[association] = disease_UMLS
             self.GDassociation2geneID[association] = geneID
             self.GDassociation2score[association] = score
-            self.GDassociation2source[association] = source
+
+            self.GDassociation2source.setdefault(association, set())
+            self.GDassociation2source[association].add(source)
+
+            self.GDassociation2type.setdefault(association, set())
+            self.GDassociation2type[association].add(associationType)
+
+            if pubmedID != 'NA':
+                self.GDassociation2pubmedID.setdefault(association, set())
+                self.GDassociation2pubmedID[association].add(pubmedID)
 
         gene_disease_file_fd.close()
 
 
 
-        ########################
-        #### PARSE SNP FILE ####
-        ########################
+        ################################
+        #### PARSE SNP-DISEASE FILE ####
+        ################################
 
         print("\n.....PARSING SNP-DISEASE ASSOCIATIONS FILE.....\n")
 
-        snp_file_fd = open(self.snp_file,'r')
+        snp_disease_file_fd = open(self.snp_disease_file,'r')
 
         num_line = 0
 
-        for line in snp_file_fd:
+        for line in snp_disease_file_fd:
 
             # Skip comments
             if line[0] == '#':
@@ -431,15 +485,16 @@ class DisGeNET(object):
             fields = line.strip().split("\t")
 
             # Obtain the fields of interest
-            # snpId   diseaseId   diseaseName score   NofPmids    source
+            # snpId diseaseId   sentence    pmid    score   originalSource  diseaseName diseaseType chromosome  position
             snpID = fields[ fields_dict['snpId'] ]
-            #pubmedID = fields[ fields_dict['pubmedId'] ]
+            pubmedID = fields[ fields_dict['pmid'] ]
             #geneID = fields[ fields_dict['geneId'] ]
             #geneSymbol = fields[ fields_dict['geneSymbol'] ]
             disease_UMLS = fields[ fields_dict['diseaseId'] ]
             diseaseName = fields[ fields_dict['diseaseName'] ]
+            diseaseType = fields[ fields_dict['diseaseType'] ]
             score = float(fields[ fields_dict['score'] ])
-            source = fields[ fields_dict['source'] ].split(';')
+            source = fields[ fields_dict['originalSource'] ]
             #sentence = fields[ fields_dict['sentence'] ]
             #year = fields[ fields_dict['year'] ]
 
@@ -458,17 +513,37 @@ class DisGeNET(object):
             self.diseaseUMLS.add(disease_UMLS)
             if diseaseName != 'NA':
                 self.disease2name[disease_UMLS] = diseaseName
+            if diseaseType != 'NA':
+                self.disease2type[disease_UMLS] = diseaseType
 
             self.SDassociation2disease[association] = disease_UMLS
             self.SDassociation2snpID[association] = snpID
             self.SDassociation2score[association] = score
-            self.SDassociation2source[association] = source
-            # if pubmedID != 'NA':
-            #     self.SDassociation2pubmedID[association] = pubmedID
+            self.SDassociation2source.setdefault(association, set())
+            self.SDassociation2source[association].add(source)
+            if pubmedID != 'NA':
+                self.SDassociation2pubmedID.setdefault(association, set())
+                self.SDassociation2pubmedID[association].add(pubmedID)
             # if sentence != 'NA':
             #     self.SDassociation2sentence[association] = sentence
 
+        snp_disease_file_fd.close()
+
+
+
+        #############################
+        #### PARSE SNP-GENE FILE ####
+        #############################
+
+        print("\n.....PARSING SNP-GENE ASSOCIATIONS FILE.....\n")
+
+        snp_file_fd = open(self.snp_file,'r')
+
         snp_file_fd.close()
+
+        print('The parsing of the dbSNP database still has to be implemented (ftp://ftp.ncbi.nih.gov/snp/Entrez/eLinks/snp_genes.gz')
+
+        exit(10)
 
         return
 
