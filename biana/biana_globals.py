@@ -76,8 +76,6 @@ EXTERNAL_ENTITY_RELATION_TYPES = [ "interaction",
                                    "forward_reaction",
                                    "backward_reaction",
                                    "drug_combination",
-                                   "gene_disease_association",
-                                   "SNP_disease_association",
                                    "gene_tissue_association"
                                    ]
 
@@ -87,13 +85,10 @@ EXTERNAL_ENTITY_IDENTIFIER_ATTRIBUTES = [ ("ATC", "varchar(30)"),
                                           ("CHEMBL", "varchar(30)"),
                                           ("COG", "varchar(10)"),
                                           ("CYGD", "varchar(15)"), # normally 7 (YDR172w) but sometimes 9 (YLR312w-a) (in mips there are some errors... because of that, we increase it to 15
-                                          ("dbSNP", "varchar(30)"),
                                           ("DCDB_combinationID", "varchar(30)"),
                                           ("DCDB_drugID", "varchar(30)"),
                                           ("DCDB_targetID", "varchar(30)"),
                                           ("DIP", "varchar(6)"), # DIP:216N (~17000 entries)
-                                          ("DisGeNET_score", "varchar(30)"),
-                                          ("DisGeNET_source", "varchar(30)"),
                                           ("DrugBankID", "varchar(30)"),
                                           ("EC", "varchar(30)"),
                                           ("Encode", "varchar(14)"),
