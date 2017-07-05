@@ -1138,7 +1138,7 @@ To execute them, execute the following command, replacing DATABASE for the desir
 
 \medskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py uniprot --input-identifier=uniprot_sprot.dat.gz 
                                      --biana-dbname="BIANA_DB" 
@@ -1183,7 +1183,7 @@ Shell Command:
 
 \medskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py ncbi_genpept --input-identifier=path/
                                           --biana-dbname="BIANA_DB"
@@ -1219,7 +1219,7 @@ Shell Command:
 
 \medskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py taxonomy --input-identifier=path/
                                       --biana-dbname="BIANA_DB"
@@ -1256,7 +1256,7 @@ Shell Command:
 
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py psi_mi_obo --input-identifier=path where psi-mi.obo file is
                                         --biana-dbname="BIANA_DB"
@@ -1293,7 +1293,7 @@ Shell Command:
 
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py nr --input-identifier=nr.gz
                                 --biana-dbname="BIANA_DB"
@@ -1331,7 +1331,7 @@ Shell Command:
 
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py ipi --input-identifier=path_where_ipi_files_are
                                  --biana-dbname="BIANA_DB"
@@ -1370,7 +1370,7 @@ Shell Command:
 
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py irefindex_2016 --input-identifier=path_where_downloaded_file_is
                                        --biana-dbname="BIANA_DB"
@@ -1410,7 +1410,7 @@ Shell Command:
 
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py cog2014 --input-identifier=path_where_cog_files_are
                                  --biana-dbname="BIANA_DB"
@@ -1449,7 +1449,7 @@ Shell Command:
 
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py hgnc_2016 --input-identifier=FILE_WHERE_DATA_IS_SAVED
                                   --biana-dbname="BIANA_DB"
@@ -1483,10 +1483,9 @@ Shell Command:
 \end{tabular}
 %\end{center}
 
-
 \smallskip
 
-Shell Command for Kegg KO:
+Shell Command for Kegg KO:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py kegg_ko --input-identifier=FILE_WHERE_DATA_IS_SAVED
                                      --biana-dbname="BIANA_DB"
@@ -1498,7 +1497,7 @@ Shell Command for Kegg KO:
 \end{SaveVerbatim}
 \printcommand{parser_command}
 
-Shell Command for Kegg Gene:
+Shell Command for Kegg Gene:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py kegg_gene --input-identifier=genes.tar.gz
                                        --biana-dbname="BIANA_DB"
@@ -1511,7 +1510,7 @@ Shell Command for Kegg Gene:
 \printcommand{parser_command}
 
 Instead you can insert gene data in two steps using genes.pep and genes.nuc
-Peptide sequences:
+Peptide sequences:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py kegg_gene --input-identifier=genes.pep
                                        --biana-dbname="BIANA_DB"
@@ -1558,10 +1557,9 @@ Peptide sequences:
 \end{tabular}
 %\end{center}
 
-
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py intact --input-identifier=FOLDER_WHERE_DATA_IS_SAVED
                                   --biana-dbname="BIANA_DB"
@@ -1577,6 +1575,45 @@ Shell Command:
 
 
 
+\begin{minipage}{\textwidth}
+\subsubsection{IntAct mutations}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & Dataset of mutations in protein-protein interactions and their effect.  \\ \hline
+  Database Link & \url{ftp://ftp.ebi.ac.uk/pub/databases/intact/current/various/mutations.tsv} \\ \hline
+   & \url{ftp://ftp.ebi.ac.uk/pub/databases/intact/current/various/intact.fasta} \\ \hline
+  External Entity Types & Protein\\ \hline
+  External Entity Relation Types & Interaction\\ \hline
+  Needed files & mutations.tsv and intact.fasta \\ \hline
+  Parser name & intact\_mutations \\ \hline
+  Input-identifier & Path containing the files \\ \hline
+  Checked version & 08-Jun-2017\\ \hline
+  Comments & Introduce the two files in the same folder \\ \hline
+  Approximate parsing time & ?\\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py intact_mutations --input-identifier=/path/to/folder/with/files/
+                                  --biana-dbname="BIANA_DB"
+                                  --biana-dbuser="root"
+                                  --biana-dbpass="PASSWORD"
+                                  --time-control
+                                  --database-name="intact_mutations"
+                                  --database-version="08-Jun-2017"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\newpage
 %\begin{minipage}{\textwidth}
 \subsubsection{PSI-MI 2.5 Formatted databases}
 
@@ -1598,10 +1635,9 @@ Shell Command:
 \end{tabular}
 %\end{center}
 
-
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py psi_mi_2.5 --input-identifier=FILE_WHERE_DATA_IS_SAVED
                                         --biana-dbname="BIANA_DB"
@@ -1711,7 +1747,7 @@ This parser has been tested for PSI-MI 2.5 formatted databases:
 %\end{center}
 
 \vspace{1cm}
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py biopax_level_2 --input-identifier=FILE_WHERE_DATA_IS_SAVED
                                             --biana-dbname="BIANA_DB"
@@ -1764,10 +1800,9 @@ This parser has been tested for Biopax Level 2 formatted databases:
 \end{tabular}
 %\end{center}
 
-
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py scop --input-identifier=PATH_WHERE_FILES_ARE_SAVED
                                   --biana-dbname="BIANA_DB"
@@ -1803,10 +1838,9 @@ Shell Command:
 \end{tabular}
 %\end{center}
 
-
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py pfam --input-identifier=PATH_WHERE_FILES_ARE_SAVED
                                   -- pfamA-file-name=Pfam-A.full.gz
@@ -1845,10 +1879,9 @@ Shell Command:
 \end{tabular}
 %\end{center}
 
-
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py go_obo --input-identifier="gene_ontology_edit.obo"
                                     --biana-dbname="BIANA_DB"
@@ -1884,10 +1917,9 @@ Nucleic Acids Res. 2015 Jan; 43:D447-52\\ \hline
 \end{tabular}
 %\end{center}
 
-
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py stringV10 --input-identifier="/path/to/dowloaded/files/"
                                     --biana-dbname="BIANA_DB"
@@ -1922,10 +1954,9 @@ Shell Command:
 \end{tabular}
 %\end{center}
 
-
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
 \$> python parse_database.py drugbank --input-identifier="full_database.xml"
                                     --biana-dbname="BIANA_DB"
@@ -1960,12 +1991,11 @@ Shell Command:
 \end{tabular}
 %\end{center}
 
-
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
-\$> python parse_database.py drugbank --input-identifier="/path/to/DCDB2_plaintxt/"
+\$> python parse_database.py dcdb --input-identifier="/path/to/DCDB2_plaintxt/"
                                     --biana-dbname="BIANA_DB"
                                     --biana-dbuser="root"
                                     --biana-dbpass="PASSWORD"
@@ -1988,34 +2018,303 @@ Shell Command:
   Database Link & \url{http://www.disgenet.org/web/DisGeNET/menu/downloads} \\ \hline
   External Entity Types & gene, SNP, disease \\ \hline
   External Entity Relation Types & gene\_disease\_association, SNP\_disease\_association \\ \hline
-  Needed files & Download the files of the links ``3. ALL gene-disease associations'' and ``5. All SNP-gene-disease associations'' and uncompress them\\ \hline
+  Needed files & Download the files of the links ``3. ALL gene-disease-pmid associations'' and ``3. ALL variant-disease-pmid associations'' and uncompress them. Download also the file in \url{ftp://ftp.ncbi.nih.gov/snp/Entrez/eLinks/snp\_genes.gz} \\ \hline
   Parser name & disgenet\\ \hline
-  Input-identifier & The path to the folder containing the uncompressed files \\ \hline
+  Input-identifier & The path to the folder containing the compressed files \\ \hline
   Checked version & October of 2016\\ \hline
-  Comments & The database files must be uncompressed!! \\ \hline
-  Approximate parsing time & 5 minutes \\ 
+  Comments & \\ \hline
+  Approximate parsing time & ? minutes \\ 
   \hline
 \end{tabular}
 %\end{center}
 
-
 \smallskip
 
-Shell Command:
+Shell Command:\\
 \begin{SaveVerbatim}{parser_command}
-\$> python parse_database.py drugbank --input-identifier="/path/to/folder/with/files/"
+\$> python parse_database.py disgenet --input-identifier="/path/to/folder/with/files/"
                                     --biana-dbname="BIANA_DB"
                                     --biana-dbuser="root"
                                     --biana-dbpass="PASSWORD"
                                     --time-control
                                     --database-name="DisGeNET"
-                                    --database-version="October_2016"
+                                    --database-version="5.0"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+
+\textcolor{red}{[NOTE:] The parser of DisGeNET is currently being updated and it is not yet available} 
+
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{NCBI Gene}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & Gene integrates information from a wide range of species. A record may include nomenclature, Reference Sequences (RefSeqs), maps, pathways, variations, phenotypes, and links to genome-, phenotype-, and locus-specific resources worldwide.\\ \hline
+  Database Reference & Entrez Gene: gene-centered information at NCBI. (2005) Nucleic Acids Res\\ \hline
+  Database Link & \url{ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2ensembl.gz} \\ \hline
+  External Entity Types & protein \\ \hline
+  External Entity Relation Types & interaction \\ \hline
+  Needed files & Download the file gene2ensembl.gz\\ \hline
+  Parser name & ncbigene \\ \hline
+  Input-identifier & The path to the folder containing the compressed file \\ \hline
+  Checked version & 13-Jun-2017\\ \hline
+  Comments & The database file must be compressed!! \\ \hline
+  Approximate parsing time & 7 minutes \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py ncbigene --input-identifier="/path/to/folder/with/file/"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="NCBIGene"
+                                    --database-version="13-Jun-2017"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{HIPPIE}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & HIPPIE (the Human Integrated Protein Protein Interaction Reference) provides confidence scored and functionally annotated human protein-protein interactions (PPIs) \\ \hline
+  Database Reference & HIPPIE v2.0: enhancing meaningfulness and reliability of protein?protein interaction networks. (2017) Nucleic Acids Res\\ \hline
+  Database Link & \url{http://cbdm-01.zdv.uni-mainz.de/~mschaefer/hippie/download.php} \\ \hline
+  External Entity Types & protein \\ \hline
+  External Entity Relation Types & interaction \\ \hline
+  Needed files & Download the current release file in PSI-MI TAB 2.5 format \\ \hline
+  Parser name & hippie \\ \hline
+  Input-identifier & The path to the downloaded file \\ \hline
+  Checked version & v2.0 (06/24/2016) \\ \hline
+  Comments &  \\ \hline
+  Approximate parsing time & 3 minutes \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py hippie --input-identifier="/path/to/HIPPIE-current.mitab.txt"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="hippie"
+                                    --database-version="v2.0 (06/24/2016)"
 \end{SaveVerbatim}
 \printcommand{parser_command}
 \end{minipage}
 
 
 
+\begin{minipage}{\textwidth}
+\subsubsection{GPCR dataset}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & GPCR interactome from the publication: Systematic protein-protein interaction mapping for clinically relevant human GPCRs \\ \hline
+  Database Reference & Systematic protein-protein interaction mapping for clinically relevant human GPCRs. (2017) Molecular Systems Biology\\ \hline
+  Database Link & \url{http://ophid.utoronto.ca/iid/SearchPPIs/dataset/IID-003170131} \\ \hline
+  External Entity Types & protein \\ \hline
+  External Entity Relation Types & interaction \\ \hline
+  Needed files & Download the file clicking at Download results: IID\_Sokolina\_MSB\_2017.txt \\ \hline
+  Parser name & gpcr \\ \hline
+  Input-identifier & The path to the downloaded file \\ \hline
+  Checked version & 1-Apr-2017 \\ \hline
+  Comments &  \\ \hline
+  Approximate parsing time & Less than a minute \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py gpcr --input-identifier="/path/to/IID_Sokolina_MSB_2017.txt"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="gpcr"
+                                    --database-version="1-Apr-2017"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{BRENDA Tissue Ontology (BTO)}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & A structured controlled vocabulary for the source of an enzyme. It comprises terms for tissues, cell lines, cell types and cell cultures from uni- and multicellular organisms. \\ \hline
+  Database Reference & The BRENDA Tissue Ontology (BTO): the first all-integrating ontology of all organisms for enzyme sources. (2011) Nucleic Acids Res\\ \hline
+  Database Link & \url{https://bioportal.bioontology.org/ontologies/BTO} \\ \hline
+  External Entity Types & ontology \\ \hline
+  External Entity Relation Types & \\ \hline
+  Needed files & BrendaTissue.obo (Download it at Submissions, the most current version in OBO format) \\ \hline
+  Parser name & brenda\_tissue\_obo \\ \hline
+  Input-identifier & The path to the downloaded file \\ \hline
+  Checked version & 03:05:2016 \\ \hline
+  Comments &  \\ \hline
+  Approximate parsing time & Less than a minute \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py brenda_tissue_obo --input-identifier="/path/to/BrendaTissue.obo"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="BTO"
+                                    --database-version="03:05:2016"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{Anatomical Therapeutic Chemical (ATC) classification}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & The Anatomical Therapeutic Chemical (ATC) Classification System is used for the classification of active ingredients of drugs according to the organ or system on which they act and their therapeutic, pharmacological and chemical properties. It is controlled by the World Health Organization Collaborating Centre for Drug Statistics Methodology (WHOCC), and was first published in 1976. \\ \hline
+  Database Reference &  \\ \hline
+  Database Link & \url{https://bioportal.bioontology.org/ontologies/ATC} \\ \hline
+  External Entity Types & ontology \\ \hline
+  External Entity Relation Types & \\ \hline
+  Needed files & ATC.csv (Download it at Submissions, the most current version in CSV format) \\ \hline
+  Parser name & atc \\ \hline
+  Input-identifier & The path to the downloaded file \\ \hline
+  Checked version & 06-Feb-2017 \\ \hline
+  Comments &  \\ \hline
+  Approximate parsing time & Less than a minute \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py atc --input-identifier="/path/to/ATC.csv"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="ATC"
+                                    --database-version="06-Feb-2017"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{Human Protein Atlas}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & The "Human Tissue Proteomes" chapters provide a knowledge-based analysis and entry into the Human Protein Atlas from different defined transections of the human tissue proteome. Each separate chapter includes a basic description of a defined proteome and includes analyses of expression patterns, gene lists, and examples of protein expression on a cellular level. \\ \hline
+  Database Reference & Proteomics. Tissue-based map of the human proteome. (2015) Science\\ \hline
+  Database Link & \url{http://www.proteinatlas.org/about/download} \\ \hline
+  External Entity Types & protein, tissue \\ \hline
+  External Entity Relation Types & gene\_tissue\_association \\ \hline
+  Needed files & normal\_tissue.csv (1. Normal tissue data) and rna\_tissue.csv (4. RNA gene data) \\ \hline
+  Parser name & humanproteinatlas \\ \hline
+  Input-identifier & Path to the folder containing the uncompressed files\\ \hline
+  Checked version & 16.1 \\ \hline
+  Comments & Uncompress the files! \\ \hline
+  Approximate parsing time & 10 minutes \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py humanproteinatlas --input-identifier="/path/to/folder/with/files/"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="humanproteinatlas"
+                                    --database-version="16.1"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{TISSUES (Jensen Lab)}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & TISSUES is a frequently updated web resource that integrates evidence on tissue expression from manually curated literature, proteomics and transcriptomics screens, and automatic text mining. We map all evidence to common protein identifiers and Brenda Tissue Ontology terms, and further unify it by assigning confidence scores that facilitate comparison of the different types and sources of evidence. \\ \hline
+  Database Reference & Comprehensive comparison of large-scale tissue expression datasets. (2015) PeerJ\\ \hline
+  Database Link & \url{http://tissues.jensenlab.org/Downloads} \\ \hline
+  External Entity Types & protein, tissue \\ \hline
+  External Entity Relation Types & gene\_tissue\_association \\ \hline
+  Needed files & All the human files \\ \hline
+  Parser name & tissues \\ \hline
+  Input-identifier & Path to the folder containing the files\\ \hline
+  Checked version & 3-Apr-2017 \\ \hline
+  Comments & \\ \hline
+  Approximate parsing time & 30 minutes \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py tissues --input-identifier="/path/to/folder/with/files/"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="tissues"
+                                    --database-version="3-Apr-2017"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\newpage
 \section{Preparing my data to use the generic parser}
 \label{section:use_generic_parser}
 
