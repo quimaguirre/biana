@@ -106,7 +106,7 @@ class DB(object):
         # If anytime this changes, it will be necessary to activate autocommit or to do commit at each parser
         #self.db.autocommit(1)
 
-        self.cursor = self.db.cursor()
+        self.cursor = self.db.cursor(buffered=True)
 
         self.dbmaxpacket = self._get_max_packet()
         self.lock_frequency = 100 #20000
@@ -193,7 +193,7 @@ class DB(object):
     # handling inserts and selects through a generalized class
     # --
 
-    def insert_db_content(self, sql_query, answer_mode = None):
+    def insert_db_content(self, sql_query, answer_mode = None, unlock = False):
         """
         Inserts values into a piana database (connection was established in self.db)
 
@@ -227,6 +227,7 @@ class DB(object):
    
         if isinstance(sql_query,list):
             for actual_query in sql_query:
+		print actual_query
                 if DEBUG_PRINT_INSERT_QUERY:
                     sys.stderr.write(actual_query+"\n")
                 try:
@@ -247,7 +248,11 @@ class DB(object):
                 #sys.stderr.write("Sending query to MySQL server (%s)...\n" %(sql_query) )
                 # In order to avoid any insertion
                 #pass
+                if unlock == True:
+                    self._unlock_tables()
                 self.cursor.execute(sql_query)
+                if unlock == True:
+                    self._lock_tables()
             except Exception, inst:
                 sys.stderr.write("Attention: this query was not executed due to a mysql exception: <<%s>>\n" %(sql_query))
                 sys.stderr.write("           Error Reported: %s\n" %(inst))
@@ -482,7 +487,7 @@ class DB(object):
             return None
 
 
-    def check_database(self, database, ignore_primary_keys=False, verbose=False):
+    def check_database(self, database, ignore_primary_keys=False, verbose=False, unlock=False):
         """
         Method for checking database
 
@@ -512,8 +517,12 @@ class DB(object):
 
             checked_tables_str.add(current_table_str)
             if current_table_str not in existing_tables_str:
+                #print self.select_db_content( sql_query = "SHOW OPEN TABLES in test_2017", answer_mode = "raw" )
+		#self._check_locked_table( current_table_str )    
+		#self._unlock_tables()
+		#self._lock_tables(table_list = [current_table_str])
                 # Table does not exist. Create it
-                self.insert_db_content( sql_query = current_table_obj.create_mysql_query(ignore_primary_key=ignore_primary_keys) )
+                self.insert_db_content( sql_query = current_table_obj.create_mysql_query(ignore_primary_key=ignore_primary_keys), unlock=unlock )
             else:
                 # Table exists. Check column names & types
                 existing_columns = self.select_db_content( sql_query = "DESC %s" % current_table_str,

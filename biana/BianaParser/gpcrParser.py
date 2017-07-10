@@ -32,18 +32,39 @@ class GPCRParser(BianaParser):
             raise ValueError("The input file is missing. Please, download the file \'IID_Sokolina_MSB_2017.txt\'")
 
 
+        # Method name to psi-mi obo ID
+        self.method2psimi = {
+            'bioluminescence resonance energy transfer' : 0012,
+            'ubiquitin reconstruction' : 0112
+        }
+
+        # Species name to Taxonomy ID
+        self.species2taxid = {
+            'human' : 9606
+        }
+
         # Parse the database
         parser = GPCR_Interactome(self.input_file)
         parser.parse()
-        species = set()
-        methods = set()
+
+        print('The number of interactions is: {}'.format(len(parser.interaction2uniprot.keys())))
+        print('The number of uniprot proteins is: {}'.format(len(parser.uniprots)))
+        print('The number of gene symbols is: {}'.format(len(set(parser.uniprot2genesymbol.values()))))
+
+        # Check that the taxonomy ids for the species are in the dictionary species2taxid
         for interaction in parser.interaction2species:
-            species.add(parser.interaction2species[interaction])
+            for species in parser.interaction2species[interaction]:
+                if species not in self.species2taxid:
+                    print('The species {} is not in the dictionary species2taxid.\nPlease, search the Taxonomy ID of the species in www.uniprot.org/taxonomy and add it in the dictionary'.format(species))
+                    sys.exit(10)
+
+        # Check that the psi-mi obo ids for the methods are in the dictionary method2psimi
         for interaction in parser.interaction2method:
-            methods.add(parser.interaction2method[interaction])
-        print(species)
-        print(methods)
-        sys.exit(10)
+            for method in parser.interaction2method[interaction]:
+                if method not in self.method2psimi:
+                    print('The method {} is not in the dictionary method2psimi.\nPlease, search the PSI-MI ID of the method in http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/genomic-proteomic/protein/psi-mi.obo and add it in the dictionary'.format(method))
+                    sys.exit(10)
+
 
         # Defining the dict in which we will store the created external entities
         self.external_entity_ids_dict = {}
@@ -65,18 +86,11 @@ class GPCRParser(BianaParser):
         for interaction in parser.interaction2uniprot.keys():
 
             #print("Adding interaction: {}".format(interaction))
-            self.create_gene_disease_association_entity(parser, interaction)
+            self.create_interaction_entity(parser, interaction)
 
 
-        print("\n.....INSERTING THE SNP-DISEASE ASSOCIATIONS IN THE DATABASE.....\n")
 
-        for SDassociation in parser.SDassociation2snpID.keys():
-
-            #print("Adding SNP-disease association: {}".format(SDassociation))
-            self.create_SNP_disease_association_entity(parser, SDassociation)
-
-
-        print("\nPARSING OF DisGeNET FINISHED. THANK YOU FOR YOUR PATIENCE\n")
+        print("\nPARSING OF GPCRs INTERACTOME FINISHED. THANK YOU FOR YOUR PATIENCE\n")
 
         return
 
@@ -89,7 +103,7 @@ class GPCRParser(BianaParser):
 
         new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
-        # Annotate its GeneID
+        # Annotate its Uniprot Accession
         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UniprotAccession", value=uniprot, type="cross-reference") )
 
         # Associate its GeneSymbol
@@ -99,8 +113,18 @@ class GPCRParser(BianaParser):
             print("Gene Symbol not available for %s" %(uniprot))
             pass
 
+        for interaction in parser.interaction2uniprot:
+            for prot in parser.interaction2uniprot[interaction]:
+                if prot == uniprot:
+                    for species in parser.interaction2species[interaction]:
+                        if species in self.species2taxid:
+                            taxID = self.species2taxid[species]
+                            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier = "taxID",
+                                                                                        value = taxID, type = "cross-reference" ) )
+                    break
+
         # Insert this external entity into BIANA
-        self.external_entity_ids_dict[geneID] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
+        self.external_entity_ids_dict[uniprot] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
 
         return
 
@@ -114,36 +138,38 @@ class GPCRParser(BianaParser):
         # Create an external entity relation corresponding to a protein-protein interaction
         new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "interaction" )
 
-        # Add the proteins in the association
+        # Add the proteins in the interaction
         for uniprot in parser.interaction2uniprot[interaction]:
             new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[uniprot] )
 
-        self.interaction2uniprot = {}
-        self.interaction2species = {}
-        self.interaction2evidence = {}
-        self.interaction2method = {}
-
         # Add the species of the interaction
-        if species in parser.interaction2species[interaction]:
-            if species == 'human':
-                taxID = 9606
-                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "taxID",
-                                                                                                                 value = taxID, type = "cross-reference" ) )
-            else:
-                print("THE INTERACTION IS NOT HUMAN!!")
-                sys.exit(10)
+        if interaction in parser.interaction2species:
+            for species in parser.interaction2species[interaction]:
+                if species in self.species2taxid:
+                    taxID = self.species2taxid[species]
+                    new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "taxID",
+                                                                                                                     value = taxID, type = "cross-reference" ) )
+                else:
+                    print('The species {} is not in the dictionary species2taxid.\nPlease, search the Taxonomy ID of the species in www.uniprot.org/taxonomy and add it in the dictionary'.format(species))
+                    sys.exit(10)
         else:
-            print("Species not available for %s" %(interaction))
-            pass
+            print("Species not available for {}".format(interaction))
+            sys.exit(10)
 
-        # Add the DisGeNET source of the association
-        if GDassociation in parser.GDassociation2source:
-            for source in parser.GDassociation2source[GDassociation]:
-                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "DisGeNET_source",
-                                                                                                                 value = source, type = "unique" ) )
+
+        # Add the method used to report the interaction
+        if interaction in parser.interaction2method:
+            for method in parser.interaction2method[interaction]:
+                if method in self.method2psimi:
+                    psimi = self.method2psimi[method]
+                    new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "method_id",
+                                                                                                                     value = psimi) )
+                else:
+                    print('The method {} is not in the dictionary method2psimi.\nPlease, search the PSI-MI ID of the method in http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/genomic-proteomic/protein/psi-mi.obo and add it in the dictionary'.format(method))
+                    sys.exit(10)
         else:
-            print("DisGeNET source not available for %s" %(GDassociation))
-            pass
+            print("Method not available for {}".format(interaction))
+            sys.exit(10)
 
         # Insert this external entity relation into database
         self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
@@ -151,60 +177,6 @@ class GPCRParser(BianaParser):
         return
 
 
-    def create_SNP_disease_association_entity(self, parser, SDassociation):
-        """
-        Create an external entity relation of a SNP-disease association and add it in BIANA
-        """
-
-        # CREATE THE EXTERNAL ENTITY RELATION
-        # Create an external entity relation corresponding to association between SNP and disease in database
-        new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "SNP_disease_association" )
-
-        # Add the gene in the association
-        snpID = parser.SDassociation2snpID[SDassociation]
-        new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[snpID] )
-
-        # Add the disease in the association
-        disease_UMLS = parser.SDassociation2disease[SDassociation]
-        new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[disease_UMLS] )
-
-        # Add the DisGeNET score of the association
-        if SDassociation in parser.SDassociation2score:
-            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "DisGeNET_score",
-                                                                                                             value = parser.SDassociation2score[SDassociation], type = "unique" ) )
-        else:
-            print("DisGeNET score not available for %s" %(SDassociation))
-            pass
-
-        # Add the DisGeNET source of the association
-        if SDassociation in parser.SDassociation2source:
-            for source in parser.SDassociation2source[SDassociation]:
-                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "DisGeNET_source",
-                                                                                                                 value = source, type = "unique" ) )
-        else:
-            print("DisGeNET source not available for %s" %(SDassociation))
-            pass
-
-        # Add the PubMed id of the association
-        if SDassociation in parser.SDassociation2pubmedID:
-            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Pubmed",
-                                                                                                             value = parser.SDassociation2pubmedID[SDassociation], type = "cross-reference" ) )
-        else:
-            print("Pubmed not available for %s" %(SDassociation))
-            pass
-
-        # Add the sentence of the association
-        if SDassociation in parser.SDassociation2sentence:
-            new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Description",
-                                                                                                             value = parser.SDassociation2sentence[SDassociation] ) )
-        else:
-            print("Sentence not available for %s" %(SDassociation))
-            pass
-
-        # Insert this external entity relation into database
-        self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
-
-        return
 
 
 
@@ -229,11 +201,7 @@ class GPCR_Interactome(object):
 
     def parse(self):
 
-        #################################
-        #### PARSE GENE-DISEASE FILE ####
-        #################################
-
-        print("\n.....PARSING GENE-DISEASE ASSOCIATIONS FILE.....\n")
+        print("\n.....PARSING THE GPCRs INTERACTOME.....\n")
 
         gpcr_file_fd = open(self.GPCR_file,'r')
 
@@ -259,20 +227,45 @@ class GPCR_Interactome(object):
 
             # Create an interaction id for the protein-protein interaction
             # ---> interaction id = uniprot1 + '---' + uniprot2
-            interaction = uniprot1 + '---' + uniprot2
+            interaction_1 = uniprot1 + '---' + uniprot2
+            interaction_2 = uniprot2 + '---' + uniprot1
 
             # Insert the fields into dictionaries
             self.uniprots.add(uniprot1)
-            self.uniprot2genesymbol[uniprot1] = symbol1
-            self.uniprots.add(uniprot2)
-            self.uniprot2genesymbol[uniprot2] = symbol2
+            if uniprot1 not in self.uniprot2genesymbol:
+                self.uniprot2genesymbol[uniprot1] = symbol1
+            else:
+                # Check that there are not different gene symbols for one uniprot
+                if self.uniprot2genesymbol[uniprot1] != symbol1:
+                    print('Different gene symbols for uniprot {}'.format(uniprot1))
+                    sys.exit(10)
 
-            self.interaction2uniprot.setdefault(interaction, [])
-            self.interaction2uniprot[interaction].append(uniprot1)
-            self.interaction2uniprot[interaction].append(uniprot2)
-            self.interaction2species[interaction] = specie
-            self.interaction2evidence[interaction] = evidence_type
-            self.interaction2method[interaction] = detection_method
+            self.uniprots.add(uniprot2)
+            if uniprot2 not in self.uniprot2genesymbol:
+                self.uniprot2genesymbol[uniprot2] = symbol2
+            else:
+                # Check that there are not different gene symbols for one uniprot
+                if self.uniprot2genesymbol[uniprot2] != symbol2:
+                    print('Different gene symbols for uniprot {}'.format(uniprot2))
+                    sys.exit(10)
+
+            if not interaction_1 in self.interaction2uniprot:
+                if not interaction_2 in self.interaction2uniprot:
+                    interaction = interaction_1
+                else:
+                    interaction = interaction_2
+            else:
+                interaction = interaction_1
+            self.interaction2uniprot.setdefault(interaction, set())
+            self.interaction2species.setdefault(interaction, set())
+            self.interaction2evidence.setdefault(interaction, set())
+            self.interaction2method.setdefault(interaction, set())
+
+            self.interaction2uniprot[interaction].add(uniprot1)
+            self.interaction2uniprot[interaction].add(uniprot2)
+            self.interaction2species[interaction].add(specie)
+            self.interaction2evidence[interaction].add(evidence_type)
+            self.interaction2method[interaction].add(detection_method)
 
         gpcr_file_fd.close()
 

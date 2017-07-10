@@ -540,8 +540,8 @@ class TableDB(object):
             #sql_fields.extend(indices_sql)
                                       
             
-            query.append("CREATE TABLE %s ( \n\t%s\n ) ENGINE MyISAM;" %(self.get_temp_table_name(),
-                                                                         ",\n\t".join(sql_fields)) )
+            query.append("CREATE TABLE %s ( \n\t%s\n ) ENGINE %s;" %(self.get_temp_table_name(),
+                                                                         ",\n\t".join(sql_fields), engine))
 
 
         return "\n".join(query)

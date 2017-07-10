@@ -54,7 +54,8 @@ EXTERNAL_ENTITY_TYPES = ["protein",
                          "SCOPElement",
                          "taxonomyElement",
                          "PsiMiOboOntologyElement",
-                         "GOElement"
+                         "GOElement",
+                         "tissue"
                          ]
 
 
@@ -75,8 +76,7 @@ EXTERNAL_ENTITY_RELATION_TYPES = [ "interaction",
                                    "forward_reaction",
                                    "backward_reaction",
                                    "drug_combination",
-                                   "gene_disease_association",
-                                   "SNP_disease_association"
+                                   "gene_tissue_association"
                                    ]
 
 # EXTERNAL ENTITY ATTRIBUTE TYPES
@@ -89,8 +89,6 @@ EXTERNAL_ENTITY_IDENTIFIER_ATTRIBUTES = [ ("ATC", "varchar(30)"),
                                           ("DCDB_drugID", "varchar(30)"),
                                           ("DCDB_targetID", "varchar(30)"),
                                           ("DIP", "varchar(6)"), # DIP:216N (~17000 entries)
-                                          ("DisGeNET_score", "varchar(30)"),
-                                          ("DisGeNET_source", "varchar(30)"),
                                           ("DrugBankID", "varchar(30)"),
                                           ("EC", "varchar(30)"),
                                           ("Encode", "varchar(14)"),
@@ -134,14 +132,15 @@ EXTERNAL_ENTITY_IDENTIFIER_ATTRIBUTES = [ ("ATC", "varchar(30)"),
                                           ("SCOP", "integer(3) unsigned"), 
                                           ("SGD", "varchar(15)"),
                                           ("SMILES", "varchar(255)"),
-                                          ("SNP", "varchar(30)"),
                                           ("STRING", "varchar(25)"), # gives ordered locus names, so called ensembl codes and many more
                                           ("Tair", "varchar(100)"),
                                           ("TaxID", "integer(3) unsigned"),
-                                          ("UMLS_diseaseID", "varchar(30)"),
+                                          ("TissuesSource", "varchar(30)"),
+                                          ("TissuesEvidence", "varchar(30)"),
+                                          ("TissuesConfidence", "varchar(30)"),
                                           ("Unigene", "varchar(10)"),
                                           ("UniParc", "binary(10)"),
-                                          ("UniprotEntry", "varchar(15)"),
+                                          ("UniprotEntry", "varchar(20)"),
                                           ("WormBaseGeneID", "integer(3) unsigned"),
                                           ("WormBaseSequenceName", "varchar(255)"),
                                           ("YPD", "varchar(15)"),
@@ -164,7 +163,7 @@ CROSSABLE_ATTRIBUTES = set(["sequence","taxid","ipi","uniprotentry","uniprotacce
 EXTERNAL_ENTITY_VERSIONABLE_IDENTIFIER_ATTRIBUTE_TYPES = [("AccessionNumber", "varchar(15)"),
                                                           ("RefSeq", "varchar(15)"),
                                                           ("TIGR", "varchar(255)"),
-                                                          ("UniprotAccession", "varchar(9)"),
+                                                          ("UniprotAccession", "varchar(10)"),
 							  ("IPI", "varchar(20)"),
                                                           ]
 
@@ -221,6 +220,11 @@ EXTERNAL_ENTITY_SPECIAL_ATTRIBUTE_TYPES = { "PDB": {"fields": [ ("value","char(4
 
                                             "DrugBank_targetID": { "fields": [ ("value","varchar(255)"),
                                                                      ("targetType","ENUM(\"therapeutic\",\"enzyme\",\"carrier\",\"transporter\")",False)], 
+                                                         "indices": ("value",)}, # Stores a regex
+
+                                            "DCDB_druginteractionID": { "fields": [ ("value","varchar(255)"),
+                                                                     ("interactionType","ENUM(\"pharmacodynamical\",\"pharmacokinetical\")",False),
+                                                                     ("classification","varchar(255)", False)], 
                                                          "indices": ("value",)}, # Stores a regex
                                             
                                             #"STRINGScore": { "fields": [ ("value","int(2)"), # moved to regular attributes as seperate score attributes
