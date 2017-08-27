@@ -519,7 +519,7 @@ class BianaDBaccess(object):
     def _add_transfer_attribute(self, externalDatabaseID, key_attribute, transfer_attribute, unlock = True):
 
         key_id = self._add_key_attribute( external_database_id = externalDatabaseID,
-                                          key_attribute = key_attribute, 
+                                          key_attribute = key_attribute,
                                           unlock = unlock)
 
         self.db.insert_db_content( sql_query = self.db._get_insert_sql_query(table = self.biana_database.EXTERNAL_DATABASE_ATTRIBUTE_TRANSFER_TABLE.get_table_name(),
@@ -3218,7 +3218,7 @@ class BianaDBaccess(object):
                                                                                   columns = ["externalDatabaseID_A","externalDatabaseID_B","GROUP_CONCAT(B.cross_referenced_code)"],
                                                                                   join_conditions = [("A.unificationAtomID","=","B.unificationAtomID")],
 										  fixed_conditions = [("A.unificationProtocolID","=",actual_protocol[1])],
-                                                                                  group_conditions = ["A.unificationAtomID"] ),
+                                                                                  group_conditions = ["A.unificationAtomID", "A.externalDatabaseID_A", "A.externalDatabaseID_B"] ),
                                                    answer_mode = "raw" )
                 for current_atom in atoms:
                     uP.add_unification_atom_elements( BianaObjects.UnificationAtomElement( externalDatabaseID_A = current_atom[0],
@@ -3661,7 +3661,6 @@ class BianaDBaccess(object):
 
             actual_attribute = attribute_list[attribute_index]
 
-            print("Actual attribute: %s. Attribute index: %s" %(actual_attribute.lower(), attribute_index))
             tables.append( (self.biana_database.EXTERNAL_ENTITY_ATTRIBUTE_TABLES_DICT[actual_attribute.lower()],"a%s" %(attribute_index)) )
             tables.append( (self.biana_database.EXTERNAL_ENTITY_ATTRIBUTE_TABLES_DICT[actual_attribute.lower()],"b%s" %(attribute_index)) )
             
