@@ -220,7 +220,8 @@ class DrugBankParser(BianaParser):
                 if type_of_target == "target":
                     type_of_target = "therapeutic"
 
-                if not self.external_entity_ids_dict.has_key(target):
+                target_type_string = '{}---{}'.format(target, type_of_target)
+                if not self.external_entity_ids_dict.has_key(target_type_string):
                     target_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
                     target_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugBank_targetID", value=target.upper(), type="unique",
@@ -236,14 +237,14 @@ class DrugBankParser(BianaParser):
                         target_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.target_to_gene[target], type="cross-reference") )
                         #print("Target Gene: %s" %(parser.target_to_gene[target]))
 
-                    self.external_entity_ids_dict[target] = self.biana_access.insert_new_external_entity( externalEntity = target_external_entity )
+                    self.external_entity_ids_dict[target_type_string] = self.biana_access.insert_new_external_entity( externalEntity = target_external_entity )
 
                 # Create an external entity relation corresponding to interaction between Uniprot_id1 and Uniprot_id2 in database
                 new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "interaction" )
                 # Associate drug as the first participant in this interaction
                 new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[drug] )
                 # Associate ddi as the second participant in this interaction
-                new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[target] )
+                new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[target_type_string] )
 
                 # Insert this external entity realtion into database
                 self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
@@ -346,10 +347,10 @@ class DrugBankXMLParser(object):
 			        self.drug_to_type[drug_id] = drug_type
 			    #print drug_id, drug_type
 		    elif len(state_stack) > 3 and state_stack[-3] == self.NS+"drug-interactions" and state_stack[-2] == self.NS+"drug-interaction":
-			d = self.drug_to_interactions.setdefault(drug_id, {})
+			self.drug_to_interactions.setdefault(drug_id, {})
 			drug_id_partner = elem.text
-			if drug_id_partner not in d:
-			    d[drug_id_partner] = []
+			if drug_id_partner not in self.drug_to_interactions[drug_id]:
+			    self.drug_to_interactions[drug_id][drug_id_partner] = []
 		elif elem.tag == self.NS+"name":
 		    if len(state_stack) <= 3 and state_stack[-2] == self.NS+"drug": 
 			self.drug_to_name[drug_id] = elem.text.strip()
@@ -408,8 +409,8 @@ class DrugBankXMLParser(object):
 		elif elem.tag == self.NS+"id":	
 		    if state_stack[-3] in target_types_plural and state_stack[-2] in target_types:
 			current_target = elem.text
-			d = self.drug_to_target_to_values.setdefault(drug_id, {})
-			d[current_target] = [state_stack[-2], False, []]
+			self.drug_to_target_to_values.setdefault(drug_id, {})
+			self.drug_to_target_to_values[drug_id][current_target] = [state_stack[-2], False, []]
 			#print current_target 
 		elif elem.tag == self.NS+"action":	
 		    if state_stack[-3] in target_types and state_stack[-2] == self.NS+"actions":
