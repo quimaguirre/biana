@@ -75,12 +75,13 @@
 \contentsline {subsubsection}{Anatomical Therapeutic Chemical (ATC) classification}{60}
 \contentsline {subsubsection}{Human Protein Atlas}{61}
 \contentsline {subsubsection}{TISSUES (Jensen Lab)}{62}
-\contentsline {section}{\numberline {6.2}Preparing my data to use the generic parser}{63}
-\contentsline {section}{\numberline {6.3}Creating your own parser for your own data}{65}
-\contentsline {section}{\numberline {6.4}Command line arguments accepted by parsers}{68}
-\contentsline {section}{\numberline {6.5}Attributes and types recognized by \textit {BIANA} and defining new ones}{69}
-\contentsline {section}{\numberline {6.6}Proposed unification protocol}{72}
-\contentsline {chapter}{\numberline {7}Additional administration utilities}{74}
-\contentsline {section}{\numberline {7.1}BIANA database backup}{74}
-\contentsline {chapter}{\numberline {8}Glossary}{76}
-\contentsline {chapter}{\numberline {9}Frequently Asked Questions (FAQs)}{78}
+\contentsline {subsubsection}{DGIdb}{63}
+\contentsline {section}{\numberline {6.2}Preparing my data to use the generic parser}{64}
+\contentsline {section}{\numberline {6.3}Creating your own parser for your own data}{66}
+\contentsline {section}{\numberline {6.4}Command line arguments accepted by parsers}{69}
+\contentsline {section}{\numberline {6.5}Attributes and types recognized by \textit {BIANA} and defining new ones}{70}
+\contentsline {section}{\numberline {6.6}Proposed unification protocol}{73}
+\contentsline {chapter}{\numberline {7}Additional administration utilities}{75}
+\contentsline {section}{\numberline {7.1}BIANA database backup}{75}
+\contentsline {chapter}{\numberline {8}Glossary}{77}
+\contentsline {chapter}{\numberline {9}Frequently Asked Questions (FAQs)}{79}
