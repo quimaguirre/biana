@@ -1,4 +1,5 @@
 from bianaParser import *
+import gzip
                     
 class DisGeNETParser(BianaParser):                                                        
     """             
@@ -27,37 +28,9 @@ class DisGeNETParser(BianaParser):
         Method that implements the specific operations of a MyData formatted file
         """
 
-        # Check that the input path exists
-        if os.path.isdir(self.input_file):
-            self.input_path = self.input_file
-        else:
-            raise ValueError("You must specify a path instead of a file")
-
-        # Check that the necessary files exist
-        self.gene_disease_file = self.input_path + '/all_gene_disease_pmid_associations.tsv'
-        self.snp_disease_file = self.input_path + '/all_variant_disease_pmid_associations.tsv'
-        self.snp_file = self.input_path + '/snp_genes.gz'
-
-        if not os.path.isfile(self.gene_disease_file):
-            print('The file \'all_gene_disease_pmid_associations.tsv\' is not in the input path!')
-            sys.exit(10)
-
-        if not os.path.isfile(self.snp_disease_file):
-            print('The file \'all_variant_disease_pmid_associations.tsv\' is not in the input path!')
-            sys.exit(10)
-
-        if not os.path.isfile(self.snp_file):
-            print('The file \'snp_genes.gz\' is not in the input path!')
-            sys.exit(10)
-
-        # Parse the database
-        parser = DisGeNET(self.input_path)
-        parser.parse()
-
-
-        # Defining the dict in which we will store the created external entities
-        self.external_entity_ids_dict = {}
-
+        #####################################
+        #### DEFINE NEW BIANA CATEGORIES ####
+        #####################################
 
         # Add a different type of external entity
         self.biana_access.add_valid_external_entity_type( type = "SNP" )
@@ -66,6 +39,7 @@ class DisGeNETParser(BianaParser):
         # Add a different type of relation
         self.biana_access.add_valid_external_entity_relation_type( type = "gene_disease_association" )
         self.biana_access.add_valid_external_entity_relation_type( type = "SNP_disease_association" )
+        self.biana_access.add_valid_external_entity_relation_type( type = "gene_SNP_association" )
 
         # Add different type of external entity attributes
 
@@ -96,6 +70,54 @@ class DisGeNETParser(BianaParser):
 
         # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
         self.biana_access.refresh_database_information()
+
+
+
+        ###########################
+        #### CHECK INPUT FILES ####
+        ###########################
+
+        # Check that the input path exists
+        if os.path.isdir(self.input_file):
+            self.input_path = self.input_file
+        else:
+            raise ValueError("You must specify a path instead of a file")
+
+        # Check that the necessary files exist
+        self.gene_disease_file = self.input_path + '/all_gene_disease_pmid_associations.tsv.gz'
+        self.snp_disease_file = self.input_path + '/all_variant_disease_pmid_associations.tsv.gz'
+        self.snp_file = self.input_path + '/snp_genes.gz'
+
+        if not os.path.isfile(self.gene_disease_file):
+            print('The file \'all_gene_disease_pmid_associations.tsv\' is not in the input path!')
+            sys.exit(10)
+
+        if not os.path.isfile(self.snp_disease_file):
+            print('The file \'all_variant_disease_pmid_associations.tsv\' is not in the input path!')
+            sys.exit(10)
+
+        if not os.path.isfile(self.snp_file):
+            print('The file \'snp_genes.gz\' is not in the input path! Download it at \'ftp://ftp.ncbi.nih.gov/snp/Entrez/eLinks/snp_genes.gz\'')
+            sys.exit(10)
+
+
+
+        ########################
+        #### PARSE DATABASE ####
+        ########################
+
+        # Parse the database
+        parser = DisGeNET(self.input_path)
+        parser.parse()
+
+
+
+        #########################################
+        #### INSERT PARSED DATABASE IN BIANA ####
+        #########################################
+
+        # Defining the dict in which we will store the created external entities
+        self.external_entity_ids_dict = {}
 
 
         print("\n.....INSERTING THE GENES IN THE DATABASE.....\n")
@@ -147,6 +169,22 @@ class DisGeNETParser(BianaParser):
             self.create_SNP_disease_association_entity(parser, SDassociation)
 
 
+        print("\n.....INSERTING THE GENE-SNP ASSOCIATIONS IN THE DATABASE.....\n")
+
+        for GSassociation in parser.GSassociation2geneID.keys():
+
+            geneID = parser.GSassociation2geneID[GSassociation]
+            snpID = parser.GSassociation2snpID[GSassociation]
+
+            if not self.external_entity_ids_dict.has_key(geneID):
+                self.create_gene_external_entity(parser, geneID)
+
+            if not self.external_entity_ids_dict.has_key(snpID):
+                self.create_SNP_external_entity(parser, snpID)
+
+            self.create_gene_snp_association_entity(geneID, snpID)
+
+
         print("\nPARSING OF DisGeNET FINISHED. THANK YOU FOR YOUR PATIENCE\n")
 
         return
@@ -158,7 +196,7 @@ class DisGeNETParser(BianaParser):
         Create an external entity of a gene and add it in BIANA
         """
 
-        new_external_entity = ExternalEntity( source_database = self.database, type = "gene" )
+        new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
         # Annotate its GeneID
         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=geneID, type="unique") )
@@ -167,7 +205,7 @@ class DisGeNETParser(BianaParser):
         if geneID in parser.geneID2genesymbol:
             new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.geneID2genesymbol[geneID].upper(), type="cross-reference") )
         else:
-            print("Name not available for %s" %(geneID))
+            #print("Name not available for %s" %(geneID))
             pass
 
         # Insert this external entity into BIANA
@@ -184,13 +222,12 @@ class DisGeNETParser(BianaParser):
         new_external_entity = ExternalEntity( source_database = self.database, type = "disease" )
 
         # Annotate its disease_UMLS
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UMLS_diseaseID", value=disease_UMLS, type="unique") )
-        new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier= "UMLS_diseaseID", value=disease_UMLS, type="unique",
-                                                                                     additional_fields = {"diseaseType": self.disease2type[disease_UMLS]} ) )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UMLS_diseaseID", value=disease_UMLS, type="unique",
+                                                                    additional_fields = {"diseaseType": parser.disease2type[disease_UMLS]} ) )
 
         # Associate its name
         if disease_UMLS in parser.disease2name:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.disease2name[disease_UMLS], type="unique") )
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.disease2name[disease_UMLS].lower(), type="unique") )
         else:
             print("Name not available for %s" %(disease_UMLS))
             pass
@@ -210,20 +247,6 @@ class DisGeNETParser(BianaParser):
 
         # Annotate its snpID
         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "dbSNP", value=snpID, type="unique") )
-
-        # # Associate the GeneID of its gene
-        # if snpID in parser.snpID2geneID:
-        #     new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=parser.snpID2geneID[snpID], type="cross-reference") )
-        # else:
-        #     print("GeneID not available for %s" %(snpID))
-        #     pass
-
-        # # Associate the GeneSymbol of its gene
-        # if snpID in parser.snpID2geneSymbol:
-        #     new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=parser.snpID2geneSymbol[snpID].upper(), type="cross-reference") )
-        # else:
-        #     print("GeneSymbol not available for %s" %(snpID))
-        #     pass
 
         # Insert this external entity into BIANA
         self.external_entity_ids_dict[snpID] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
@@ -267,16 +290,16 @@ class DisGeNETParser(BianaParser):
 
         # Add the PubMed ids of the association
         if GDassociation in parser.GDassociation2pubmedID:
-            for pmid in GDassociation2pubmedID[GDassociation]:
+            for pmid in parser.GDassociation2pubmedID[GDassociation]:
                 new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Pubmed",
                                                                                                                  value = pmid, type = "unique" ) )
         else:
-            print("Pubmed not available for %s" %(GDassociation))
+            #print("Pubmed not available for %s" %(GDassociation))
             pass
 
         # Add the type of associations
         if GDassociation in parser.GDassociation2type:
-            for type_assoc in GDassociation2type[GDassociation]:
+            for type_assoc in parser.GDassociation2type[GDassociation]:
                 new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "DisGeNET_type_association",
                                                                                                                  value = type_assoc, type = "unique" ) )
         else:
@@ -325,11 +348,11 @@ class DisGeNETParser(BianaParser):
 
         # Add the PubMed id of the association
         if SDassociation in parser.SDassociation2pubmedID:
-            for pmid in SDassociation2pubmedID[SDassociation]:
+            for pmid in parser.SDassociation2pubmedID[SDassociation]:
                 new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "Pubmed",
                                                                                                                  value = pmid, type = "unique" ) )
         else:
-            print("Pubmed not available for %s" %(SDassociation))
+            #print("Pubmed not available for %s" %(SDassociation))
             pass
 
         # # Add the sentence of the association
@@ -346,14 +369,35 @@ class DisGeNETParser(BianaParser):
         return
 
 
+    def create_gene_snp_association_entity(self, geneID, snpID):
+        """
+        Create an external entity relation of a gene-SNP association and add it in BIANA
+        """
+
+        # CREATE THE EXTERNAL ENTITY RELATION
+        # Create an external entity relation corresponding to association between gene and SNP in database
+        new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "gene_SNP_association" )
+
+        # Add the gene in the association
+        new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[geneID] )
+
+        # Add the SNP in the association
+        new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[snpID] )
+
+        # Insert this external entity relation into database
+        self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
+
+        return
+
+
 
 
 class DisGeNET(object):
 
     def __init__(self, path):
 
-        self.gene_disease_file = path + '/all_gene_disease_pmid_associations.tsv'
-        self.snp_disease_file = path + '/all_variant_disease_pmid_associations.tsv'
+        self.gene_disease_file = path + '/all_gene_disease_pmid_associations.tsv.gz'
+        self.snp_disease_file = path + '/all_variant_disease_pmid_associations.tsv.gz'
         self.snp_file = path + '/snp_genes.gz'
 
         self.geneIDs = set()
@@ -371,8 +415,6 @@ class DisGeNET(object):
         self.GDassociation2pubmedID = {}
 
         self.snpIDs = set()
-        #self.snpID2geneID = {}
-        #self.snpID2geneSymbol = {}
 
         self.SDassociation2disease = {}
         self.SDassociation2snpID = {}
@@ -380,6 +422,9 @@ class DisGeNET(object):
         self.SDassociation2source = {}
         self.SDassociation2pubmedID = {}
         #self.SDassociation2sentence = {}
+
+        self.GSassociation2geneID = {}
+        self.GSassociation2snpID = {}
 
         return
 
@@ -393,7 +438,7 @@ class DisGeNET(object):
 
         print("\n.....PARSING GENE-DISEASE ASSOCIATIONS FILE.....\n")
 
-        gene_disease_file_fd = open(self.gene_disease_file,'r')
+        gene_disease_file_fd = gzip.open(self.gene_disease_file, 'rb')
 
         num_line = 0
 
@@ -464,7 +509,7 @@ class DisGeNET(object):
 
         print("\n.....PARSING SNP-DISEASE ASSOCIATIONS FILE.....\n")
 
-        snp_disease_file_fd = open(self.snp_disease_file,'r')
+        snp_disease_file_fd = gzip.open(self.snp_disease_file, 'rb')
 
         num_line = 0
 
@@ -537,13 +582,27 @@ class DisGeNET(object):
 
         print("\n.....PARSING SNP-GENE ASSOCIATIONS FILE.....\n")
 
-        snp_file_fd = open(self.snp_file,'r')
+        snp_file_fd = gzip.open(self.snp_file, 'rb')
+
+        for line in snp_file_fd:
+
+            # Split the line in fields
+            fields = line.strip().split("\t")
+            snp_num = fields[0]
+            geneID = fields[1]
+            snpID = 'rs'+snp_num
+
+            # Skip the SNPs that are not in DisGeNET
+            if snpID not in self.snpIDs:
+                continue
+
+            association = '{}---{}'.format(snpID, geneID)
+            self.GSassociation2geneID[association] = geneID
+            self.GSassociation2snpID[association] = snpID
+
 
         snp_file_fd.close()
 
-        print('The parsing of the dbSNP database still has to be implemented (ftp://ftp.ncbi.nih.gov/snp/Entrez/eLinks/snp_genes.gz')
-
-        exit(10)
 
         return
 
