@@ -166,8 +166,9 @@ class DrugBankParser(BianaParser):
             for indication in parser.drug_to_indication[drug]:
                 new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Indication", value=indication, type="unique") )
 
-        	if len(parser.drug_to_indication[drug]) > 1:
-	            #print("INDICATION of drug {}: {}".format(drug, parser.drug_to_indication[drug]))
+            if len(parser.drug_to_indication[drug]) > 1:
+                #print("INDICATION of drug {}: {}".format(drug, parser.drug_to_indication[drug]))
+                pass
         else:
             #print("INDICATION not available for %s" %(drug))
             pass
