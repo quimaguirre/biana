@@ -2054,15 +2054,15 @@ Shell Command:\\
   \hline
   Description & Gene integrates information from a wide range of species. A record may include nomenclature, Reference Sequences (RefSeqs), maps, pathways, variations, phenotypes, and links to genome-, phenotype-, and locus-specific resources worldwide.\\ \hline
   Database Reference & Entrez Gene: gene-centered information at NCBI. (2005) Nucleic Acids Res\\ \hline
-  Database Link & \url{ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2ensembl.gz} \\ \hline
+  Database Link & \url{ftp://ftp.ncbi.nlm.nih.gov/gene/DATA} \\ \hline
   External Entity Types & protein \\ \hline
-  External Entity Relation Types & interaction \\ \hline
-  Needed files & Download the file gene2ensembl.gz\\ \hline
+  External Entity Relation Types & \\ \hline
+  Needed files & Download the files gene2ensembl.gz and gene2go.gz\\ \hline
   Parser name & ncbigene \\ \hline
-  Input-identifier & The path to the folder containing the compressed file \\ \hline
-  Checked version & 13-Jun-2017\\ \hline
+  Input-identifier & The path to the folder containing the compressed files \\ \hline
+  Checked version & 13-Nov-2017\\ \hline
   Comments & The database file must be compressed!! \\ \hline
-  Approximate parsing time & 7 minutes \\ 
+  Approximate parsing time & 15 minutes \\ 
   \hline
 \end{tabular}
 %\end{center}
@@ -2077,7 +2077,7 @@ Shell Command:\\
                                     --biana-dbpass="PASSWORD"
                                     --time-control
                                     --database-name="NCBIGene"
-                                    --database-version="13-Jun-2017"
+                                    --database-version="13-Nov-2017"
 \end{SaveVerbatim}
 \printcommand{parser_command}
 \end{minipage}
