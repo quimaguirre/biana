@@ -28,22 +28,44 @@ class ncbigeneParser(BianaParser):
         Method that implements the specific operations of a MyData formatted file
         """
 
+        #####################################
+        #### DEFINE NEW BIANA CATEGORIES ####
+        #####################################
+
+        # Add GO_evidence as a valid external entity attribute since it is not recognized by BIANA
+        self.biana_access.add_valid_external_entity_attribute_type( name = "GO_evidence",
+                                                                    data_type = "varchar(370)",
+                                                                    category = "eE identifier attribute")
+
+        # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
+        self.biana_access.refresh_database_information()
+
+
+
+        ###########################
+        #### CHECK INPUT FILES ####
+        ###########################
+
         # Check that the input is a path
         if os.path.isdir(self.input_file):
             self.input_path = self.input_file
         else:
             raise ValueError("You must specify a path instead of a file")
 
-
         # Check that all the needed files exist
         files_list = [os.path.join(self.input_path, f) for f in os.listdir(self.input_path) if os.path.isfile(os.path.join(self.input_path, f))]
-        files = ["gene2ensembl.gz"]
+        files = ["gene2ensembl.gz", "gene2go.gz"]
 
         for current_file in files:
             file_path = os.path.join(self.input_path, current_file)
             if file_path not in files_list:
                 raise ValueError("File %s is missing in %s" %(current_file, self.input_path))
 
+
+
+        ########################
+        #### PARSE DATABASE ####
+        ########################
 
         # Parse the database
         parser = NCBIGene(self.input_path)
@@ -53,6 +75,10 @@ class ncbigeneParser(BianaParser):
         #print(parser.geneid2ensembl)
 
 
+
+        #########################################
+        #### INSERT PARSED DATABASE IN BIANA ####
+        #########################################
 
         print("\n.....INSERTING THE GENES IN THE DATABASE.....\n")
 
@@ -110,6 +136,21 @@ class ncbigeneParser(BianaParser):
             print("Accession not available for GeneID: %s" %(geneid))
             pass
 
+        # Associate its GO ID
+        if geneid in parser.geneid2go:
+            for go_id in parser.geneid2go[geneid]:
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GO", value=go_id, type="unique") )
+                gene_go = '{}---{}'.format(geneid, go_id)
+                if gene_go in parser.gene_go2evidences:
+                    for evidence in parser.gene_go2evidences[gene_go]:
+                        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GO_evidence", value=evidence, type="unique") )
+                if gene_go in parser.gene_go2pubmeds:
+                    for pubmed in parser.gene_go2pubmeds[gene_go]:
+                        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Pubmed", value=pubmed, type="unique") )
+        else:
+            print("GO not available for GeneID: %s" %(geneid))
+            pass
+
         # Insert this external entity into BIANA
         self.external_entity_ids_dict[geneid] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
 
@@ -124,17 +165,27 @@ class NCBIGene(object):
     def __init__(self, input_path):
 
         self.gene2ensembl_file = os.path.join(input_path, "gene2ensembl.gz")
+        self.gene2go_file = os.path.join(input_path, "gene2go.gz")
 
         self.geneIDs = set()
         self.geneid2taxid = {}
         self.geneid2ensembl = {}
         self.geneid2accession = {}
 
+        self.geneid2go = {}
+        self.gene_go2evidences = {}
+        self.gene_go2pubmeds = {}
+
         return
 
 
 
     def parse(self):
+
+
+        #################################
+        #### PARSE GENE2ENSEMBL FILE ####
+        #################################
 
         print("\n.....PARSING THE FILE GENE2ENSEMBL.....\n")
 
@@ -198,6 +249,68 @@ class NCBIGene(object):
                 self.geneid2accession[geneid]['protein'].append(accession_prot.split('.'))
 
         gene2ensembl_fd.close()
+
+
+        ############################
+        #### PARSE GENE2GO FILE ####
+        ############################
+
+        print("\n.....PARSING THE FILE GENE2GO.....\n")
+
+        gene2go_fd = gzip.open(self.gene2go_file,'rb')
+
+        first_line = gene2go_fd.readline()
+
+        # Obtain a dictionary: "field_name" => "position"
+        fields_dict = self.obtain_header_fields(first_line[1:])
+        #tax_id GeneID  GO_ID   Evidence    Qualifier   GO_term PubMed  Category
+
+        for line in gene2go_fd:
+
+            # Split the line in fields
+            fields = line.strip().split("\t")
+
+            # Obtain the fields of interest
+            taxid = fields[ fields_dict['tax_id'] ]
+            geneid = fields[ fields_dict['GeneID'] ]
+            go_id = fields[ fields_dict['GO_ID'] ].upper()
+            evidence = fields[ fields_dict['Evidence'] ].upper()
+            qualifier = fields[ fields_dict['Qualifier'] ].lower()
+            go_term = fields[ fields_dict['GO_term'] ].lower()
+            pubmed = fields[ fields_dict['PubMed'] ]
+            category = fields[ fields_dict['Category'] ].lower()
+
+            # Insert GeneID
+            self.geneIDs.add(geneid)
+
+            # Insert TaxID. There can only be one taxID for GeneID. If not, error
+            if geneid not in self.geneid2taxid:
+                self.geneid2taxid[geneid] = taxid
+            else:
+                if self.geneid2taxid[geneid] != taxid:
+                    print('Different taxIDs for the GeneID: {}\nFirst taxID: {}  Second taxID: {}'.format(geneid, self.geneid2taxid[geneid], taxid))
+                    sys.exit(10)
+
+            # Insert GO
+            go_id = go_id.split('GO:')[1]
+            self.geneid2go.setdefault(geneid, set())
+            self.geneid2go[geneid].add(go_id)
+
+            if evidence != '-':
+                gene_go = '{}---{}'.format(geneid, go_id)
+                self.gene_go2evidences.setdefault(gene_go, set())
+                self.gene_go2evidences[gene_go].add(evidence)
+            else:
+                print('No evidence for GeneID {} and GO ID {}!'.format(geneid, go_id))
+                sys.exit(10)
+
+            if pubmed != '-':
+                gene_go = '{}---{}'.format(geneid, go_id)
+                self.gene_go2pubmeds.setdefault(gene_go, set())
+                self.gene_go2pubmeds[gene_go].add(pubmed)
+
+        gene2go_fd.close()
+
 
         return
 
