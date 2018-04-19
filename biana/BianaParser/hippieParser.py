@@ -35,8 +35,6 @@ class hippieParser(BianaParser):
         #########################################################################
         #### NOTE: We are adding only the interactions that have reported methods
         #### The interactions without method are excluded.
-        #### We are only adding the interactions with score >= 0.5
-        #### The interactions with score < 0.5 are excluded.
         #########################################################################
 
 
@@ -130,7 +128,7 @@ class hippieParser(BianaParser):
             # Annotate its TaxID
             taxID = parser.interactor2taxid[interactor]
             if taxID != '-':
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "TaxID", value=taxID, type="unique") )
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "TaxID", value=taxID, type="cross-reference") )
 
 
         # Insert this external entity into BIANA
@@ -333,9 +331,6 @@ class Hippie_Interactome(object):
                 sys.exit(10)
             else:
                 score = float(fields[ fields_dict['Confidence Value'] ])
-                if score < 0.5:
-#### -------------> IF THE SCORE IS BELOW 0.5, WE SKIP THE INTERACTION ######
-                    continue
 
             #### CREATE INTERACTION ID ####
 
