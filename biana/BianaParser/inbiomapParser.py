@@ -21,6 +21,7 @@ class inbiomapParser(BianaParser):
                              default_script_name = "inbiomapParser.py",
                              default_script_description = inbiomapParser.description,     
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "ensembl"
                     
     def parse_database(self):
         """                                                                              
@@ -177,7 +178,7 @@ class inbiomapParser(BianaParser):
                 source = source.split('(')[1].split(')')[0]
                 new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "InBioMap_source",
                                                                                                                      value = source,
-                                                                                                                     type="cross-reference") )
+                                                                                                                     type="unique") )
         else:
             print("Source not available for {}".format(interaction))
             #sys.exit(10)
@@ -186,7 +187,7 @@ class inbiomapParser(BianaParser):
         if score != '-':
             new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "InBioMap_score",
                                                                                                                  value = score,
-                                                                                                                 type="cross-reference") )
+                                                                                                                 type="unique") )
         else:
             print("Score not available for {}".format(interaction))
             sys.exit(10)

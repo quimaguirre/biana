@@ -23,7 +23,8 @@ class DrugBankParser(BianaParser):
                              default_script_name = "drugbankParser.py",
                              default_script_description = DrugBankParser.description,     
                              additional_compulsory_arguments = [])
-                    
+        self.default_eE_attribute = "drugbankid"
+
     def parse_database(self):
         """                                                                              
         Method that implements the specific operations of a DrugBank formatted file
@@ -34,9 +35,17 @@ class DrugBankParser(BianaParser):
         #                                                             data_type = "varchar(370)",
         #                                                             category = "eE identifier attribute")
 
-        self.biana_access.add_valid_external_entity_attribute_type( name = "DrugBank_drug_name",
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DrugBank_drug_group",
                                                                     data_type = "varchar(370)",
                                                                     category = "eE identifier attribute")
+
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DrugBank_known_action",
+                                                                    data_type = "varchar(370)",
+                                                                    category = "eE descriptive attribute")
+
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DrugBank_action",
+                                                                    data_type = "varchar(370)",
+                                                                    category = "eE descriptive attribute")
 
         # # Add DrugBank_targetID as a valid external entity attribute since it is not recognized by BIANA
         # self.biana_access.add_valid_external_entity_attribute_type( name = "DrugBank_targetID",
@@ -52,6 +61,10 @@ class DrugBankParser(BianaParser):
         # self.biana_access.add_valid_external_entity_attribute_type( name = "Indication",
         #                                                             data_type = "text",
         #                                                             category = "eE descriptive attribute")
+
+        # Adding two new data_type of external entity attribute
+        self.biana_access.add_valid_identifier_reference_types('brand')
+        self.biana_access.add_valid_identifier_reference_types('product')
 
         # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
         self.biana_access.refresh_database_information()
@@ -138,7 +151,7 @@ class DrugBankParser(BianaParser):
 
         # Associate its name
         if drug in parser.drug_to_name:
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugBank_drug_name", value=parser.drug_to_name[drug], type="unique") )
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=parser.drug_to_name[drug], type="unique") )
         else:
             #print("Name not available for %s" %(drug))
             pass
@@ -146,13 +159,13 @@ class DrugBankParser(BianaParser):
         # Associate its synonyms
         if drug in parser.drug_to_synonyms:
             for synonym in parser.drug_to_synonyms[drug]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugBank_drug_name", value=synonym, type="synonym") )
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=synonym, type="synonym") )
         if drug in parser.drug_to_products:
             for product in parser.drug_to_products[drug]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugBank_drug_name", value=product, type="product") )
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=product, type="product") )
         if drug in parser.drug_to_brands:
             for brand in parser.drug_to_brands[drug]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugBank_drug_name", value=brand, type="brand") )
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=brand, type="brand") )
 
         # Associate its description
         if drug in parser.drug_to_description:
@@ -160,6 +173,11 @@ class DrugBankParser(BianaParser):
         else:
             #print("Description not available for %s" %(drug))
             pass
+
+        # Associate its groups
+        if drug in parser.drug_to_groups:
+            for group in parser.drug_to_groups[drug]:
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugBank_drug_group", value=group, type="unique") )
 
         # Associate its indication
         if drug in parser.drug_to_indication:
@@ -261,6 +279,24 @@ class DrugBankParser(BianaParser):
                 new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[drug] )
                 # Associate ddi as the second participant in this interaction
                 new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[target_type_string] )
+
+                # Get known action
+                known_action = parser.drug_to_target_to_values[drug][target][1]
+                if known_action:
+                    known_action = 'yes'
+                else:
+                    known_action = 'unknown'
+
+                # Get actions
+                actions = parser.drug_to_target_to_values[drug][target][2]
+
+                # Associate the drug-target interaction with the known action
+                new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier= "DrugBank_known_action", value=known_action, type="unique") )
+
+                # Associate the drug-target interaction with the actions
+                if len(actions) > 0:
+                    for action in actions:
+                        new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier= "DrugBank_action", value=action.lower(), type="unique") )
 
                 # Insert this external entity realtion into database
                 self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )

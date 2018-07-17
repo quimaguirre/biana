@@ -21,6 +21,7 @@ class dgidbParser(BianaParser):
                              default_script_name = "dgidbParser.py",
                              default_script_description = dgidbParser.description,     
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "chembl"
                     
     def parse_database(self):
         """                                                                              
@@ -135,7 +136,7 @@ class dgidbParser(BianaParser):
         new_external_entity = ExternalEntity( source_database = self.database, type = "drug" )
 
         # Annotate it as CHEMBL
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "CHEMBL", value=chembl_id, type="unique") )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "CHEMBL", value=chembl_id, type="cross-reference") )
 
         # Insert this external entity into BIANA
         self.external_entity_ids_dict[chembl_id] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
@@ -151,7 +152,7 @@ class dgidbParser(BianaParser):
         new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
         # Annotate it as GeneID
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=entrez_id, type="unique") )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=entrez_id, type="cross-reference") )
 
         # Insert this external entity into BIANA
         self.external_entity_ids_dict[entrez_id] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
@@ -183,6 +184,8 @@ class DGIdb(object):
         #### PARSE INTERACTIONS FILE ####
         #################################
 
+        import csv
+
         print("\n.....PARSING INTERACTIONS FILE.....\n")
 
         with open(self.interactions_file,'r') as interactions_file_fd:
@@ -193,10 +196,9 @@ class DGIdb(object):
             # gene_name gene_claim_name entrez_id   interaction_claim_source    interaction_types   drug_claim_name drug_claim_primary_name drug_name   drug_chembl_id
             fields_dict = self.obtain_header_fields(first_line, separator='\t')
 
-            for line in interactions_file_fd:
-                fields = line.strip().split('\t')
-                if len(fields) < 9:
-                    continue
+            csvreader = csv.reader(interactions_file_fd, delimiter='\t')
+            for fields in csvreader:
+
                 entrez_id = fields[ fields_dict['entrez_id'] ]
                 source = fields[ fields_dict['interaction_claim_source'] ].lower()
                 interaction_types = fields[ fields_dict['interaction_types'] ].lower()

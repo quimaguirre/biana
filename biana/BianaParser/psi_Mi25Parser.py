@@ -506,6 +506,7 @@ class Psi_MiFormattedDBParser(BianaParser):
             dictFieldType = "unique"
         
         if dbUpper in ("UNIPROTKB", "UNIPROT", "UNIPROT KNOWLEDGE BASE", "SWISSPROT", "TREMBL", "UNIPROT/SWISS-PROT", "UNIPROT/TREMBL"):
+            dictFieldType = "cross-reference" # Quim Aguirre: Include it to ensure that it will be annotated as cross-reference
             if id.startswith("unknown"):
                 dbNameConverted = "ignore"
             else:
@@ -540,15 +541,17 @@ class Psi_MiFormattedDBParser(BianaParser):
             dictFieldValue = id[3:]
             self.checkOrInsertDBNamePrefix(dbNameConverted, id[:3])
         elif dbUpper == "ENSEMBL":
+            dictFieldType = "cross-reference" # Quim Aguirre: Include it to ensure that it will be annotated as cross-reference
             dbNameConverted = "ensembl"
             # ENS[GBRM] -CGS - 
             #dictFieldValue = id[4:]
             #self.checkOrInsertDBNamePrefix(dbNameConverted, id[:4])
         elif dbUpper == "ENSEMBLGENOMES":
+            dictFieldType = "cross-reference" # Quim Aguirre: Include it to ensure that it will be annotated as cross-reference
             dbNameConverted = "ensembl"
         elif dbUpper == "ENCODE":
             dbNameConverted = "encode"
-	        # not always starts with AC
+            # not always starts with AC
             #dictFieldValue = id[2:] 
             #self.checkOrInsertDBNamePrefix(dbNameConverted, id[:2])
         elif dbUpper == "INTACT":
@@ -568,6 +571,7 @@ class Psi_MiFormattedDBParser(BianaParser):
             dictFieldValue = id[5:]
             self.checkOrInsertDBNamePrefix(dbNameConverted, id[:5])
         elif dbUpper == "PROTEIN ACCESSION":
+            dictFieldType = "cross-reference" # Quim Aguirre: Include it to ensure that it will be annotated as cross-reference
             indexDigit = self.getIndexOfFirstOccurenceOfDigit(id)
             if indexDigit == 3:
                 dbNameConverted = "AccessionNumber"
@@ -581,8 +585,10 @@ class Psi_MiFormattedDBParser(BianaParser):
             else:
                 dbNameConverted = 'ignore'
         elif dbUpper == "RCSB PDB" or dbUpper == "PDB" or dbUpper == "WWPDB":
+            dictFieldType = "cross-reference" # Quim Aguirre: Include it to ensure that it will be annotated as cross-reference
             dbNameConverted = "pdb"
         elif dbUpper == "REACTOME COMPLEX" or dbUpper == "REACTOME PROTEIN" or dbUpper == "REACTOME":
+            dictFieldType = "cross-reference" # Quim Aguirre: Include it to ensure that it will be annotated as cross-reference
             dbNameConverted = "Reactome"
             index = id.rfind('.')
             if index == -1:

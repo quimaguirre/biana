@@ -198,7 +198,7 @@ class CogParser(BianaParser):
                     # Add an attribute to the External Entity --> the corresponding COG identifiers of the protein
                     eE_object.add_attribute( ExternalEntityAttribute( attribute_identifier = "COG",
                                                                       value = current_cog,
-								      type="cross-reference" ) )
+								      type="unique" ) )
                     for current_function in cogs_funct_dict[current_cog]:
                         # Add an attribute to the External Entity --> the COG function
                         # Here, we use the "function_dict" to add the function description corresponding to the function code (current_function)

@@ -22,6 +22,7 @@ class SIDERParser(BianaParser):
                              default_script_name = "SIDERParser.py",
                              default_script_description = SIDERParser.description,     
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "pubchemcompound"
                     
     def parse_database(self):
         """                                                                              
@@ -43,14 +44,9 @@ class SIDERParser(BianaParser):
 
         # Add different type of external entity attributes
 
-        data_type_dict = {"fields": [ ("value","varchar(30)"),
-                                     ("diseaseType","ENUM(\"disease\",\"phenotype\",\"group\")",False)
-                                   ],
-                          "indices": ("value",)} # Stores a regex
-
-        self.biana_access.add_valid_external_entity_attribute_type( name = "UMLS_diseaseID",
-                                                                        data_type = data_type_dict,
-                                                                        category = "eE special attribute")
+        self.biana_access.add_valid_external_entity_attribute_type( name = "UMLS_CUI",
+                                                                        data_type = "varchar(30)",
+                                                                        category = "eE identifier attribute")
 
         # Since we have added new attributes that are not in the default BIANA distribution, we execute the following command
         self.biana_access.refresh_database_information()
@@ -117,7 +113,7 @@ class SIDERParser(BianaParser):
             if not self.external_entity_ids_dict.has_key(umls):
 
                 #print("Adding phenotype %s" %(umls))
-                self.create_phenotype_external_entity(parser, umls, 'phenotype')
+                self.create_phenotype_external_entity(parser, umls)
 
 
         print("\n.....INSERTING DRUGS.....\n")
@@ -173,7 +169,7 @@ class SIDERParser(BianaParser):
 
 
 
-    def create_phenotype_external_entity(self, parser, umls, phenotype_type):
+    def create_phenotype_external_entity(self, parser, umls):
         """
         Create an external entity of a phenotype and add it in BIANA
         """
@@ -181,8 +177,7 @@ class SIDERParser(BianaParser):
         new_external_entity = ExternalEntity( source_database = self.database, type = "phenotype" )
 
         # Annotate its UMLS
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UMLS_diseaseID", value=umls, type="unique",
-                                                                    additional_fields = {"diseaseType": phenotype_type} ) )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UMLS_CUI", value=umls, type="unique" ) )
 
         # Associate its name
         if umls in parser.phenotype_umls2pref:

@@ -21,6 +21,7 @@ class hippieParser(BianaParser):
                              default_script_name = "hippieParser.py",
                              default_script_description = hippieParser.description,     
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "geneid"
                     
     def parse_database(self):
         """                                                                              
@@ -184,7 +185,7 @@ class hippieParser(BianaParser):
 
                 new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "HIPPIE_source",
                                                                                                                      value = source,
-                                                                                                                     type="cross-reference") )
+                                                                                                                     type="unique") )
         else:
             print("Source not available for {}".format(interaction))
             #sys.exit(10)
@@ -193,7 +194,7 @@ class hippieParser(BianaParser):
         if score != '-':
             new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "HIPPIE_score",
                                                                                                                  value = score,
-                                                                                                                 type="cross-reference") )
+                                                                                                                 type="unique") )
         else:
             print("Score not available for {}".format(interaction))
             sys.exit(10)

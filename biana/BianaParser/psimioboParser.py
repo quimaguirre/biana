@@ -40,6 +40,7 @@ class PSIMIOBOParser(BianaParser):
         BianaParser.__init__(self, default_db_description = "PSI MI obo",
                              default_script_name = "psimioboParser.py",
                              default_script_description = "This program fills up tables in database piana related to PSI-MI formatted Ontologies")
+        self.default_eE_attribute = "psimi_name"
         
 
     def parse_database(self):
@@ -51,7 +52,6 @@ class PSIMIOBOParser(BianaParser):
         self.biana_access._add_transfer_attribute( externalDatabaseID = self.database.get_id(), 
                                                    key_attribute = "Method_id",
                                                    transfer_attribute="psimi_name" )
-        self.default_eE_attribute = "psimi_name"
 
         ontology = Ontology( source_database = self.database, linkedAttribute="Method_id", name="psimiobo", descriptionAttribute="psimi_name" )
 

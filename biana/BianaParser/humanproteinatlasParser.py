@@ -22,6 +22,7 @@ class humanproteinatlasParser(BianaParser):
                              default_script_name = "humanproteinatlasParser.py",
                              default_script_description = humanproteinatlasParser.description,
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "ensembl"
                     
     def parse_database(self):
         """     

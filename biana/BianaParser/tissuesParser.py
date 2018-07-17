@@ -21,6 +21,7 @@ class tissuesParser(BianaParser):
                              default_script_name = "tissuesParser.py",
                              default_script_description = tissuesParser.description,
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "ensembl"
                     
     def parse_database(self):
         """     

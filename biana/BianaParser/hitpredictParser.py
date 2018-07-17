@@ -21,6 +21,7 @@ class hitpredictParser(BianaParser):
                              default_script_name = "hitpredictParser.py",
                              default_script_description = hitpredictParser.description,     
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "uniprotentry"
                     
     def parse_database(self):
         """                                                                              
@@ -158,7 +159,8 @@ class hitpredictParser(BianaParser):
         if methods != '-':
             for method in methods:
                 new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "method_id",
-                                                                                                                     value = method) )
+                                                                                                                     value = method,
+                                                                                                                     type="cross-reference") )
         else:
             print("Method not available for {}".format(interaction))
             sys.exit(10)
@@ -171,7 +173,7 @@ class hitpredictParser(BianaParser):
             for source in sources:
                 new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "HitPredict_source",
                                                                                                                      value = source,
-                                                                                                                     type="cross-reference") )
+                                                                                                                     type="unique") )
         else:
             print("Source not available for {}".format(interaction))
             #sys.exit(10)
@@ -195,7 +197,7 @@ class hitpredictParser(BianaParser):
                 if score_value != '-':
                     new_external_entity_relation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "HitPredict_score",
                                                                                                  value = score_value,
-                                                                                                 type="cross-reference") )
+                                                                                                 type="unique") )
                 else:
                     print("Score not available for {}".format(interaction))
                     sys.exit(10)
@@ -387,6 +389,12 @@ class HitPredict_Interactome(object):
             self.interactors.add(interactor_1)
             self.interactors.add(interactor_2)
 
+            # Process alt identifiers
+            # uniprotkb:FBXW7_DROME(gene name)
+            if len(alt_ident1.split('(')) == 2:
+                alt_ident1 = alt_ident1.split('(')[0]
+            if len(alt_ident2.split('(')) == 2:
+                alt_ident2 = alt_ident2.split('(')[0]
             self.interactor2id2altid.setdefault(interactor_1, {})
             self.interactor2id2altid[interactor_1]['id'] = identifier1
             self.interactor2id2altid[interactor_1]['altid'] = alt_ident1

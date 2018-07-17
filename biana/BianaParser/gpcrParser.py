@@ -21,6 +21,7 @@ class GPCRParser(BianaParser):
                              default_script_name = "gpcrParser.py",
                              default_script_description = GPCRParser.description,     
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "uniprotaccession"
                     
     def parse_database(self):
         """                                                                              

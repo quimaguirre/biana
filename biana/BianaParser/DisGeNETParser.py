@@ -22,6 +22,7 @@ class DisGeNETParser(BianaParser):
                              default_script_name = "DisGeNETParser.py",
                              default_script_description = DisGeNETParser.description,     
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "geneid"
                     
     def parse_database(self):
         """                                                                              
@@ -43,14 +44,9 @@ class DisGeNETParser(BianaParser):
 
         # Add different type of external entity attributes
 
-        data_type_dict = {"fields": [ ("value","varchar(30)"),
-                                     ("diseaseType","ENUM(\"disease\",\"phenotype\",\"group\")",False)
-                                   ],
-                          "indices": ("value",)} # Stores a regex
-
-        self.biana_access.add_valid_external_entity_attribute_type( name = "UMLS_diseaseID",
-                                                                        data_type = data_type_dict,
-                                                                        category = "eE special attribute")
+        self.biana_access.add_valid_external_entity_attribute_type( name = "UMLS_CUI",
+                                                                        data_type = "varchar(30)",
+                                                                        category = "eE identifier attribute")
 
         self.biana_access.add_valid_external_entity_attribute_type( name = "dbSNP",
                                                                         data_type = "varchar(30)",
@@ -65,6 +61,10 @@ class DisGeNETParser(BianaParser):
                                                                         category = "eE identifier attribute")
 
         self.biana_access.add_valid_external_entity_attribute_type( name = "DisGeNET_type_association",
+                                                                        data_type = "varchar(30)",
+                                                                        category = "eE identifier attribute")
+
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DisGeNET_disease_type",
                                                                         data_type = "varchar(30)",
                                                                         category = "eE identifier attribute")
 
@@ -199,7 +199,7 @@ class DisGeNETParser(BianaParser):
         new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
         # Annotate its GeneID
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=geneID, type="unique") )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneID", value=geneID, type="cross-reference") )
 
         # Associate its GeneSymbol
         if geneID in parser.geneID2genesymbol:
@@ -221,9 +221,11 @@ class DisGeNETParser(BianaParser):
 
         new_external_entity = ExternalEntity( source_database = self.database, type = "disease" )
 
-        # Annotate its disease_UMLS
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UMLS_diseaseID", value=disease_UMLS, type="unique",
-                                                                    additional_fields = {"diseaseType": parser.disease2type[disease_UMLS]} ) )
+        # Annotate its disease UMLS CUI
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UMLS_CUI", value=disease_UMLS, type="cross-reference") )
+
+        # Annotate the type of disease
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DisGeNET_disease_type", value=parser.disease2type[disease_UMLS], type="unique") )
 
         # Associate its name
         if disease_UMLS in parser.disease2name:

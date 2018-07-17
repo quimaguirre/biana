@@ -21,6 +21,7 @@ class dcdbParser(BianaParser):
                              default_script_name = "dcdbParser.py",
                              default_script_description = dcdbParser.description,     
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "dcdb_drugid"
                     
     def parse_database(self):
         """                                                                              

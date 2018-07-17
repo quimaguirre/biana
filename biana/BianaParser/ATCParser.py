@@ -165,16 +165,13 @@ class ATCParser(BianaParser):
 
         data = csv.reader(input_file_fd, delimiter=',')
 
-        #Class ID,Preferred Label,Synonyms,Definitions,Obsolete,CUI,Semantic Types,Parents,ATC LEVEL,Has member,Inverse of isa,Is Drug Class,isa,Member of,Semantic type UMLS property
+        #Class ID,Preferred Label,Synonyms,Definitions,Obsolete,CUI,Semantic Types,Parents,ATC LEVEL,Is Drug Class,Semantic type UMLS property
         for fields in data:
 
             atc = fields[0]
             name = fields[1]
             parents = fields[7]
             level = fields[8]
-            has_member = fields[9]
-            isa = fields[12]
-            member_of = fields[13]
 
             # Obtain ATC id from 'http://purl.bioontology.org/ontology/UATC/L04AA31'
             atc_split = atc.split('/')
@@ -182,11 +179,11 @@ class ATCParser(BianaParser):
             db = atc_split[len(atc_split)-2]
             if db != 'UATC':
                 continue
-            atc_ids.add(atc)
+            atc_ids.add(atc.upper())
 
             # Add the name
             if atc not in atc2name:
-                atc2name[atc] = name
+                atc2name[atc] = name.lower()
             else:
                 print('ATC {} two times in atc2name'.format(atc))
                 sys.exit(10)
@@ -194,39 +191,14 @@ class ATCParser(BianaParser):
             atc2parents.setdefault(atc, [])
 
             # Add the 'PartOf' elements from 'parents' or 'member_of'
-            if parents != '' and member_of == '':
+            if parents != '':
                 parents = parents.split('|')
                 for parent in parents:
                     parent_split = parent.split('/')
                     parent_name = parent_split[len(parent_split)-1]
                     if parent_name == 'owl#Thing':
                         continue
-                    atc2parents[atc].append(parent_name)
-
-            elif parents == '' and member_of != '':
-                member_of = member_of.split('|')
-                for member in member_of:
-                    member_split = member.split('/')
-                    member_name = member_split[len(member_split)-1]
-                    if member_name == 'owl#Thing':
-                        continue
-                    atc2parents[atc].append(member_name)
-            elif parents != '' and member_of != '':
-                print('{} PARENTS: {}'.format(atc, parents))
-                print('{} MEMBER OF: {}'.format(atc, member_of))
-                print('TWO PARENTS')
-                sys.exit(10)
-            elif parents == '' and member_of == '':
-                pass
-
-            atc2isa.setdefault(atc, [])
-            if isa != '':
-                isa = isa.split('|')
-                for isa_id in isa:
-                    isa_split = isa_id.split('/')
-                    isa_name = isa_split[len(isa_split)-1]
-                    atc2isa[atc].append(isa_name)
-
+                    atc2parents[atc].append(parent_name.upper())
 
             if level != '':
                 atc2level[atc] = int(level)
@@ -241,16 +213,15 @@ class ATCParser(BianaParser):
                term_namespace, term_def, term_exact_synonyms, 
                term_related_synonyms, term_broad_synonyms, term_narrow_synonyms, term_alt_id)
             self.biana_access.insert_new_external_entity( externalEntity )
-            specific_identifiers_and_parent[atc] = (externalEntity.get_id(), atc2isa[atc], atc2parents[atc])
+            specific_identifiers_and_parent[atc] = (externalEntity.get_id(), [], atc2parents[atc])
 
         # Set the ontology hierarch and insert elements to ontology
         for current_method_id in specific_identifiers_and_parent:
             #print(current_method_id)
             #print(specific_identifiers_and_parent[current_method_id])
-            is_a_list = [ specific_identifiers_and_parent[x][0] for x in specific_identifiers_and_parent[current_method_id][1] ]
             is_part_of_list = [ specific_identifiers_and_parent[x][0] for x in specific_identifiers_and_parent[current_method_id][2]  ]
             ontology.add_element( ontologyElementID = specific_identifiers_and_parent[current_method_id][0],
-                                  isA = is_a_list,
+                                  isA = [],
                                   isPartOf = is_part_of_list )
 
         self.biana_access.insert_new_external_entity(ontology)

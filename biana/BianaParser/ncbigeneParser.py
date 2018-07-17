@@ -22,6 +22,7 @@ class ncbigeneParser(BianaParser):
                              default_script_name = "ncbigeneParser.py",
                              default_script_description = ncbigeneParser.description,     
                              additional_compulsory_arguments = [])
+        self.default_eE_attribute = "geneid"
                     
     def parse_database(self):
         """                                                                              
