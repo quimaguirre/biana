@@ -392,7 +392,7 @@ class BianaSessionManager(object):
         return
 
 
-    def create_new_user_entity_set(self, identifier_description_list, id_type="embedded", new_user_entity_set_id=None, attribute_restriction_list=[], negative_attribute_restriction_list=[], external_database_restrictions=[]): 
+    def create_new_user_entity_set(self, identifier_description_list, id_type="embedded", new_user_entity_set_id=None, attribute_restriction_list=[], negative_attribute_restriction_list=[], external_database_restrictions=[], only_uniques=False): 
         """
         create userEntity objects from given externalEntity ids (or get if already existing) then add them to a userEntitySet
         ------
@@ -459,7 +459,8 @@ class BianaSessionManager(object):
 			    field_values = field_values, 
 			    attribute_restrictions = attribute_restriction_list, 
 			    negative_attribute_restrictions = negative_attribute_restriction_list, 
-			    include_type = True )
+			    include_type = True,
+                only_uniques = only_uniques )
 
 
                 ## create new userEntity objects if not created (by another external entity that belongs to that userEntity) before 
