@@ -271,7 +271,7 @@ class BianaDBaccess(object):
     def add_valid_identifier_reference_types(self, current_reference_type):
         
         if self.biana_database.is_valid_identifier_reference_type(current_reference_type):
-            sys.stderr.write("Trying to add an existing Identifier reference type: %s. Not added again.\n" %tcurrent_reference_ype)
+            sys.stderr.write("Trying to add an existing Identifier reference type: %s. Not added again.\n" %current_reference_type)
             return
 
         self.db.insert_db_content( sql_query = self.db._get_insert_sql_query( table = self.biana_database.TYPES_AND_ATTRIBUTES_TABLE,
@@ -519,7 +519,7 @@ class BianaDBaccess(object):
     def _add_transfer_attribute(self, externalDatabaseID, key_attribute, transfer_attribute, unlock = True):
 
         key_id = self._add_key_attribute( external_database_id = externalDatabaseID,
-                                          key_attribute = key_attribute,
+                                          key_attribute = key_attribute, 
                                           unlock = unlock)
 
         self.db.insert_db_content( sql_query = self.db._get_insert_sql_query(table = self.biana_database.EXTERNAL_DATABASE_ATTRIBUTE_TRANSFER_TABLE.get_table_name(),
@@ -2362,7 +2362,7 @@ class BianaDBaccess(object):
                                               distinct_columns = True )
 
     
-    def get_list_user_entities_IDs_by_attribute(self, unification_protocol_name, attribute_identifier, field_values, attribute_restrictions=None, negative_attribute_restrictions=None, restrict_to_user_entity_ids_list=[], include_type=False ):
+    def get_list_user_entities_IDs_by_attribute(self, unification_protocol_name, attribute_identifier, field_values, attribute_restrictions=None, negative_attribute_restrictions=None, restrict_to_user_entity_ids_list=[], include_type=False, only_uniques=False ):
         """
         Returns a list of user entities that match with the attributes specified of type attribute_identifier
 
@@ -2393,9 +2393,16 @@ class BianaDBaccess(object):
             sqlStat.add_element( group_conditions = ["u.userEntityID","e.type"] )
             sqlStat.add_element( join_conditions = [("u.externalEntityID","=","e.externalEntityID")] )
 
+        fixed_conditions=[] # QUIM
         if len(restrict_to_user_entity_ids_list)>0:
-            sqlStat.add_element( fixed_conditions = [("u.userEntityID","IN","(%s)" %",".join(map(str,restrict_to_user_entity_ids_list)),None)] )
+            #sqlStat.add_element( fixed_conditions = [("u.userEntityID","IN","(%s)" %",".join(map(str,restrict_to_user_entity_ids_list)),None)] )
+            fixed_conditions.append(("u.userEntityID","IN","(%s)" %",".join(map(str,restrict_to_user_entity_ids_list)),None)) # QUIM
 
+        # QUIM AGUIRRE
+        if only_uniques:
+            fixed_conditions.append(("%s.type" % self.biana_database.EXTERNAL_ENTITY_ATTRIBUTE_TABLES_DICT[attribute_identifier.lower()], "=", "unique"))
+
+        sqlStat.add_element( fixed_conditions = fixed_conditions ) # QUIM
 
         # Restrictions CANNOT be applied at external entity level. They must be applied at USER ENTITY LEVEL.
         # In order to do this, MySQL queries are very slow doing it in a direct way, so, it is faster to do it in nesting way
@@ -3218,7 +3225,7 @@ class BianaDBaccess(object):
                                                                                   columns = ["externalDatabaseID_A","externalDatabaseID_B","GROUP_CONCAT(B.cross_referenced_code)"],
                                                                                   join_conditions = [("A.unificationAtomID","=","B.unificationAtomID")],
 										  fixed_conditions = [("A.unificationProtocolID","=",actual_protocol[1])],
-                                                                                  group_conditions = ["A.unificationAtomID", "A.externalDatabaseID_A", "A.externalDatabaseID_B"] ),
+                                                                                  group_conditions = ["A.unificationAtomID"] ),
                                                    answer_mode = "raw" )
                 for current_atom in atoms:
                     uP.add_unification_atom_elements( BianaObjects.UnificationAtomElement( externalDatabaseID_A = current_atom[0],
@@ -3661,6 +3668,7 @@ class BianaDBaccess(object):
 
             actual_attribute = attribute_list[attribute_index]
 
+            print("Actual attribute: %s. Attribute index: %s" %(actual_attribute.lower(), attribute_index))
             tables.append( (self.biana_database.EXTERNAL_ENTITY_ATTRIBUTE_TABLES_DICT[actual_attribute.lower()],"a%s" %(attribute_index)) )
             tables.append( (self.biana_database.EXTERNAL_ENTITY_ATTRIBUTE_TABLES_DICT[actual_attribute.lower()],"b%s" %(attribute_index)) )
             
