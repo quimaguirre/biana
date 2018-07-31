@@ -362,14 +362,14 @@ class UniprotParser(BianaParser):
                 if m:
 		    self.verify_attribute_length("wormbasegeneid", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="WormBaseGeneID", 
-                                                                        value=m.group(1),type="cross-reference"))
+                                                                        value=m.group(1),type="unique"))
                     continue
 
                 m = WormPep_regex.match(line)
                 if m:
 		    self.verify_attribute_length("wormbasesequencename", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="WormBaseSequenceName",
-                                                                        value=m.group(1),type="cross-reference"))
+                                                                        value=m.group(1),type="unique"))
                     continue
 
                 m = dip_regex.match(line)
@@ -383,7 +383,7 @@ class UniprotParser(BianaParser):
                 if m:
 		    self.verify_attribute_length("tigr", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="tigr",
-                                                                        value=m.group(1),type="cross-reference"))
+                                                                        value=m.group(1),type="unique"))
 
                     continue
 
@@ -391,7 +391,7 @@ class UniprotParser(BianaParser):
                 if m:
 		    self.verify_attribute_length("cygd", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="cygd",
-                                                                        value=m.group(1),type="cross-reference"))
+                                                                        value=m.group(1),type="unique"))
 
                     continue
 
@@ -400,37 +400,37 @@ class UniprotParser(BianaParser):
                 if m:
 		    self.verify_attribute_length("rgd", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="rgd",
-                                                                        value=m.group(1),type="cross-reference"))
+                                                                        value=m.group(1),type="unique"))
                     continue
             
                 m = pfam_regex.match(line)
                 if m:
 		    self.verify_attribute_length("pfam", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="pfam", value=m.group(1),type="cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="pfam", value=m.group(1),type="unique"))
                     continue
 
                 m = kegg_regex.match(line)
                 if m:
 		    self.verify_attribute_length("kegggene", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="kegggene", value=m.group(1),type="cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="kegggene", value=m.group(1),type="unique"))
                     continue
 
                 m = interpro_regex.match(line)
                 if m:
 		    self.verify_attribute_length("interpro", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="interpro", value=m.group(1),type="cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="interpro", value=m.group(1),type="unique"))
                     continue
 
                 m = prosite_regex.match(line)
                 if m:
 		    self.verify_attribute_length("prosite", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="prosite", value=m.group(1),type="cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="prosite", value=m.group(1),type="unique"))
                     continue
 
                 m = prodom_regex.match(line)
                 if m:
 		    self.verify_attribute_length("prodom", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="prodom", value=m.group(1), type="cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="prodom", value=m.group(1), type="unique"))
                     continue
 
                 m = mim_regex.match(line)
@@ -448,7 +448,7 @@ class UniprotParser(BianaParser):
                 m = prints_regex.match(line)
                 if m:
 		    self.verify_attribute_length("prints", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="prints", value=m.group(1), type="cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="prints", value=m.group(1), type="unique"))
                     continue
 
                 m = ensembl_regex.match(line)
@@ -502,7 +502,7 @@ class UniprotParser(BianaParser):
 			    self.verify_attribute_length("refseq", w)
 			    rs = w.split('.')
 			    if len(rs)==2:
-				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="refseq", value=rs[0], version=rs[1], type="cross-reference"))
+				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="refseq", value=rs[0], version=rs[1], type="unique"))
 			    else:
 				sys.stderr.write("Refseq %s has no version!\n" % w)
                     continue
@@ -510,7 +510,7 @@ class UniprotParser(BianaParser):
                 m = unigene_regex.match(line)
                 if m:
 		    self.verify_attribute_length("unigene", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="unigene", value = m.group(1), type="cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="unigene", value = m.group(1), type="unique"))
                     continue
 
                 m = hgnc_regex.match(line)
@@ -533,24 +533,24 @@ class UniprotParser(BianaParser):
                             if m:
                                 range = "%s-%s" %(m.group(1),m.group(2))
 
-                                [ uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="pdb", value=pdb_code, type = "cross-reference",
+                                [ uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="pdb", value=pdb_code, type = "unique",
                                                                                       additional_fields = {"chain": x,
                                                                                                            "pdb_range": range })) for x in chains ]
                             else:
-                                [ uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="pdb", value=pdb_code, type="cross-reference",
+                                [ uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="pdb", value=pdb_code, type="unique",
                                                                                       additional_fields = {"chain": x})) for x in chains ]
                                 
                     continue
 
                 m = flybase_regex.match(line)
                 if m:
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="flybase", value=m.group(1), type = "cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="flybase", value=m.group(1), type = "unique"))
                     continue
 
                 m = mgi_regex.match(line)
                 if m:
 		    self.verify_attribute_length("mgi", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="MGI", value=m.group(1),type="cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="MGI", value=m.group(1),type="unique"))
                     continue
 
 
@@ -563,7 +563,7 @@ class UniprotParser(BianaParser):
                 m = sgd_regex.match(line)
                 if m:
 		    self.verify_attribute_length("sgd", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="SGD", value=m.group(1), type="cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="SGD", value=m.group(1), type="unique"))
 
                     continue
 
@@ -571,7 +571,7 @@ class UniprotParser(BianaParser):
                 m = tair_regex.match(line)
                 if m:
                     self.verify_attribute_length("tair", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="Tair", value=m.group(1), type="cross-reference"))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="Tair", value=m.group(1), type="unique"))
 
                     continue
 

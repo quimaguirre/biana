@@ -4,9 +4,8 @@ class MyDataParser(BianaParser):
     """             
     MyData Parser Class 
 
-    Parses data in the following format (meaining Uniprot_id1 interacts with Uniprot_id2 and some scores are associated with both the participants and the interaction):
+    Parses data from DrugBank
 
-	    Uniprot_id1 Description1 Participant_score1 Uniprot_id2 Description2 Participant_score2 Interaction_Affinity_score
     """                 
                                                                                          
     name = "mydata"

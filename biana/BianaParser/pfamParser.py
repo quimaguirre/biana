@@ -79,76 +79,81 @@ class PFAMParser(BianaParser):
 
         self.insert_mapping = None
 
-        # First, if "include_sequence_mapping" option is selected, gets the exact information of sequences used and inserts them to the database
+        # # First, if "include_sequence_mapping" option is selected, gets the exact information of sequences used and inserts them to the database
         
-        if self.arguments_dic["include-sequence-mapping"]:
+        # if self.arguments_dic["include-sequence-mapping"]:
 
-            sequences_parsing_time = time.time()
+        #     sequences_parsing_time = time.time()
 
-            self.seq_database = ExternalDatabase( databaseName = self.sourcedb_name+"_sequences",
-                                                  databaseVersion = self.sourcedb_version,
-                                                  databaseFile = self.input_file.split(os.sep)[-1],
-                                                  databaseDescription = self.database_description,
-                                                  defaultExternalEntityAttribute = "proteinSequence")
+        #     self.seq_database = ExternalDatabase( databaseName = self.sourcedb_name+"_sequences",
+        #                                           databaseVersion = self.sourcedb_version,
+        #                                           databaseFile = self.input_file.split(os.sep)[-1],
+        #                                           databaseDescription = self.database_description,
+        #                                           defaultExternalEntityAttribute = "proteinSequence")
 
-            self.biana_access.insert_new_external_database( externalDatabase = self.seq_database )
+        #     self.biana_access.insert_new_external_database( externalDatabase = self.seq_database )
 
-            self.insert_mapping = 1            
+        #     self.insert_mapping = 1            
             
-            pfamseq_file = self.input_file+self.arguments_dic["pfamSeq-file-name"]
+        #     pfamseq_file = self.input_file+self.arguments_dic["pfamSeq-file-name"]
 
-            if pfamseq_file.endswith(".gz"):
-                pfamseq_input_file_fd = gzip.open(pfamseq_file,'r')
-            else:
-                pfamseq_input_file_fd = file(pfamseq_file, 'r')
+        #     if pfamseq_file.endswith(".gz"):
+        #         pfamseq_input_file_fd = gzip.open(pfamseq_file,'r')
+        #     else:
+        #         pfamseq_input_file_fd = file(pfamseq_file, 'r')
 
-            sequence = []
-            protein_title_line = None
+        #     sequence = []
+        #     protein_title_line = None
 
-            protein_number = 0
+        #     protein_number = 0
             
-            #self.title_regex = re.compile("^(\w+)\.(\d+)")
+        #     #self.title_regex = re.compile("^(\w+)\.(\d+)")
 
-            uniprot_acc = None
-            uniprot_acc_version = None
-            uniprot_entry = None
-            sequence = None
+        #     uniprot_acc = None
+        #     uniprot_acc_version = None
+        #     uniprot_entry = None
+        #     sequence = None
 
-            self.title_regex = re.compile("^(\w+)\.(\d+)\s+(\S+)")
+        #     # Quim Aguirre: I have changed the regex, in order to fit it to the title of the sequences in Pfam-A.fasta.gz
+        #     # >A0A010QRR2.1 A0A010QRR2_9PEZI 4-hydroxyacetophenone monooxygenase {ECO:0000313|EMBL:EXF79350.1}    #### pfamseq.gz
+        #     #self.title_regex = re.compile("^(\w+)\.(\d+)\s+(\S+)")   #### For pfamseq.gz
+        #     # >R5W1E7_9BACE/3-318 R5W1E7.1 PF00389.28;2-Hacid_dh;    #### Pfam-A.fasta.gz
+        #     self.title_regex = re.compile("^([\w\_]+)\/(\d+\-\d+)\s+(\w+)\.(\d+)\s+(.+?)\.*?(\d*?)\;.*\;*")   #### For Pfam-A.fasta.gz
 
-            for line in pfamseq_input_file_fd:
+        #     for line in pfamseq_input_file_fd:
 
-                if line[0]==">":
-                    protein_number += 1
+        #         if line[0]==">":
+        #             protein_number += 1
 
-                    if self.time_control:
-                        if protein_number%20000==0:
-                            sys.stderr.write("%s proteins in %s seconds\n" %(protein_number,time.time()-self.initial_time))
+        #             if self.time_control:
+        #                 if protein_number%20000==0:
+        #                     sys.stderr.write("%s proteins in %s seconds\n" %(protein_number,time.time()-self.initial_time))
 
-                    if sequence is not None:
-                        self.parse_pfam_seq_record(header_line = protein_title_line, sequence = "".join(sequence))
+        #             if sequence is not None:
+        #                 self.parse_pfam_seq_record(header_line = protein_title_line, sequence = "".join(sequence))
 
-                    protein_title_line = line[1:]
-                    sequence = []
-                else:
-                    sequence.append(line.strip())
+        #             protein_title_line = line[1:]
+        #             sequence = []
+        #         else:
+        #             sequence.append(line.strip())
         
-            if len(sequence)>0:
-                self.parse_pfam_seq_record(header_line = protein_title_line, sequence = "".join(sequence))
+        #     if len(sequence)>0:
+        #         self.parse_pfam_seq_record(header_line = protein_title_line, sequence = "".join(sequence))
 
-            # Updates the information that this external database has inserted
-            self.seq_database.set_parsing_time( int(time.time() - sequences_parsing_time) )
-            self.biana_access.update_external_database_external_entity_attributes( self.seq_database )
+        #     # Updates the information that this external database has inserted
+        #     self.seq_database.set_parsing_time( int(time.time() - sequences_parsing_time) )
+        #     self.biana_access.update_external_database_external_entity_attributes( self.seq_database )
 
-        pfamseq_input_file_fd.close()
+        # pfamseq_input_file_fd.close()
 
 
         if self.arguments_dic["pfamA-file-name"].lower() != "none":
             self.parse_pfam_file(pfamType='A', pfamFile= self.input_file+self.arguments_dic["pfamA-file-name"])
 
         
-        if self.arguments_dic["pfamB-file-name"].lower() != "none":
-            self.parse_pfam_file(pfamType='B', pfamFile= self.input_file+self.arguments_dic["pfamB-file-name"])
+        # PFAM B is discontinued, so it will not be included (Quim Aguirre)
+        #if self.arguments_dic["pfamB-file-name"].lower() != "none":
+        #    self.parse_pfam_file(pfamType='B', pfamFile= self.input_file+self.arguments_dic["pfamB-file-name"])
 
 
     def parse_pfam_seq_record(self, header_line, sequence):
@@ -158,11 +163,19 @@ class PFAMParser(BianaParser):
         m = self.title_regex.match(header_line)
 
         if m:
+            # Quim Aguirre: These matchings were for pfamseq.gz
             uniprot_acc = m.group(1)
             uniprot_acc_version = m.group(2)
             uniprot_entry = m.group(3)
+            # Quim Aguirre: These matchings are the ones used now, for Pfam-A.fasta.gz
+            #uniprot_entry = m.group(1)
+            #seq_range = m.group(2)
+            #uniprot_acc = m.group(3)
+            #uniprot_acc_version = m.group(4)
+            #pfamAC = m.group(5)
         else:
-            raise "ERROR in parsing line %s" %header_line
+            print("ERROR in parsing line: {}".format(header_line))
+            raise "Error in parsing"
 
         pfamseq_object.add_attribute(ExternalEntityAttribute( attribute_identifier = "uniprotentry", value = uniprot_entry,type = "cross-reference" ))
         pfamseq_object.add_attribute(ExternalEntityAttribute( attribute_identifier = "uniprotaccession", value = uniprot_acc, version = uniprot_acc_version, type = "cross-reference"))
@@ -172,6 +185,16 @@ class PFAMParser(BianaParser):
         pfamseq_object.add_attribute(ExternalEntityAttribute( attribute_identifier = "proteinSequence", value = sequenceObject, type = "cross-reference"))
 
         self.uniprot_acc_seq_md5_dict["%s.%s" %(uniprot_acc, uniprot_acc_version)] = sequenceObject.get_sequence_MD5()
+
+
+        #pfamseq_object.add_attribute(ExternalEntityAttribute( attribute_identifier = "pfam", value = pfamAC, type = "unique") )
+        # Quim Aguirre: We also obtain the sequence range for the PFAM domain in this protein sequence, and we add it
+        #sequenceMD5 = sequenceObject.get_sequence_MD5()
+        # self.uniprot_acc_seq_md5_dict["%s.%s" %(uniprot_acc, uniprot_acc_version)] = sequenceMD5
+
+        # pfamseq_object.add_attribute(ExternalEntityAttribute( attribute_identifier = "sequenceMap", value = sequenceMD5,
+        #                                                    additional_fields = {"seq_range": seq_range},
+        #                                                    type="cross-reference" ) )
 
         self.biana_access.insert_new_external_entity( externalEntity = pfamseq_object )
             
@@ -249,6 +272,7 @@ class PFAMParser(BianaParser):
                     if self.time_control:
                         if entries%200==0:
                             sys.stderr.write("%s pfam entries in %s seconds\n" %(entries,time.time()-self.initial_time))
+                    sys.stderr.write("\n\n\n\nStill %s entries to do\n\n\n\n" %(16089-int(entries)))
                     
                     pfam_object = ExternalEntity( source_database = self.database, type="pattern")
                     continue
