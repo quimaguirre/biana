@@ -187,7 +187,7 @@ class administration:
     check_database = staticmethod(check_database)
 
 
-    def create_unification_protocol(unification_protocol_name, list_unification_atom_elements, dbname,dbhost,dbuser,dbpassword,dbport=None):
+    def create_unification_protocol(unification_protocol_name, list_unification_atom_elements, dbname,dbhost,dbuser,dbpassword,dbport=None,unify_self=True):
         """
         Creates a new unification protocol
         
@@ -204,6 +204,8 @@ class administration:
         "dbpassword" is the mysql password (not required in most systems)
 
         "dbport" is the mysql port (not required in most systems)
+
+        "unify_self" Unify the external entities in one database with themselves (default = True)
         """
 
         import BianaDB, BianaObjects
@@ -251,7 +253,10 @@ class administration:
 
                 if len(attr_list)>0:
                     for current_db1_pos in xrange(len(db_ids)):
-                        for current_db2_pos in xrange(current_db1_pos+1): 
+                        k = current_db1_pos
+                        if unify_self:
+                            k += 1
+                        for current_db2_pos in xrange(k): 
                         #for current_db2_pos in xrange(current_db1_pos): # before was not unifying the database with itself (emre)
 			    uProtocol.add_unification_atom_elements( BianaObjects.UnificationAtomElement(externalDatabaseID_A=db_ids[current_db1_pos],
                                                                                                          externalDatabaseID_B=db_ids[current_db2_pos],
