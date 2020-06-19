@@ -1126,12 +1126,12 @@ To execute them, execute the following command, replacing DATABASE for the desir
   Database Link & \url{ftp://ftp.uniprot.org/pub/databases/uniprot/current\_release/knowledgebase/complete} \\ \hline
   External Entity Types & Protein \\ \hline
   External Entity Relation Types & \- \\ \hline
-  Needed files & uniprot\_sprot.dat.gz (SWISS-PROT) and uniprot\_trembl.dat.gz (TREMBL) \\ \hline
+  Needed files & uniprot\_sprot.dat.gz (SWISS-PROT)\\ \hline
   Parser name & uniprot \\ \hline
-  Input-identifier & Files uniprot\_sprot.dat.gz and uniprot\_trebml.dat.gz \\ \hline
-  Checked version & Release 2016\_11 of 30-Nov-2016 \\ \hline
-  Comments & Swiss-prot and TrembL must be inserted as distinct databases. \\ \hline
-  Approximate parsing time & Swissprot: Approximately 1h 15 min. Trembl: The growth of Trembl has been so important during the last three years that it takes too much time to parse. It is recommended not to parse Trembl \\
+  Input-identifier & Files uniprot\_sprot.dat.gz\\ \hline
+  Checked version & Release 2020\_01 \\ \hline
+  Comments &TrembL is not parsed anymore because it is too big. \\ \hline
+  Approximate parsing time & Swissprot: Approximately 35 min\\
   \hline
 \end{tabular}
 %\end{center}
@@ -1146,13 +1146,6 @@ Shell Command:\\
                                      --biana-dbpass="PASSWORD"
                                      --time-control 
                                      --database-name="uniprot swissprot" 
-                                     --database-version="Release XX"
-\$> python parse_database.py uniprot --input-identifier=uniprot_trembl.dat.gz 
-                                     --biana-dbname="BIANA_DB" 
-                                     --biana-dbuser="root" 
-                                     --biana-dbpass="PASSWORD" 
-                                     --time-control 
-                                     --database-name="uniprot trembl" 
                                      --database-version="Release XX"
 \end{SaveVerbatim}
 \printcommand{parser_command}
@@ -1210,7 +1203,7 @@ Shell Command:\\
   Needed files & taxdump.tar.Z \\ \hline
   Parser name & taxonomy \\ \hline
   Input-identifier & Path where taxdump.tar.Z is uncompressed \\ \hline
-  Checked version & December 2016 \\ \hline
+  Checked version & Release 2020\_05 (23-May-2020) \\ \hline
   Comments & Uncompress and untar taxdump.tar.Z file \\ \hline
   Approximate parsing time & 20 minutes \\
   \hline
@@ -1227,7 +1220,7 @@ Shell Command:\\
                                       --biana-dbpass="PASSWORD"
                                       --time-control
                                       --database-name="Taxonomy"
-                                      --database-version="Database release"
+                                      --database-version="Release 2020_05 (23-May-2020)"
 \end{SaveVerbatim}
 \printcommand{parser_command}
 \end{minipage}
@@ -1241,13 +1234,13 @@ Shell Command:\\
   \hline
   Description & A structured controlled vocabulary for the annotation of experiments concerned with protein-protein interactions. Developed by the HUPO Proteomics Standards Initiative.\\ \hline
   Database Reference & \\ \hline
-  Database Link & \url{http://www.psidev.info/node/60} \\ \hline
+  Database Link & \url{https://github.com/HUPO-PSI/psi-mi-CV/blob/master/psi-mi.obo} \\ \hline
   External Entity Types & PsiMiOboOntologyElement \\ \hline
   External Entity Relation Types & -\\ \hline
   Needed files & psi\-mi\-obo\\ \hline
   Parser name & psi\_mi\_obo\\ \hline
   Input-identifier & Path where psi-mi.obo file is \\ \hline
-  Checked version & 1.2 (October 22, 2014)\\ \hline
+  Checked version & 1.2 (April 21, 2020)\\ \hline
   Comments & \- \\ \hline
   Approximate parsing time & Less than a minute \\ 
   \hline
@@ -1439,7 +1432,7 @@ Shell Command:\\
   Needed files & hgnc\_complete\_set.txt \\ \hline
   Parser name & hgnc\_2016 \\ \hline
   Input-identifier & The file where the data is saved \\ \hline
-  Checked version & December 2016\\ \hline
+  Checked version & May 2020\\ \hline
   Comments & \- \\ \hline
   Approximate parsing time & Less than a minute\\ 
   \hline
@@ -1547,12 +1540,12 @@ Peptide sequences:\\
   Database Link & \url{ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psi25/species/} \\ \hline
   External Entity Types & Protein\\ \hline
   External Entity Relation Types & Interaction\\ \hline
-  Needed files & All xml files in psi25/species/ \\ \hline
+  Needed files & All xml files in psi25/species/. The files can be downloaded using the script ``download\_intact.py'' \\ \hline
   Parser name & intact \\ \hline
   Input-identifier & Path containing the xml files \\ \hline
-  Checked version & Version of October 2016\\ \hline
+  Checked version & Version of May 2020\\ \hline
   Comments & \- \\ \hline
-  Approximate parsing time & 2 hours 15 minutes\\ 
+  Approximate parsing time & 2 hours\\ 
   \hline
 \end{tabular}
 %\end{center}
@@ -1568,6 +1561,45 @@ Shell Command:\\
                                   --time-control
                                   --database-name="IntAct"
                                   --database-version="Release 2016_10 of 06-Oct-2016"
+                                  --default-attribute="intact"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{IntAct Coronavirus}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & IntAct provides a freely available, open source database system and analysis tools for molecular interaction data. All interactions are derived from literature curation or direct user submissions and are freely available. \\ \hline
+  Database Reference & The MIntAct project - IntAct as a common curation platform for 11 molecular interaction databases. Nucl. Acids Res. (1 January 2014) 42  \\ \hline
+  Database Link & \url{https://www.ebi.ac.uk/intact/query/annot:\%22dataset:coronavirus\%22} \\ \hline
+  External Entity Types & Protein\\ \hline
+  External Entity Relation Types & Interaction\\ \hline
+  Needed files & Download the interactions in MI-TAB 2.7\\ \hline
+  Parser name & intactcoronavirus \\ \hline
+  Input-identifier & Path containing downloaded file \\ \hline
+  Checked version & Version of June 2020\\ \hline
+  Comments & \- \\ \hline
+  Approximate parsing time & Less than a minute\\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py intactcoronavirus --input-identifier=FILE_WHERE_DATA_IS_SAVED
+                                  --biana-dbname="BIANA_DB"
+                                  --biana-dbuser="root"
+                                  --biana-dbpass="PASSWORD"
+                                  --time-control
+                                  --database-name="IntAct"
+                                  --database-version="Release 2020_06 of 18/06/2020"
                                   --default-attribute="intact"
 \end{SaveVerbatim}
 \printcommand{parser_command}
@@ -1658,12 +1690,12 @@ This parser has been tested for PSI-MI 2.5 formatted databases:
   \begin{description}
     \item[Description:] The Biological General Repository for Interaction Datasets (BioGRID) is a public database that archives and disseminates genetic and protein interaction data from model organisms and humans
     \item[Reference:] BioGRID interaction database: 2015 update. Nucleic Acids Res. (Nov. 2014)
-    \item[Website:] http://www.thebiogrid.org/downloads.php
+    \item[Website:] https://downloads.thebiogrid.org/BioGRID
     \item[Download:] BIOGRID-ORGANISM-x.x.xx.psi25.zip. It is necessary to uncompress manually the zip file (\verb1unzip BIOGRID-ORGANISM-x.x.xx.psi25.zip1)
     \item[Database name:] BioGrid
     \item[Default attribute:] biogrid
     \item[Input identifier:] Path containing uncompressed files (usually it uncompresses it into a folder named ``BIOGRID-ORGANISM-x.x.xx'').
-    \item[Checked:] for version 3.4.143 (November 2016)
+    \item[Checked:] for version 3.5.185 (May 2020)
     \item[Parsing time:] 50 minutes
   \end{description}
 
@@ -1773,8 +1805,8 @@ This parser has been tested for Biopax Level 2 formatted databases:
       \item[Database name:] Reactome
       \item[Default attribute:] reactome
       \item[Input identifier:] Path where uncompressed files are
-      \item[Checked:] v58 (October 5, 2016)
-      \item[Parsing time:] 21 minutes
+      \item[Checked:] v72 (March 16, 2020)
+      \item[Parsing time:] 15 minutes
     \end{description}
 \end{itemize}
 \end{minipage}
@@ -1866,13 +1898,13 @@ Shell Command:\\
   \hline
   Description & The Gene Ontology project provides a controlled vocabulary to describe gene and gene product attributes in any organism.\\ \hline
   Database Reference & Gene Ontology: tool for the unification of biology. Nature Genet. (2000) 25: 25-29\\ \hline
-  Database Link & \url{http://www.geneontology.org/ontology/gene\_ontology\_edit.obo} \\ \hline
+  Database Link & \url{ftp://ftp.geneontology.org/go/ontology/gene\_ontology\_edit.obo} \\ \hline
   External Entity Types & ontology\\ \hline
   External Entity Relation Types & \\ \hline
   Needed files & gene\_ontology\_edit.obo\\ \hline
   Parser name & go\_obo\\ \hline
   Input-identifier & gene\_ontology\_edit.obo\\ \hline
-  Checked version & 1.2 (December 8, 2016)\\ \hline
+  Checked version & September 20, 2018\\ \hline
   Comments & This parser is for go\_obo\_v1.2\\ \hline
   Approximate parsing time & 1 minute\\ 
   \hline
@@ -1947,9 +1979,9 @@ Shell Command:\\
   Needed files & drugbank\_all\_full\_database.xml.zip (Uncompressed)\\ \hline
   Parser name & drugbank\\ \hline
   Input-identifier & File ``full database.xml''. Rename it as ``full\_database.xml'' \\ \hline
-  Checked version & Version 5.0, update 2017-01-09\\ \hline
+  Checked version & 5.1.6 (2020-04-22)\\ \hline
   Comments & The database file must be uncompressed!! \\ \hline
-  Approximate parsing time & 7 minutes \\ 
+  Approximate parsing time & 15 minutes \\ 
   \hline
 \end{tabular}
 %\end{center}
@@ -1964,7 +1996,7 @@ Shell Command:\\
                                     --biana-dbpass="PASSWORD"
                                     --time-control
                                     --database-name="DrugBank"
-                                    --database-version="5.0 (update 2017-01-09)"
+                                    --database-version="5.1.6 (2020-04-22)"
 \end{SaveVerbatim}
 \printcommand{parser_command}
 \end{minipage}
@@ -2014,16 +2046,16 @@ Shell Command:\\
 \begin{tabular}{|p{3cm}|p{10cm}|}
   \hline
   Description & The DisGeNET database integrates human gene-disease associations (GDAs) from various expert curated databases and text-mining derived associations including Mendelian, complex and environmental diseases.\\ \hline
-  Database Reference & DisGeNET: a discovery platform for the dynamical exploration of human diseases and their genes. Database (2015) : bav028\\ \hline
+  Database Reference &The DisGeNET knowledge platform for disease genomics: 2019 update. (2019) Nucleic Acid Res\\ \hline
   Database Link & \url{http://www.disgenet.org/web/DisGeNET/menu/downloads} \\ \hline
   External Entity Types & protein, SNP, disease \\ \hline
   External Entity Relation Types & gene\_disease\_association, SNP\_disease\_association, gene\_SNP\_association \\ \hline
-  Needed files & Download the files of the links ``7. ALL gene-disease-pmid associations'' and ``8. ALL variant-disease-pmid associations''. Download also the file in \url{ftp://ftp.ncbi.nih.gov/snp/Entrez/eLinks/snp\_genes.gz} \\ \hline
+  Needed files & Download the files of the links ``ALL gene-disease-pmid associations'', ``ALL variant-disease-pmid associations'', ``Variant-Gene Mappings File'' and ``UMLS CUI to several disease vocabularies''. \\ \hline
   Parser name & disgenet\\ \hline
   Input-identifier & The path to the folder containing the compressed files \\ \hline
-  Checked version & 5.0\\ \hline
+  Checked version & 7.0\\ \hline
   Comments & \\ \hline
-  Approximate parsing time & 30 minutes \\ 
+  Approximate parsing time & 13 minutes \\ 
   \hline
 \end{tabular}
 %\end{center}
@@ -2038,7 +2070,7 @@ Shell Command:\\
                                     --biana-dbpass="PASSWORD"
                                     --time-control
                                     --database-name="DisGeNET"
-                                    --database-version="5.0"
+                                    --database-version="7.0"
 \end{SaveVerbatim}
 \printcommand{parser_command}
 
@@ -2060,9 +2092,9 @@ Shell Command:\\
   Needed files & Download the files gene2ensembl.gz and gene2go.gz\\ \hline
   Parser name & ncbigene \\ \hline
   Input-identifier & The path to the folder containing the compressed files \\ \hline
-  Checked version & 13-Nov-2017\\ \hline
+  Checked version & 10-Jul-2019\\ \hline
   Comments & The database file must be compressed!! \\ \hline
-  Approximate parsing time & 15 minutes \\ 
+  Approximate parsing time & 45 minutes \\ 
   \hline
 \end{tabular}
 %\end{center}
@@ -2077,7 +2109,7 @@ Shell Command:\\
                                     --biana-dbpass="PASSWORD"
                                     --time-control
                                     --database-name="NCBIGene"
-                                    --database-version="13-Nov-2017"
+                                    --database-version="10-Jul-2019"
 \end{SaveVerbatim}
 \printcommand{parser_command}
 \end{minipage}
@@ -2097,7 +2129,7 @@ Shell Command:\\
   Needed files & Download the current release file in PSI-MI TAB 2.5 format \\ \hline
   Parser name & hippie \\ \hline
   Input-identifier & The path to the downloaded file \\ \hline
-  Checked version & v2.0 (06/24/2016) \\ \hline
+  Checked version & v2.2 (02/14/19) \\ \hline
   Comments &  \\ \hline
   Approximate parsing time & 3 minutes \\ 
   \hline
@@ -2115,6 +2147,82 @@ Shell Command:\\
                                     --time-control
                                     --database-name="hippie"
                                     --database-version="v2.0 (06/24/2016)"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{ConsensusPathDB}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & ConsensusPathDB integrates interaction networks in Homo sapiens including binary and complex protein-protein, genetic, metabolic, signaling, gene regulatory and drug-target interactions, as well as biochemical pathways. \\ \hline
+  Database Reference & The ConsensusPathDB interaction database: 2013 update. (2013) Nucleic Acids Res.\\ \hline
+  Database Link & \url{http://cpdb.molgen.mpg.de/} \\ \hline
+  External Entity Types & protein \\ \hline
+  External Entity Relation Types & interaction \\ \hline
+  Needed files & ``ConsensusPathDB\_human\_PPI.gz'', ``ConsensusPathDB\_mouse\_PPI.gz'', ``ConsensusPathDB\_yeast\_PPI.gz'' \\ \hline
+  Parser name & consensuspathdb \\ \hline
+  Input-identifier & Path to the folder containing the uncompressed files \\ \hline
+  Checked version & Release 34 (15.01.2019) (human), Release SC10 (01.01.2019) (yeast), Release MM10 (01.01.2019) \\ \hline
+  Comments &  \\ \hline
+  Approximate parsing time & 5 minutes \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py consensuspathdb --input-identifier="/path/to/folder"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="consensuspathdb"
+                                    --database-version="Release 34, SC10, MM10"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{Interologous Interaction Database (I2D)}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & I2D (Interologous Interaction Database) is an on-line database of known and predicted mammalian and eukaryotic protein-protein interactions. \\ \hline
+  Database Reference & Unequal evolutionary conservation of human protein interactions in interologous networks.(2007) Genome Biology\\ \hline
+  Database Link & \url{http://ophid.utoronto.ca/ophidv2.204/downloads.jsp} \\ \hline
+  External Entity Types & protein \\ \hline
+  External Entity Relation Types & interaction \\ \hline
+  Needed files & Download the tab-separated files for HUMAN, MOUSE, RAT, FLY, WORM, YEAST and HHV8 \\ \hline
+  Parser name & i2d \\ \hline
+  Input-identifier & Path to the folder containing the uncompressed files \\ \hline
+  Checked version & 2.9 \\ \hline
+  Comments &  \\ \hline
+  Approximate parsing time & 10 minutes \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py i2d --input-identifier="/path/to/folder"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="i2d"
+                                    --database-version="2.9"
 \end{SaveVerbatim}
 \printcommand{parser_command}
 \end{minipage}
@@ -2212,7 +2320,7 @@ Shell Command:\\
   Needed files & ATC.csv (Download it at Submissions, the most current version in CSV format) \\ \hline
   Parser name & atc \\ \hline
   Input-identifier & The path to the downloaded file \\ \hline
-  Checked version & 06-Feb-2017 \\ \hline
+  Checked version & 2019AB (18-Nov-2019) \\ \hline
   Comments &  \\ \hline
   Approximate parsing time & Less than a minute \\ 
   \hline
@@ -2229,7 +2337,7 @@ Shell Command:\\
                                     --biana-dbpass="PASSWORD"
                                     --time-control
                                     --database-name="ATC"
-                                    --database-version="06-Feb-2017"
+                                    --database-version="2019AB (18-Nov-2019)"
 \end{SaveVerbatim}
 \printcommand{parser_command}
 \end{minipage}
@@ -2326,7 +2434,7 @@ Shell Command:\\
   Needed files & The interactions.tsv file in the Downloads section \\ \hline
   Parser name & dgidb \\ \hline
   Input-identifier & Path to the file interactions.tsv\\ \hline
-  Checked version & 3.0 \\ \hline
+  Checked version & 3.0.2 (2018-01-25) \\ \hline
   Comments & \\ \hline
   Approximate parsing time & Less than a minute \\ 
   \hline
@@ -2343,7 +2451,121 @@ Shell Command:\\
                                     --biana-dbpass="PASSWORD"
                                     --time-control
                                     --database-name="DGIdb"
-                                    --database-version="3.0"
+                                    --database-version="3.0.2"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{ChEMBL}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & ChEMBL is a manually curated database of bioactive molecules with drug-like properties.\\ \hline
+  Database Reference & ChEMBL: towards direct deposition of bioassay data. (2019) Nucleic Acid Res.\\ \hline
+  Database Link & \url{https://www.ebi.ac.uk/chembl/} \\ \hline
+  External Entity Types & protein, drug \\ \hline
+  External Entity Relation Types & interaction, drug\_indication\_association \\ \hline
+  Needed files & Targets, Drugs, Mechanisms of Action, Drug Indications \\ \hline
+  Parser name & chembl \\ \hline
+  Input-identifier & Path to the folder with the uncompressed files\\ \hline
+  Checked version & ChEMBL\_27\\ \hline
+  Comments & \\ \hline
+  Approximate parsing time & Less than a minute \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py chembl --input-identifier="/path/to/folder"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="ChEMBL"
+                                    --database-version="ChEMBL\_27"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{DrugCentral}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & DrugCentral is comprehensive drug information resource for FDA drugs and drugs approved outside US. The resources can be searched using: drug, target, disease, pharmacologic action, terms. Full text on FDA drug labels is performed when no match for terms above is found. Regulatory approval dates are indicated where available, records with no regulatory information contain old drugs listed for human use outside USA, this list is currently undergoing validation and should be treated as not definitive. \\ \hline
+  Database Reference & DrugCentral: online drug compendium. (2017) Nucleic Acids Res.\\ \hline
+  Database Link & \url{http://drugcentral.org/download} \\ \hline
+  External Entity Types & protein, drug \\ \hline
+  External Entity Relation Types & interaction \\ \hline
+  Needed files & The Drug-target interaction data and the SMILES and InChI file. Additionally, the user can parse DrugBank before and obtain the drugbank identifiers file by running the script ``parse\_drugbank\_names.py'' \\ \hline
+  Parser name & DrugCentral \\ \hline
+  Input-identifier & Path to the folder containing the files\\ \hline
+  Checked version & 8/26/2018 \\ \hline
+  Comments & \\ \hline
+  Approximate parsing time & Less than a minute \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py DrugCentral --input-identifier="/path/to/interactions.tsv"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="DrugCentral"
+                                    --database-version="8/26/2018"
+\end{SaveVerbatim}
+\printcommand{parser_command}
+\end{minipage}
+
+
+
+\begin{minipage}{\textwidth}
+\subsubsection{Therapeutic Target Database (TTD)}
+
+%\begin{center}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+  \hline
+  Description & TTD is a repository of therapeutic targets of drugs.\\ \hline
+  Database Reference & Therapeutic Target Database 2020: enriched resource for facilitating research and early development of targeted therapeutics. (2020) Nucleic Acid Res.\\ \hline
+  Database Link & \url{http://db.idrblab.net/ttd/full-data-download/} \\ \hline
+  External Entity Types & protein, drug \\ \hline
+  External Entity Relation Types & interaction, drug\_indication\_association \\ \hline
+  Needed files & TTD targets, TTD cross-matching, Drug synonyms, Drug disease \\ \hline
+  Parser name & TTD \\ \hline
+  Input-identifier & Path to the folder with the uncompressed files\\ \hline
+  Checked version & 14-Jul-2019\\ \hline
+  Comments & \\ \hline
+  Approximate parsing time & Less than a minute \\ 
+  \hline
+\end{tabular}
+%\end{center}
+
+\smallskip
+
+Shell Command:\\
+\begin{SaveVerbatim}{parser_command}
+\$> python parse_database.py TTD --input-identifier="/path/to/folder"
+                                    --biana-dbname="BIANA_DB"
+                                    --biana-dbuser="root"
+                                    --biana-dbpass="PASSWORD"
+                                    --time-control
+                                    --database-name="TTD"
+                                    --database-version="14-Jul-2019"
 \end{SaveVerbatim}
 \printcommand{parser_command}
 \end{minipage}

@@ -46,18 +46,19 @@
 \contentsline {chapter}{\numberline {6}\textit {BIANA} \textit {External Databases} Parsers}{30}
 \contentsline {section}{\numberline {6.1}Available \textit {External Databases} Parsers}{30}
 \contentsline {subsection}{\numberline {6.1.1}Data retrieval}{31}
-\contentsline {subsection}{\numberline {6.1.2}Available Parsers}{33}
-\contentsline {subsubsection}{Uniprot}{33}
-\contentsline {subsubsection}{GenBank Database}{34}
-\contentsline {subsubsection}{Taxonomy Database}{35}
-\contentsline {subsubsection}{Protein-protein interactions Open Biomedical Ontologies}{36}
-\contentsline {subsubsection}{NCBI Blast Non-Redundant Database}{37}
-\contentsline {subsubsection}{International Protein Index Database (IPI)}{38}
-\contentsline {subsubsection}{iRefIndex}{39}
-\contentsline {subsubsection}{Cluster Of Orthologous Genes Database (COGs)}{40}
-\contentsline {subsubsection}{HUGO Gene Nomenclature Committee (HGNC)}{41}
-\contentsline {subsubsection}{KEGG: Kyoto Encyclopedia of Genes and Genomes}{42}
-\contentsline {subsubsection}{IntAct}{43}
+\contentsline {subsection}{\numberline {6.1.2}Available Parsers}{32}
+\contentsline {subsubsection}{Uniprot}{32}
+\contentsline {subsubsection}{GenBank Database}{33}
+\contentsline {subsubsection}{Taxonomy Database}{34}
+\contentsline {subsubsection}{Protein-protein interactions Open Biomedical Ontologies}{35}
+\contentsline {subsubsection}{NCBI Blast Non-Redundant Database}{36}
+\contentsline {subsubsection}{International Protein Index Database (IPI)}{37}
+\contentsline {subsubsection}{iRefIndex}{38}
+\contentsline {subsubsection}{Cluster Of Orthologous Genes Database (COGs)}{39}
+\contentsline {subsubsection}{HUGO Gene Nomenclature Committee (HGNC)}{40}
+\contentsline {subsubsection}{KEGG: Kyoto Encyclopedia of Genes and Genomes}{41}
+\contentsline {subsubsection}{IntAct}{42}
+\contentsline {subsubsection}{IntAct Coronavirus}{43}
 \contentsline {subsubsection}{IntAct mutations}{44}
 \contentsline {subsubsection}{PSI-MI 2.5 Formatted databases}{45}
 \contentsline {subsubsection}{Biopax Level 2 Formatted databases}{48}
@@ -70,18 +71,23 @@
 \contentsline {subsubsection}{DisGeNET}{55}
 \contentsline {subsubsection}{NCBI Gene}{56}
 \contentsline {subsubsection}{HIPPIE}{57}
-\contentsline {subsubsection}{GPCR dataset}{58}
-\contentsline {subsubsection}{BRENDA Tissue Ontology (BTO)}{59}
-\contentsline {subsubsection}{Anatomical Therapeutic Chemical (ATC) classification}{60}
-\contentsline {subsubsection}{Human Protein Atlas}{61}
-\contentsline {subsubsection}{TISSUES (Jensen Lab)}{62}
-\contentsline {subsubsection}{DGIdb}{63}
-\contentsline {section}{\numberline {6.2}Preparing my data to use the generic parser}{64}
-\contentsline {section}{\numberline {6.3}Creating your own parser for your own data}{66}
-\contentsline {section}{\numberline {6.4}Command line arguments accepted by parsers}{69}
-\contentsline {section}{\numberline {6.5}Attributes and types recognized by \textit {BIANA} and defining new ones}{70}
-\contentsline {section}{\numberline {6.6}Proposed unification protocol}{73}
-\contentsline {chapter}{\numberline {7}Additional administration utilities}{75}
-\contentsline {section}{\numberline {7.1}BIANA database backup}{75}
-\contentsline {chapter}{\numberline {8}Glossary}{77}
-\contentsline {chapter}{\numberline {9}Frequently Asked Questions (FAQs)}{79}
+\contentsline {subsubsection}{ConsensusPathDB}{58}
+\contentsline {subsubsection}{Interologous Interaction Database (I2D)}{59}
+\contentsline {subsubsection}{GPCR dataset}{60}
+\contentsline {subsubsection}{BRENDA Tissue Ontology (BTO)}{61}
+\contentsline {subsubsection}{Anatomical Therapeutic Chemical (ATC) classification}{62}
+\contentsline {subsubsection}{Human Protein Atlas}{63}
+\contentsline {subsubsection}{TISSUES (Jensen Lab)}{64}
+\contentsline {subsubsection}{DGIdb}{65}
+\contentsline {subsubsection}{ChEMBL}{66}
+\contentsline {subsubsection}{DrugCentral}{67}
+\contentsline {subsubsection}{Therapeutic Target Database (TTD)}{68}
+\contentsline {section}{\numberline {6.2}Preparing my data to use the generic parser}{69}
+\contentsline {section}{\numberline {6.3}Creating your own parser for your own data}{71}
+\contentsline {section}{\numberline {6.4}Command line arguments accepted by parsers}{74}
+\contentsline {section}{\numberline {6.5}Attributes and types recognized by \textit {BIANA} and defining new ones}{75}
+\contentsline {section}{\numberline {6.6}Proposed unification protocol}{78}
+\contentsline {chapter}{\numberline {7}Additional administration utilities}{80}
+\contentsline {section}{\numberline {7.1}BIANA database backup}{80}
+\contentsline {chapter}{\numberline {8}Glossary}{82}
+\contentsline {chapter}{\numberline {9}Frequently Asked Questions (FAQs)}{84}
