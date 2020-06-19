@@ -7,7 +7,7 @@ class DrugCentralParser(BianaParser):
     Parses data from DrugCentral
 
     """                 
-                                                                                         
+
     name = "DrugCentral"
     description = "This file implements a program that fills up tables in BIANA database from data in DrugCentral"
     external_entity_definition = "An external entity represents a drug or a protein"
@@ -32,7 +32,11 @@ class DrugCentralParser(BianaParser):
         #### DEFINE NEW BIANA CATEGORIES ####
         #####################################
 
-        # Add DrugBankID as a valid external entity attribute since it is not recognized by BIANA
+        # Add these attributes as a valid external entity attribute since they are not recognized by BIANA
+        self.biana_access.add_valid_external_entity_attribute_type( name = "DrugCentralID",
+                                                                    data_type = "varchar(10)",
+                                                                    category = "eE identifier attribute")
+
         self.biana_access.add_valid_external_entity_attribute_type( name = "DrugCentral_action",
                                                                     data_type = "varchar(370)",
                                                                     category = "eE descriptive attribute")
@@ -64,6 +68,33 @@ class DrugCentralParser(BianaParser):
         parser.parse()
 
 
+        ################################################
+        #### CHECK DRUGS WITH MULTIPLE DRUGBANK IDS ####
+        ################################################
+
+        print("\n.....CHECKING DRUGS WITH MULTIPLE DRUGBANK IDS.....\n")
+
+        drugs_skipped = set()
+
+        for drug_name in parser.drug_names:
+
+            drugbank_ids = parser.drugname_to_id[drug_name]
+            if len(drugbank_ids) > 1:
+                unique_drugs = set()
+                for drugbank_id in drugbank_ids:
+                    drug_name_types = parser.drugname_to_id_to_types[drug_name][drugbank_id]
+                    if 'unique' in drug_name_types:
+                        unique_drugs.add(drugbank_id)
+                if len(unique_drugs) == 1:
+                    parser.drugname_to_id[drug_name] = unique_drugs
+                    unique_drugbank_id = list(unique_drugs)[0]
+                    print('Drug {} NOT skipped because it has one unique DrugBankID: {}'.format(drug_name, unique_drugbank_id))
+                else:
+                    print('Drug {} skipped because it has more than 1 DrugBankIDs'.format(drug_name))
+                    print(drugbank_ids)
+                    drugs_skipped.add(drug_name)
+    
+
         #########################################
         #### INSERT PARSED DATABASE IN BIANA ####
         #########################################
@@ -71,19 +102,17 @@ class DrugCentralParser(BianaParser):
         print("\n.....INSERTING THE DRUGS IN THE DATABASE.....\n")
 
         self.external_entity_ids_dict = {}
-        drugs_skipped = []
+        drugs_inserted = set()
 
         for drug_name in parser.drug_names:
 
             # Create an external entity corresponding to the drug in the database (if it is not already created)
-            if not self.external_entity_ids_dict.has_key(drug_name):
+            if not self.external_entity_ids_dict.has_key(drug_name) and drug_name not in drugs_skipped:
 
-                drug_skipped = self.create_drug_external_entity(parser, drug_name)
-                if drug_skipped:
-                    drugs_skipped.append(drug_skipped)
-                #print(drug_name)
+                self.create_drug_external_entity(parser, drug_name)
+                drugs_inserted.add(drug_name)
 
-        print('{} drugs inserted'.format(len(parser.drug_names)))
+        print('{} drugs inserted'.format(len(drugs_inserted)))
         print('{} drugs skipped'.format(len(drugs_skipped)))
 
 
@@ -101,6 +130,8 @@ class DrugCentralParser(BianaParser):
 
 
         print("\n.....INSERTING THE INTERACTIONS IN THE DATABASE.....\n")
+
+        interactions_inserted = set()
 
         for interaction in parser.interactions:
 
@@ -136,10 +167,12 @@ class DrugCentralParser(BianaParser):
 
             # Insert this external entity relation into database
             self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
+            interactions_inserted.add(interaction)
 
-        print('{} interactions inserted'.format(len(parser.interactions)))
+        print('{} interactions in total'.format(len(parser.interactions)))
+        print('{} interactions inserted'.format(len(interactions_inserted)))
 
-        return None
+        return
 
 
     def create_drug_external_entity(self, parser, drug_name):
@@ -152,15 +185,30 @@ class DrugCentralParser(BianaParser):
         # Annotate DRUGBANKID
         drugbank_ids = parser.drugname_to_id[drug_name]
         if len(drugbank_ids) > 1:
-            print('Drug {} skipped because it has more than 1 DrugBankIDs'.format(drug_name))
+            print('Drug {} skipped during insertion of entity! it has more than 1 DrugBankIDs'.format(drug_name))
             print(drugbank_ids)
-            return drug_name
+            sys.exit(10)
         else:
             for drugbank_id in drugbank_ids:
                 new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugBankID", value=drugbank_id, type="cross-reference") )
 
         # Annotate NAME
         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=drug_name, type="cross-reference") )
+
+        # Annotate DrugCentralID
+        if drug_name in parser.drugname_to_drugcentral_id:
+            drugcentral_id = parser.drugname_to_drugcentral_id[drug_name]
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "DrugCentralID", value=drugcentral_id, type="unique") )
+
+        # Annotate SMILES
+        if drug_name in parser.drugname_to_smiles:
+            for smiles in parser.drugname_to_smiles[drug_name]:
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "SMILES", value=smiles, type="unique") )
+
+        # Annotate InChIKey
+        if drug_name in parser.drugname_to_inchikey:
+            for inchikey in parser.drugname_to_inchikey[drug_name]:
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "InChIKey", value=inchikey, type="unique") )
 
         # Insert this external entity into BIANA
         self.external_entity_ids_dict[drug_name] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
@@ -192,8 +240,11 @@ class DrugCentral(object):
         self.input_dir = input_dir
         self.interactions_file = os.path.join(input_dir, 'drug.target.interaction.tsv')
         self.identifiers_file = os.path.join(input_dir, 'drugbankID_to_names.txt')
+        self.smiles_file = os.path.join(input_dir, 'structures.smiles.tsv')
 
         self.drugname_to_id = {}
+        self.drugname_to_drugcentral_id = {}
+        self.drugname_to_id_to_types = {}
         self.id_types = set()
         self.targets = set()
         self.drug_names = set()
@@ -204,6 +255,8 @@ class DrugCentral(object):
         self.interaction_to_druggability = {}
         self.target_classes = set()
         self.uniprot_to_class = {}
+        self.drugname_to_smiles = {}
+        self.drugname_to_inchikey = {}
 
         return
 
@@ -225,6 +278,8 @@ class DrugCentral(object):
                 #print(drug_id, drug_name, type_name)
                 self.drugname_to_id.setdefault(drug_name, set())
                 self.drugname_to_id[drug_name].add(drug_id)
+                self.drugname_to_id_to_types.setdefault(drug_name, {})
+                self.drugname_to_id_to_types[drug_name].setdefault(drug_id, set()).add(type_name)
 
         #print(self.id_types)
         #set(['mddb', 'unii', 'pubchem_cid', 'umlscui', 'nui', 'secondary_cas_rn', 'iuphar_ligand_id', 'vuid', 'nddf', 'chembl_id', 'pdb_chem_id', 'snomedct_us', 'mesh_descriptor_ui', 'mesh_supplemental_record_ui', 'mmx', 'drugbank_id', 'mmsl', 'vandf', 'ndfrt', 'rxnorm', 'chebi', 'kegg_drug', 'inn_id'])
@@ -244,6 +299,7 @@ class DrugCentral(object):
             csvreader = csv.reader(interactions_file_fd, delimiter='\t')
             for row in csvreader:
                 drug_name = row[0].lower()
+                drugcentral_id = row[1]
                 target_name = row[2]
                 target_class = row[3].lower()
                 uniprot_accessions = row[4].upper()
@@ -252,7 +308,7 @@ class DrugCentral(object):
                 action_type = row[17].lower()
                 druggability_level = row[18].lower()
                 organism = row[19].lower()
-                #print(drug_name, uniprot_accessions, druggability_level, organism)
+                #print(drug_name, drugcentral_id, uniprot_accessions, druggability_level, organism)
 
                 # Skip the entries that are not in the identifiers file
                 if drug_name not in self.drugname_to_id:
@@ -260,8 +316,17 @@ class DrugCentral(object):
                     print('Drug not found in identifiers file: {}'.format(drug_name))
                     continue
                 else:
-                    print('Drug found in identifiers file!: {}'.format(drug_name))
+                    #print('Drug found in identifiers file!: {}'.format(drug_name))
                     drugs_mapped.add(drug_name)
+
+                # Get the DrugCentral ID
+                if not drug_name in self.drugname_to_drugcentral_id:
+                    self.drugname_to_drugcentral_id[drug_name] = drugcentral_id
+                else:
+                    if drugcentral_id != self.drugname_to_drugcentral_id[drug_name]:
+                        print('Two IDs for the drug {}:'.format(drug_name))
+                        print('{} and {}'.format(self.drugname_to_drugcentral_id[drug_name], drugcentral_id))
+                        sys.exit(10)
 
                 # Skip the entries that do not have uniprot identifier for target
                 if uniprot_accessions == '':
@@ -312,6 +377,36 @@ class DrugCentral(object):
         #set(['tbio', 'tclin', 'tchem', 'tdark'])
         print('Number of drugs not mapped to DrugBank IDs: {}'.format(len(drugs_lost)))
         print('Number of drugs successfully mapped: {}'.format(len(drugs_mapped)))
+
+
+        print("\n.....PARSING SMILES FILE.....\n")
+
+        with open(self.smiles_file,'r') as smiles_file_fd:
+
+            first_line = smiles_file_fd.readline()
+            #SMILES	InChI	InChIKey	ID	INN	CAS_RN
+            #CCCCN1CCCC[C@H]1C(=O)NC1=C(C)C=CC=C1C	InChI=1S/C18H28N2O/c1-4-5-12-20-13-7-6-11-16(20)18(21)19-17-14(2)9-8-10-15(17)3/h8-10,16H,4-7,11-13H2,1-3H3,(H,19,21)/t16-/m0/s1	LEBVLXFERQHONN-INIZCTEOSA-N	4	levobupivacaine	27262-47-1
+
+            csvreader = csv.reader(smiles_file_fd, delimiter='\t')
+            for row in csvreader:
+                smiles = row[0]
+                inchi = row[1]
+                inchikey = row[2]
+                drugcentral_id = row[3]
+                drug_name = row[4].lower()
+                cas_rn = row[5]
+
+                # Skip the entries that are not in the identifiers file
+                if drug_name not in self.drugname_to_id:
+                    continue
+                #print(drugcentral_id, drug_name, smiles, inchikey)
+
+                if drug_name != '' and drugcentral_id != '':
+                    self.drugname_to_drugcentral_id[drug_name] = drugcentral_id
+                    if smiles != '':
+                        self.drugname_to_smiles.setdefault(drug_name, set()).add(smiles)
+                    if inchikey != '':
+                        self.drugname_to_inchikey.setdefault(drug_name, set()).add(inchikey)
 
         return
 

@@ -8,7 +8,7 @@ class STRINGParser(BianaParser):
     """
     STRING Parser Class
     """
-    name = "stringV9_javi"
+    name = "stringV10"
     description = "This program fills up tables in database biana related with STRING"
     external_entity_definition = "A protein in STRING with sequence"
     external_entity_relations = "A link given between two proteins in STRING with score"
@@ -43,7 +43,7 @@ class STRINGParser(BianaParser):
     def __init__(self):
         # Start with the default values
         BianaParser.__init__(self, default_db_description = "Search Tool for the Retrieval of Interacting Genes/Proteins",
-                             default_script_name = "stringParserV9.py",
+                             default_script_name = "stringParserV10.py",
                              default_script_description = "This program fills up tables in database biana related to STRING",
                              additional_compulsory_arguments = [],
                              additional_optional_arguments = [("use-existing-temp-alias-table", 0, "Uses previously created temporary alias table in the database"),
@@ -300,13 +300,9 @@ class STRINGParser(BianaParser):
             if line.startswith('#'):
                 continue
             words = line.split('\t')
-            tax = words[0]
-            if self.verbose and tax is None:
-                print "Warning: None taxId:", line
-            id = words[1]
-            id_word = ("%s.%s" % (tax, id))[:biana_globals.MAX_ALIAS_SIZE]
-            alias = words[2].replace("\"", "").strip()[:biana_globals.MAX_ALIAS_SIZE] #.strip("\"")
-            source_list = words[3].split()
+            id_word = words[0][:biana_globals.MAX_ALIAS_SIZE]
+            alias = words[1].replace("\"", "").strip()[:biana_globals.MAX_ALIAS_SIZE] #.strip("\"")
+            source_list = words[2].split()
 	    new_source_list = []
 	    for source in source_list:
 		if source in STRINGParser.datatype_to_biana_type:

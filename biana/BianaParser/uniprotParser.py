@@ -47,7 +47,7 @@ class UniprotParser(BianaParser):
 
         If executing in self.mode "tables", it is necessary to insert the tables here
         """
-        
+
         protein_number=0
 
 
@@ -89,8 +89,8 @@ class UniprotParser(BianaParser):
         #ensembl_regex = re.compile("^DR\s+Ensembl;(.*)")
         ensembl_regex = re.compile("^DR\s+Ensembl;(.*)\.")
         #embl_regex = re.compile("^DR\s+EMBL;\s*(\S+);")
-	#embl_regex = re.compile("^DR\s+EMBL;((\s*\S+;)+)+")
-	embl_regex = re.compile("^DR\s+EMBL;(.*)")
+        #embl_regex = re.compile("^DR\s+EMBL;((\s*\S+;)+)+")
+        embl_regex = re.compile("^DR\s+EMBL;(.*)")
         geneID_regex = re.compile("^DR\s+GeneID;\s*(\S+);")
         go_regex = re.compile("^DR\s+GO;\s*GO\:(\d+);")
         #refseq_regex = re.compile("^DR\s+RefSeq;\s*(\S+);")
@@ -146,7 +146,8 @@ class UniprotParser(BianaParser):
 
         uniprot_accession_list = []
 
-	is_swissprot = False
+        is_swissprot = False
+
         # START PARSING
         for line in self.input_file_fd:
 
@@ -160,10 +161,10 @@ class UniprotParser(BianaParser):
                     #add description
                     if len(description)>0:
                         desc_str = " ".join(description)
-			self.verify_attribute_length("description", desc_str)
-                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="description", value=desc_str))
+                        self.verify_attribute_length("description", desc_str)
+                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="description", value=desc_str, type = "unique"))
 
-                    # Detect EC code in description
+                        # Detect EC code in description
                         #if desc_str  != "":
                         #    enzymes = re.findall("\(EC[\s\=]*\d+\.\d+\.\d+\.\d+\)", desc_str)
                         #    for enzyme in enzymes:
@@ -174,39 +175,39 @@ class UniprotParser(BianaParser):
                         if desc_str != "":
                             enzymes = re.findall("EC=([\d\-]+\.[\d\-]+\.[\d\-]+\.[\d\-]+)\;", desc_str)
                             for enzyme in enzymes:
-				self.verify_attribute_length("ec", enzyme)
-                                uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="EC", value=enzyme, type="cross-reference"))
+                                self.verify_attribute_length("ec", enzyme)
+                                uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="EC", value=enzyme, type="unique"))
 
-			# Detect names
-			if desc_str != "":
-			    names = re.findall("RecName\: Full\=([^;]+)", desc_str)
-			    for name in names:
-				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="name", value=name, type="unique"))
+                        # Detect names
+                        if desc_str != "":
+                            names = re.findall("RecName\: Full\=([^;]+)", desc_str)
+                            for name in names:
+                                uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="name", value=name, type="unique"))
 
-			    alt_names = re.findall("AltName\: Full\=([^;]+)", desc_str)
-			    for name in alt_names:
-				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="name", value=name, type="synonym"))
-			    
-			    short_names = re.findall("Short=([^;]+)", desc_str)
-			    for name in short_names:
-				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="name", value=name, type="unique"))
+                            alt_names = re.findall("AltName\: Full\=([^;]+)", desc_str)
+                            for name in alt_names:
+                                uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="name", value=name, type="synonym"))
+
+                            short_names = re.findall("Short=([^;]+)", desc_str)
+                            for name in short_names:
+                                uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="name", value=name, type="unique"))
 
 
-                    #add comments
+                    # add comments
                     if len(comments["Function"])>0:
-			val = " ".join(comments["Function"])
-			self.verify_attribute_length("function", val)
-                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="function", value=val, type="cross-reference"))
+                        val = " ".join(comments["Function"])
+                        self.verify_attribute_length("function", val)
+                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="function", value=val, type="unique"))
 
                     if len(comments["Disease"])>0:
-			val = " ".join(comments["Disease"])
-			self.verify_attribute_length("disease", val)
-                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="disease", value=val, type="cross-reference"))
+                        val = " ".join(comments["Disease"])
+                        self.verify_attribute_length("disease", val)
+                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="disease", value=val, type="unique"))
 
                     if len(comments["SubcellularLocation"])>0:
-			val = " ".join(comments["SubcellularLocation"])
-			self.verify_attribute_length("subcellularlocation", val)
-                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="subcellularLocation", value=val, type="cross-reference"))
+                        val = " ".join(comments["SubcellularLocation"])
+                        self.verify_attribute_length("subcellularlocation", val)
+                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="subcellularLocation", value=val, type="unique"))
 
                     # restart variables
                     description = []
@@ -233,17 +234,17 @@ class UniprotParser(BianaParser):
 
             m = id_regex.match(line)
             if m:
-		self.verify_attribute_length("uniprotentry", m.group(1))
-		if m.group(2) == "Reviewed":
-		    is_swissprot = True
-		    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotentry", value=m.group(1), type="unique"))
-		elif m.group(2) == "Unreviewed":
-		    is_swissprot = False
-		    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotentry", value=m.group(1), type="synonym"))
-		else:
-		    raise ValueError("Uniprot flat file format error: " + line)
-		if self.verbose:
-		    sys.stderr.write("%s\n" %(m.group(1)) )
+                self.verify_attribute_length("uniprotentry", m.group(1))
+                if m.group(2) == "Reviewed":
+                    is_swissprot = True
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotentry", value=m.group(1), type="unique"))
+                elif m.group(2) == "Unreviewed":
+                    is_swissprot = False
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotentry", value=m.group(1), type="synonym"))
+                else:
+                    raise ValueError("Uniprot flat file format error: " + line)
+                if self.verbose:
+                    sys.stderr.write("%s\n" %(m.group(1)) )
                 continue
 
             m = ac_regex.match(line)
@@ -255,20 +256,20 @@ class UniprotParser(BianaParser):
             if m:
                 #print uniprot_accession_list
                 #[ uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotaccession", value=x, version=m.group(1), type="unique")) for x in uniprot_accession_list ]
-		# First one is the primary accession the followings are previous accessions
-		for i in xrange(len(uniprot_accession_list)):
-		    x = uniprot_accession_list[i]
-		    self.verify_attribute_length("uniprotaccession", x)
-		    if is_swissprot:
-			if i == 0:
-			    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotaccession", value=x, version=m.group(1), type="unique")) 
-			else:
-			    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotaccession", value=x, version=m.group(1), type="previous")) 
-		    else:
-			if i == 0:
-			    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotaccession", value=x, version=m.group(1), type="synonym")) 
-			else:
-			    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotaccession", value=x, version=m.group(1), type="previous")) 
+                # First one is the primary accession the followings are previous accessions
+                for i in xrange(len(uniprot_accession_list)):
+                    x = uniprot_accession_list[i]
+                    self.verify_attribute_length("uniprotaccession", x)
+                    if is_swissprot:
+                        if i == 0:
+                            uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotaccession", value=x, version=m.group(1), type="unique")) 
+                        else:
+                            uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotaccession", value=x, version=m.group(1), type="previous")) 
+                    else:
+                        if i == 0:
+                            uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotaccession", value=x, version=m.group(1), type="synonym")) 
+                        else:
+                            uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="uniprotaccession", value=x, version=m.group(1), type="previous")) 
                 uniprot_accession_list = []
                 continue
 
@@ -279,16 +280,16 @@ class UniprotParser(BianaParser):
 
             m = taxID_regex.match(line)
             if m:
-		self.verify_attribute_length("taxid", m.group(1))
+                self.verify_attribute_length("taxid", m.group(1))
                 uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="taxID", value=m.group(1), type = "unique"))
                 continue
 
             m = keyword_regex.match(line)
             if m:
-		for x in m.group(1).split(";"):
-		    x = x.strip()
-		    self.verify_attribute_length("keyword", x)
-		    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="keyword", value=x, type="cross-reference")) 
+                for x in m.group(1).split(";"):
+                    x = x.strip()
+                    self.verify_attribute_length("keyword", x)
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="keyword", value=x, type="unique")) 
                 continue
 
             m = sequence_regex.match(line)
@@ -301,29 +302,29 @@ class UniprotParser(BianaParser):
             if m:
                 m = gene_name_regex.search(line)
                 if m:
-		    self.verify_attribute_length("genesymbol", m.group(1))
+                    self.verify_attribute_length("genesymbol", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="geneSymbol", value=m.group(1),type="unique"))
 
                 m = gene_orf_name_regex.search(line)
                 if m:
-		    for x in m.group(1).split(","):
-			x = x.split("{")[0].strip()
-			self.verify_attribute_length("orfname", x)
-			uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="ORFName", value=x,type="alias")) 
+                    for x in m.group(1).split(","):
+                        x = x.split("{")[0].strip()
+                        self.verify_attribute_length("orfname", x)
+                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="ORFName", value=x,type="alias")) 
                     
                 m = gene_synonyms_regex.search(line)
                 if m:
-		    for x in m.group(1).split(","):
-			x = x.split("{")[0].strip()
-			self.verify_attribute_length("genesymbol", x)
-			uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="geneSymbol", value=x, type="synonym")) 
+                    for x in m.group(1).split(","):
+                        x = x.split("{")[0].strip()
+                        self.verify_attribute_length("genesymbol", x)
+                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="geneSymbol", value=x, type="synonym")) 
 
                 m = gene_orderedLocusNames.search(line)
                 if m:
-		    for x in m.group(1).split(","):
-			x = x.split("{")[0].strip()
-			self.verify_attribute_length("orderedlocusname", x)
-			uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="OrderedLocusName", value=x, type="alias")) 
+                    for x in m.group(1).split(","):
+                        x = x.split("{")[0].strip()
+                        self.verify_attribute_length("orderedlocusname", x)
+                        uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="OrderedLocusName", value=x, type="alias")) 
 
 
                 continue
@@ -360,28 +361,28 @@ class UniprotParser(BianaParser):
 
                 m = WormBase_regex.match(line)
                 if m:
-		    self.verify_attribute_length("wormbasegeneid", m.group(1))
+                    self.verify_attribute_length("wormbasegeneid", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="WormBaseGeneID", 
                                                                         value=m.group(1),type="unique"))
                     continue
 
                 m = WormPep_regex.match(line)
                 if m:
-		    self.verify_attribute_length("wormbasesequencename", m.group(1))
+                    self.verify_attribute_length("wormbasesequencename", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="WormBaseSequenceName",
                                                                         value=m.group(1),type="unique"))
                     continue
 
                 m = dip_regex.match(line)
                 if m:
-		    self.verify_attribute_length("dip", m.group(1))
+                    self.verify_attribute_length("dip", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="DIP",
                                                                         value=m.group(1),type="cross-reference"))
                     continue
 
                 m = tigr_regex.match(line)
                 if m:
-		    self.verify_attribute_length("tigr", m.group(1))
+                    self.verify_attribute_length("tigr", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="tigr",
                                                                         value=m.group(1),type="unique"))
 
@@ -389,7 +390,7 @@ class UniprotParser(BianaParser):
 
                 m = cygd_regex.match(line)
                 if m:
-		    self.verify_attribute_length("cygd", m.group(1))
+                    self.verify_attribute_length("cygd", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="cygd",
                                                                         value=m.group(1),type="unique"))
 
@@ -398,124 +399,124 @@ class UniprotParser(BianaParser):
                 
                 m = rgd_regex.match(line)
                 if m:
-		    self.verify_attribute_length("rgd", m.group(1))
+                    self.verify_attribute_length("rgd", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="rgd",
                                                                         value=m.group(1),type="unique"))
                     continue
             
                 m = pfam_regex.match(line)
                 if m:
-		    self.verify_attribute_length("pfam", m.group(1))
+                    self.verify_attribute_length("pfam", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="pfam", value=m.group(1),type="unique"))
                     continue
 
                 m = kegg_regex.match(line)
                 if m:
-		    self.verify_attribute_length("kegggene", m.group(1))
+                    self.verify_attribute_length("kegggene", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="kegggene", value=m.group(1),type="unique"))
                     continue
 
                 m = interpro_regex.match(line)
                 if m:
-		    self.verify_attribute_length("interpro", m.group(1))
+                    self.verify_attribute_length("interpro", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="interpro", value=m.group(1),type="unique"))
                     continue
 
                 m = prosite_regex.match(line)
                 if m:
-		    self.verify_attribute_length("prosite", m.group(1))
+                    self.verify_attribute_length("prosite", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="prosite", value=m.group(1),type="unique"))
                     continue
 
                 m = prodom_regex.match(line)
                 if m:
-		    self.verify_attribute_length("prodom", m.group(1))
+                    self.verify_attribute_length("prodom", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="prodom", value=m.group(1), type="unique"))
                     continue
 
                 m = mim_regex.match(line)
                 if m:
-		    self.verify_attribute_length("mim", m.group(1))
+                    self.verify_attribute_length("mim", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="mim", value=m.group(1), type="cross-reference"))
                     continue
 
                 m = pir_regex.match(line)
                 if m:
-		    self.verify_attribute_length("pir", m.group(1))
-                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="pir", value=m.group(1), type="cross-reference"))
+                    self.verify_attribute_length("pir", m.group(1))
+                    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="pir", value=m.group(1), type="unique"))
                     continue
 
                 m = prints_regex.match(line)
                 if m:
-		    self.verify_attribute_length("prints", m.group(1))
+                    self.verify_attribute_length("prints", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="prints", value=m.group(1), type="unique"))
                     continue
 
                 m = ensembl_regex.match(line)
                 if m:
                     #uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="ensembl", value=m.group(1), type="cross-reference"))
-		    #words = m.group(1).split(";")
-		    words = m.group(1).rstrip(".").split(";")
-		    for w in words:
-			w=w.strip()
-			if w != "-" and w != "":
-			    self.verify_attribute_length("ensembl", w)
-			    uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="ensembl", value=w, type="unique"))
+                    #words = m.group(1).split(";")
+                    words = m.group(1).rstrip(".").split(";")
+                    for w in words:
+                        w=w.strip()
+                        if w != "-" and w != "":
+                            self.verify_attribute_length("ensembl", w)
+                            uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="ensembl", value=w, type="unique"))
                     continue
 
                 m = embl_regex.match(line)
                 if m:
                     #uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="accessionNumber", value=m.group(1), type="cross-reference"))
-		    #words = m.group(1).split(";")
-		    words = m.group(1).rstrip(".").split(";")
-		    for w in words[:-2]: # Ignoring status identifier and molecule type
-			w=w.strip()
-			if w != "-" and w != "":
-			    self.verify_attribute_length("accessionnumber", w)
-			    version = w.split(".")
-			    if len(version) > 1: 
-				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="accessionNumber", value=version[0], version=version[1], type="cross-reference"))
-				if len(version) > 2:
-				    sys.stderr.write("Strange versioning for AccessionNumber %s\n" % w)
-			    else:
-				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="accessionNumber", value=w, type="cross-reference"))
+                    #words = m.group(1).split(";")
+                    words = m.group(1).rstrip(".").split(";")
+                    for w in words[:-2]: # Ignoring status identifier and molecule type
+                        w=w.strip()
+                        if w != "-" and w != "":
+                            self.verify_attribute_length("accessionnumber", w)
+                            version = w.split(".")
+                            if len(version) > 1: 
+                                uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="accessionNumber", value=version[0], version=version[1], type="unique"))
+                                if len(version) > 2:
+                                    sys.stderr.write("Strange versioning for AccessionNumber %s\n" % w)
+                            else:
+                                uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="accessionNumber", value=w, type="unique"))
                     continue
 
                 m = geneID_regex.match(line)
                 if m:
-		    self.verify_attribute_length("geneid", m.group(1))
+                    self.verify_attribute_length("geneid", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="geneID", value=m.group(1), type="unique"))
                     continue
 
                 m = go_regex.match(line)
                 if m:
-		    self.verify_attribute_length("go", m.group(1))
+                    self.verify_attribute_length("go", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="go", value=m.group(1), type="cross-reference"))
                     continue
 
                 m = refseq_regex.match(line)
                 if m:
-		    words = m.group(1).rstrip(".").split(";")
-		    for w in words:
-			w=w.strip()
-			if w != "-" and w != "":
-			    self.verify_attribute_length("refseq", w)
-			    rs = w.split('.')
-			    if len(rs)==2:
-				uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="refseq", value=rs[0], version=rs[1], type="unique"))
-			    else:
-				sys.stderr.write("Refseq %s has no version!\n" % w)
+                    words = m.group(1).rstrip(".").split(";")
+                    for w in words:
+                        w=w.strip()
+                        if w != "-" and w != "":
+                            self.verify_attribute_length("refseq", w)
+                            rs = w.split('.')
+                            if len(rs)==2:
+                                uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="refseq", value=rs[0], version=rs[1], type="unique"))
+                            else:
+                                sys.stderr.write("Refseq %s has no version!\n" % w)
                     continue
             
                 m = unigene_regex.match(line)
                 if m:
-		    self.verify_attribute_length("unigene", m.group(1))
+                    self.verify_attribute_length("unigene", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="unigene", value = m.group(1), type="unique"))
                     continue
 
                 m = hgnc_regex.match(line)
                 if m:
-		    self.verify_attribute_length("hgnc", m.group(1))
+                    self.verify_attribute_length("hgnc", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="hgnc", value=m.group(1),type="cross-reference"))
                     continue
 
@@ -549,20 +550,20 @@ class UniprotParser(BianaParser):
 
                 m = mgi_regex.match(line)
                 if m:
-		    self.verify_attribute_length("mgi", m.group(1))
+                    self.verify_attribute_length("mgi", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="MGI", value=m.group(1),type="unique"))
                     continue
 
 
                 m = reactome_regex.match(line)
                 if m:
-		    self.verify_attribute_length("reactome", m.group(1))
+                    self.verify_attribute_length("reactome", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="reactome", value = m.group(1), type="cross-reference"))
                     continue
 
                 m = sgd_regex.match(line)
                 if m:
-		    self.verify_attribute_length("sgd", m.group(1))
+                    self.verify_attribute_length("sgd", m.group(1))
                     uniprotObject.add_attribute(ExternalEntityAttribute(attribute_identifier="SGD", value=m.group(1), type="unique"))
 
                     continue
@@ -575,6 +576,6 @@ class UniprotParser(BianaParser):
 
                     continue
 
-	# Insert last entry
-	self.biana_access.insert_new_external_entity( externalEntity = uniprotObject )
+        # Insert last entry
+        self.biana_access.insert_new_external_entity( externalEntity = uniprotObject )
 

@@ -1,5 +1,6 @@
 from bianaParser import *
-                    
+import csv
+
 class dgidbParser(BianaParser):                                                        
     """             
     MyData Parser Class 
@@ -184,8 +185,6 @@ class DGIdb(object):
         #### PARSE INTERACTIONS FILE ####
         #################################
 
-        import csv
-
         print("\n.....PARSING INTERACTIONS FILE.....\n")
 
         with open(self.interactions_file,'r') as interactions_file_fd:
@@ -193,7 +192,7 @@ class DGIdb(object):
             first_line = interactions_file_fd.readline()
 
             # Obtain a dictionary: "field_name" => "position"
-            # gene_name gene_claim_name entrez_id   interaction_claim_source    interaction_types   drug_claim_name drug_claim_primary_name drug_name   drug_chembl_id
+            # gene_name	gene_claim_name	entrez_id	interaction_claim_source	interaction_types	drug_claim_name	drug_claim_primary_name	drug_name	drug_chembl_id	PMIDs
             fields_dict = self.obtain_header_fields(first_line, separator='\t')
 
             csvreader = csv.reader(interactions_file_fd, delimiter='\t')
@@ -224,6 +223,8 @@ class DGIdb(object):
                             self.types.add(interaction_type)
                             self.interaction_to_type.setdefault(interaction, set())
                             self.interaction_to_type[interaction].add(interaction_type)
+
+                    #print(entrez_id, chembl_id, interaction_type, source)
 
         return
 

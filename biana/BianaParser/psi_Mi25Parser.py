@@ -80,11 +80,11 @@ class Psi_MiFormattedDBParser(BianaParser):
     #dictPrefixToDBName = {}
 
     db_refs_to_ignore = set(["DOI", "CAMJEDB", "ECOGENE", "NEWT", "IMEX", 
-			    "AFCS", "PRIDE", "SO", "GRID", "GRID_LEGACY",
-			    "CDNA GI", "CDNA ACCESSION" "BRENDA", "PDBE", 
-			    "MATRIXDB", "MPIDB", "XENBASE", "VEGA", "BIOGRID",
-			    "CGNC", "BGD", "DICTYBASE", "MAIZEGDB", "ZFIN"
-			    "VECTORBASE", "MIRBASE"])
+                            "AFCS", "PRIDE", "SO", "GRID", "GRID_LEGACY",
+                            "CDNA GI", "CDNA ACCESSION" "BRENDA", "PDBE", 
+                            "MATRIXDB", "MPIDB", "XENBASE", "VEGA", "BIOGRID",
+                            "CGNC", "BGD", "DICTYBASE", "MAIZEGDB", "ZFIN"
+                            "VECTORBASE", "MIRBASE"])
     
     def __init__(self):
         # Start with the default values
@@ -134,7 +134,7 @@ class Psi_MiFormattedDBParser(BianaParser):
             #print directoryData
             listFileName = os.listdir(directoryData)
 
-	self.file_number = 0
+        self.file_number = 0
 
         parser = Psi_MiXMLParser(self.verbose)
 
@@ -154,14 +154,14 @@ class Psi_MiFormattedDBParser(BianaParser):
 #                    flagContinuePointReached = True
 #                continue
 
-	    if self.time_control:
-		if self.file_number%10==0:
-			sys.stderr.write("%s files done in %s seconds\n" %(self.file_number, time.time()-self.initial_time))
+            if self.time_control:
+                if self.file_number%10==0:
+                        sys.stderr.write("%s files done in %s seconds\n" %(self.file_number, time.time()-self.initial_time))
 
-	    self.file_number += 1
+            self.file_number += 1
             
             if self.verbose:
-		sys.stderr.write("\n------- %s\n" %fileName)
+                sys.stderr.write("\n------- %s\n" %fileName)
 
             # continue # to print just names
             try:
@@ -191,7 +191,7 @@ class Psi_MiFormattedDBParser(BianaParser):
                     #print objInteractor.type.label
                     interactorType = self.decideInteractorTypeSpecificConversions(objInteractor.type.label)
                     if interactorType == "ignore":
-			continue
+                        continue
                     if interactorType is None:
                         interactorType = self.decideInteractorTypeSpecificConversions(objInteractor.type.name)
                         # Quim Aguirre: Condition added for skipping the cases in which objInteractor.type.name is also None in IntAct database
@@ -220,7 +220,7 @@ class Psi_MiFormattedDBParser(BianaParser):
                 if self.verbose:
                     sys.stderr.write("\nInteractions:\n")
                 
-		# Create external entity relations for interactions
+                # Create external entity relations for interactions
                 for objInteraction in dictInteraction.itervalues():
                     if self.verbose:
                         sys.stderr.write("%s\n" %objInteraction.id)
@@ -252,19 +252,19 @@ class Psi_MiFormattedDBParser(BianaParser):
                         # Fill experiment identification method
                         ###self.addXRefAttributesToExternalEntityObject(experiment.xRefMethodInteraction, psi_MiFormatted_object, flagIgnoreRefSecondary=True)
             # Some experiment.xRefMethodInteraction.refPrimary objects were "NoneType", and this was giving problems when parsing HPRD, so the second condition has been added by Quim Aguirre
-			if experiment.xRefMethodInteraction is not None and experiment.xRefMethodInteraction.refPrimary is not None:
-			    if experiment.xRefMethodInteraction.refPrimary.db == "psi-mi":
-				psi_MiFormatted_object.add_attribute(ExternalEntityRelationAttribute( attribute_identifier = "method_id", 
+                        if experiment.xRefMethodInteraction is not None and experiment.xRefMethodInteraction.refPrimary is not None:
+                            if experiment.xRefMethodInteraction.refPrimary.db == "psi-mi":
+                                psi_MiFormatted_object.add_attribute(ExternalEntityRelationAttribute( attribute_identifier = "method_id", 
                                                                                                   value = experiment.xRefMethodInteraction.refPrimary.id[3:] ) )
-			    if experiment.xRefMethodInteraction.refPrimary.db == "grid":
-				if DICT_METHOD_CONVERSION_GRID_TO_PSI_MI.has_key(experiment.nameMethodInteraction.label):
-				    psi_MiFormatted_object.add_attribute(ExternalEntityRelationAttribute( attribute_identifier="method_id", 
-													  value = DICT_METHOD_CONVERSION_GRID_TO_PSI_MI[experiment.nameMethodInteraction.label][3:] ))
-				else:
-				    sys.stderr.write("Method %s not recognized\n" %experiment.nameMethodInteraction.label)
-			    ###else:
-			    ###    print "Warning interaction type is not provided as psi-mi db reference:", experiment.xRefMethodInteraction.refPrimary.db
-			# Store participant identification method as xref in a list (method is the same for all participants in this interaction)
+                            if experiment.xRefMethodInteraction.refPrimary.db == "grid":
+                                if DICT_METHOD_CONVERSION_GRID_TO_PSI_MI.has_key(experiment.nameMethodInteraction.label):
+                                    psi_MiFormatted_object.add_attribute(ExternalEntityRelationAttribute( attribute_identifier="method_id", 
+                                                                                                          value = DICT_METHOD_CONVERSION_GRID_TO_PSI_MI[experiment.nameMethodInteraction.label][3:] ))
+                                else:
+                                    sys.stderr.write("Method %s not recognized\n" %experiment.nameMethodInteraction.label)
+                            ###else:
+                            ###    print "Warning interaction type is not provided as psi-mi db reference:", experiment.xRefMethodInteraction.refPrimary.db
+                        # Store participant identification method as xref in a list (method is the same for all participants in this interaction)
                         if experiment.xRefMethodParticipant is not None:
                             listObjXRefMethodParticipantIdentification.append(experiment.xRefMethodParticipant)
                     # Fill participantList
@@ -373,7 +373,7 @@ class Psi_MiFormattedDBParser(BianaParser):
         #    interactorTypeConverted = "RNA"
         elif interactorType == "small molecule":
             interactorTypeConverted = "compound"
-	elif interactorType == "poly a" or interactorType == "poly adenine": # from intact chemical synthesis file
+        elif interactorType == "poly a" or interactorType == "poly adenine": # from intact chemical synthesis file
             interactorTypeConverted = "RNA"
         elif interactorType == "complex":
             interactorTypeConverted = "ignore"
@@ -604,7 +604,7 @@ class Psi_MiFormattedDBParser(BianaParser):
             dbNameConverted = "AccessionNumber"
             if self.sourcedb_name == "mint":
                 dictFieldValue = secondary
-	elif dbUpper == "GENBANK_NUCL_GI" or dbUpper == "GENBANK INDENTIFIER" or dbUpper=="NUCLEOTIDE GENBANK IDENTIFIER":
+        elif dbUpper == "GENBANK_NUCL_GI" or dbUpper == "GENBANK INDENTIFIER" or dbUpper=="NUCLEOTIDE GENBANK IDENTIFIER":
             refseq_regex = re.compile('(NC|AC|NG|NT|NW|NZ|NM|NR|XM|XR|NP|AP|XP|YP|ZP)_[0-9]+')
             m = refseq_regex.match(id)
             if m:
@@ -652,11 +652,11 @@ class Psi_MiFormattedDBParser(BianaParser):
             #dictFieldValue = id[6:]
             #self.checkOrInsertDBNamePrefix(dbNameConverted, id[:6])
         elif dbUpper == "PUBMED":
-    	    if id.startswith("unassigned"):
-    	        dbNameConverted = "ignore"
+            if id.startswith("unassigned"):
+                dbNameConverted = "ignore"
             elif id.startswith("missing"): # "missing_pmid"
                 dbNameConverted = "ignore"
-    	    else:
+            else:
                 dbNameConverted = "pubmed"
         elif dbUpper == "UNIPARC":
             dbNameConverted = "uniparc"
@@ -706,7 +706,7 @@ class Psi_MiFormattedDBParser(BianaParser):
             dbNameConverted = "ignore"
         elif dbUpper == "N/A":
             dbNameConverted = "ignore"
-	elif dbUpper in Psi_MiFormattedDBParser.db_refs_to_ignore:
+        elif dbUpper in Psi_MiFormattedDBParser.db_refs_to_ignore:
             dbNameConverted = "ignore"
         else:
             if db not in self.not_recognized_cross_refs:

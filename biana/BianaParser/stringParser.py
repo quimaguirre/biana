@@ -1,6 +1,5 @@
 from bianaParser import *
 from biana.BianaDB import database
-from sets import *
 import os, fnmatch, re, sys
 
 class STRINGParser(BianaParser):
@@ -144,7 +143,7 @@ class STRINGParser(BianaParser):
         self.default_eE_attribute = "string"
         self.use_existing_temp = self.arguments_dic["use-existing-temp-alias-table"]
         self.string_protein_object_number = 0
-        self.setUnknownDB = Set()
+        self.setUnknownDB = set()
         self.alias_temp_table = database.TableDB( table_name = "temp_string_aliases",
                                                   table_fields = [ database.FieldDB(field_name = "id", data_type = "varchar(53)"),      
                                                   database.FieldDB(field_name = "alias", data_type = "varchar(130)"), 
@@ -171,10 +170,10 @@ class STRINGParser(BianaParser):
             ## get identifier and sequence information
             lineLastRed, dictIdToSequence = self._readGivenNumberOfSequencesToDictionary(sequences_file_fd, lineLastRed, self.N_MAX_ENTRY_AT_ONCE)
             ## fetch alias information for the current protein 
-            setSequenced = Set(dictIdToSequence.keys())
+            setSequenced = set(dictIdToSequence.keys())
             nSequence += len(setSequenced)
             list_information_tuple = self._fetch_given_list_protein_information_from_database(setSequenced)
-            setAliased = Set()
+            setAliased = set()
             if list_information_tuple != ():
                 id_word_prev = list_information_tuple[0][0]
                 list_information_tuple_inner = []

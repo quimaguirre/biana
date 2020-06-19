@@ -20,7 +20,7 @@ For more details on how to use it, read piana/README.populate_piana_db
 
 
 from bianaParser import *
-import re, sys, sets
+import re, sys
 
 class GenericParser(BianaParser):
     """
@@ -32,8 +32,8 @@ class GenericParser(BianaParser):
     external_entity_definition = ""
     external_entity_relations = ""
 
-    mandatory_columns = sets.Set(["id", "type"])
-    mandatory_relation_columns = sets.Set(["id", "interactor_id_list", "type"])
+    mandatory_columns = set(["id", "type"])
+    mandatory_relation_columns = set(["id", "interactor_id_list", "type"])
     first_char_to_ref_type = { '*': "unique", '-': "previous", '+': "alias", '~': "synonym" } 
     default_ref_type = "cross-reference" # by default the ref_type is cross-reference
 

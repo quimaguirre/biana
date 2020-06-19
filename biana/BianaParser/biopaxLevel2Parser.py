@@ -732,7 +732,7 @@ class BiopaxOpenControlledVocabulary(BiopaxEntity):
 
 class BiopaxLevel2Parser(BianaParser):
     """
-
+    BIOPAXLEVEL2 Parser for BIANA. 
     """
 
     name = "biopax_level_2"
@@ -921,6 +921,8 @@ class BiopaxLevel2Parser(BianaParser):
 
     def parse_database(self):
         """
+        Method that implements the specific operations to parse the database.
+        (here it starts the parsing)
         """
         BiopaxEntity.database = self.database
         BiopaxEntity.dbaccess = self.biana_access

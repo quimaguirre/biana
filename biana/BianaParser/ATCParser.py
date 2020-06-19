@@ -56,7 +56,7 @@ class ATCParser(BianaParser):
 
         # Add the attributes specific of ATC database
         self.biana_access.add_valid_external_entity_attribute_type( name = "ATC",
-                                                                    data_type = "varchar(10)",
+                                                                    data_type = "varchar(30)",
                                                                     category = "eE attribute")
 
         self.biana_access.add_valid_external_entity_attribute_type( name = "ATC_name",
@@ -102,53 +102,53 @@ class ATCParser(BianaParser):
         # externalEntityRelation = ExternalEntityRelation( source_database = self.database, relation_type = "interaction" )
         # externalEntityRelation.add_attribute( ExternalEntityRelationAttribute( attribute_identifier = "go_name", value = None) )
 
-	def create_external_entity_from_atc_term(database, atc, atc_name, atc_level,
-		term_namespace, term_def, term_exact_synonyms, term_related_synonyms, term_broad_synonyms, term_narrow_synonyms, term_alt_id):
+        def create_external_entity_from_atc_term(database, atc, atc_name, atc_level,
+                term_namespace, term_def, term_exact_synonyms, term_related_synonyms, term_broad_synonyms, term_narrow_synonyms, term_alt_id):
 
-	    externalEntity = ExternalEntity( source_database = database, type = "ATCElement" )
-	    
-	    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC", value = atc, type="unique") )
+            externalEntity = ExternalEntity( source_database = database, type = "ATCElement" )
+            
+            externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC", value = atc, type="unique") )
 
-	    if atc_name is not None:
-		externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_name", value = atc_name, type="unique") )
+            if atc_name is not None:
+                externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_name", value = atc_name, type="unique") )
 
             if atc_level is not None:
                 externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_level", value = atc_level, type="unique") )
 
-	    if term_def is not None:
-		externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "description", value = term_def) )
-	    
-	    for current_synonym in term_exact_synonyms:
-		if current_synonym is not None:
-		    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_name",
-									   value = current_synonym,
-									   type = "exact_synonym" ) )
+            if term_def is not None:
+                externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "description", value = term_def) )
+            
+            for current_synonym in term_exact_synonyms:
+                if current_synonym is not None:
+                    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_name",
+                                                                           value = current_synonym,
+                                                                           type = "exact_synonym" ) )
                     
-	    for current_synonym in term_related_synonyms:
-		if current_synonym is not None:
-		    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_name",
-		    						       value = current_synonym,
-		    						       type = "related_synonym" ) )
+            for current_synonym in term_related_synonyms:
+                if current_synonym is not None:
+                    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_name",
+                                                                           value = current_synonym,
+                                                                           type = "related_synonym" ) )
                     
-	    for current_synonym in term_broad_synonyms:
-		if current_synonym is not None:
-		    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_name",
-		    						       value = current_synonym,
-		    						       type = "broad_synonym" ) )
+            for current_synonym in term_broad_synonyms:
+                if current_synonym is not None:
+                    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_name",
+                                                                           value = current_synonym,
+                                                                           type = "broad_synonym" ) )
                     
-	    for current_synonym in term_narrow_synonyms:
-		if current_synonym is not None:
-		    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_name",
-		    						       value = current_synonym,
-		    						       type = "narrow_synonym" ) )
+            for current_synonym in term_narrow_synonyms:
+                if current_synonym is not None:
+                    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC_name",
+                                                                           value = current_synonym,
+                                                                           type = "narrow_synonym" ) )
                     
-        # Quim Aguirre: Adding the alternative ATC ids as "alias" in ATC table
-	    for current_alt_id in term_alt_id:
-		if current_alt_id is not None:
-		    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC",
-		    						       value = current_alt_id,
-		    						       type = "alias" ) )
-	    return externalEntity
+            # Quim Aguirre: Adding the alternative ATC ids as "alias" in ATC table
+            for current_alt_id in term_alt_id:
+                if current_alt_id is not None:
+                    externalEntity.add_attribute( ExternalEntityAttribute( attribute_identifier = "ATC",
+                                                                           value = current_alt_id,
+                                                                           type = "alias" ) )
+            return externalEntity
 
 
         # Variables:
