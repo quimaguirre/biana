@@ -4,9 +4,7 @@ import csv
 class FDAOrangeBookParser(BianaParser):
     """
     MyData Parser Class 
-
     Parses data from the FDA Orange Book
-
     """
 
     name = "FDAOrangeBook"
@@ -350,7 +348,7 @@ class FDAOrangeBook(object):
                 # Get useful fields
                 current_ingredients = fields[ fields_dict['Ingredient'] ].lower() # There can be one ingredient (e.g. BUDESONIDE) or multiple (e.g. SACUBITRIL; VALSARTAN)
                 trade_name = fields[ fields_dict['Trade_Name'] ].lower() # UCERIS
-                appl_type = fields[ fields_dict['Appl_Type'] ].upper() # The type of new drug application approval. New Drug Applications (NDA or innovator) are ”N”. Abbreviated New Drug Applications (ANDA or generic) are “A”.
+                appl_type = fields[ fields_dict['Appl_Type'] ].upper() # The type of new drug application approval. New Drug Applications (NDA or innovator) are "N". Abbreviated New Drug Applications (ANDA or generic) are "A".
                 appl_no = fields[ fields_dict['Appl_No'] ] # The FDA assigned number to the application. Format is nnnnnn (e.g. 205613)
                 product_no = fields[ fields_dict['Product_No'] ] # The FDA assigned number to identify the application products. Each strength is a separate product.  May repeat for multiple part products. If there are multiple dosages, there will be multiple product numbers because each dosage is part of a different product, but they will still have the same application number (e.g. SOFOSBUVIR; VELPATASVIR). Format is nnn (e.g. 001).
                 approval_date = fields[ fields_dict['Approval_Date'] ] # The date the product was approved as stated in the FDA approval letter to the applicant.  The format is Mmm dd, yyyy.  Products approved prior to the January 1, 1982 contain the phrase: "Approved prior to Jan 1, 1982". (e.g. Oct 7, 2014). There can be multiple lines with different dates depending on the dosage (e.g. SOFOSBUVIR; VELPATASVIR)

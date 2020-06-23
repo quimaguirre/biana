@@ -4,9 +4,7 @@ import csv
 class chemblParser(BianaParser):                                                        
     """             
     MyData Parser Class 
-
     Parses data from ChEMBL
-
     """                 
 
     name = "chembl"
@@ -290,6 +288,10 @@ class chemblParser(BianaParser):
         # Annotate it as CHEMBL
         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "CHEMBL", value=drug_chembl, type="unique") )
 
+        if drug_chembl in parser.drug_to_names:
+            for name in parser.drug_to_names[drug_chembl]:
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=name, type="cross-reference") )
+
         if drug_chembl in parser.drug_to_atcs:
             for atc in parser.drug_to_atcs[drug_chembl]:
                 new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "ATC", value=atc, type="cross-reference") )
@@ -361,6 +363,7 @@ class ChEMBL(object):
         self.activity_file = activity_file
 
         self.drugs = set()
+        self.drug_to_names = {}
         self.drug_to_phase = {}
         self.drug_to_atcs = {}
         self.drug_to_type = {}
@@ -409,6 +412,7 @@ class ChEMBL(object):
                     continue
 
                 chembl_id = fields[ fields_dict['Parent Molecule'] ].upper()
+                drug_names = fields[ fields_dict['Synonyms'] ].lower() # "CDP-771|CMA-676|CMC-676|GEMTUZUMAB OZOGAMICIN|L01XC05|MYLOTARG|WAY-CMA-676"
                 phase = int(fields[ fields_dict['Phase'] ]) # Number (i.e. "0", "4")
                 atcs = fields[ fields_dict['ATC Codes'] ].upper() # They can be multiple (i.e. "R07AB53 | R07AB03")
                 drug_type = fields[ fields_dict['Drug Type'] ].lower() # set(['7:natural product-derived', '6:antibody', '9:inorganic', '8:cell-based', '-1:unknown', '10:polymer', '5:oligopeptide', '2:enzyme', '3:oligosaccharide', '1:synthetic small molecule', '4:oligonucleotide'])
@@ -417,11 +421,14 @@ class ChEMBL(object):
                 #print(chembl_id, phase, drug_type, atcs)
                 self.drugs.add(chembl_id)
 
+                if drug_names != '':
+                    for drug_name in drug_names.split('|'):
+                        self.drug_to_names.setdefault(chembl_id, set()).add(drug_name)
+
                 if atcs != '':
                     atcs = atcs.split(' | ')
                     for atc in atcs:
-                        self.drug_to_atcs.setdefault(chembl_id, set())
-                        self.drug_to_atcs[chembl_id].add(atc)
+                        self.drug_to_atcs.setdefault(chembl_id, set()).add(atc)
 
                 if phase != '':
                     self.drug_to_phase[chembl_id] = phase
@@ -461,7 +468,7 @@ class ChEMBL(object):
                     continue
 
                 chembl_id = fields[ fields_dict['Parent Molecule ChEMBL ID'] ].upper()
-                drug_name = fields[ fields_dict['Parent Molecule Name'] ].lower()
+                drug_names = fields[ fields_dict['Parent Molecule Name'] ].lower()
                 mesh_id = fields[ fields_dict['MESH ID'] ].upper() # There is only one
                 mesh_heading = fields[ fields_dict['MESH Heading'] ].lower() # There is only one
                 efo_ids = fields[ fields_dict['EFO IDs'] ].upper() # There could be multiple ones (e.g. "EFO:0005854|EFO:0003956")
@@ -472,6 +479,10 @@ class ChEMBL(object):
                         continue
 
                 self.drugs.add(chembl_id)
+
+                if drug_names != '':
+                    for drug_name in drug_names.split('|'):
+                        self.drug_to_names.setdefault(chembl_id, set()).add(drug_name)
 
                 if mesh_id != '' and mesh_heading != '':
                     self.diseases.add(mesh_id)
@@ -596,7 +607,7 @@ class ChEMBL(object):
                     continue
 
                 drug_chembl_id = fields[ fields_dict['Parent Molecule ChEMBL ID'] ].upper()
-                drug_name = fields[ fields_dict['Parent Molecule Name'] ].lower()
+                drug_names = fields[ fields_dict['Parent Molecule Name'] ].lower()
                 mechanism_of_action = fields[ fields_dict['Mechanism of Action'] ].lower()
                 target_chembl_id = fields[ fields_dict['Target ChEMBL ID'] ].upper()
                 target_name = fields[ fields_dict['Target Name'] ].lower()
@@ -629,6 +640,11 @@ class ChEMBL(object):
                 if mechanism_of_action != '':
                     self.interaction_to_mechanism[interaction] = mechanism_of_action
 
+                # Include drug names
+                if drug_names != '':
+                    for drug_name in drug_names.split('|'):
+                        self.drug_to_names.setdefault(drug_chembl_id, set()).add(drug_name)
+
                 #print(drug_chembl_id, target_chembl_id, action_type, mechanism_of_action)
 
         return
@@ -659,7 +675,7 @@ class ChEMBL(object):
                     continue
 
                 drug_chembl_id = fields[ fields_dict['Molecule ChEMBL ID'] ].upper()
-                drug_name = fields[ fields_dict['Molecule Name'] ].lower()
+                drug_names = fields[ fields_dict['Molecule Name'] ].lower()
                 target_chembl_id = fields[ fields_dict['Target ChEMBL ID'] ].upper()
                 target_name = fields[ fields_dict['Target Name'] ].lower()
                 organism = fields[ fields_dict['Target Organism'] ].lower()
@@ -686,6 +702,11 @@ class ChEMBL(object):
                 # Include activity values
                 self.interaction_to_activity_values.setdefault(interaction, []).append([standard_type, standard_relation, float(standard_value), standard_units])
                 #print(target_chembl_id, drug_chembl_id, standard_type, standard_relation, float(standard_value), standard_units)
+
+                # Include drug names
+                if drug_names != '':
+                    for drug_name in drug_names.split('|'):
+                        self.drug_to_names.setdefault(drug_chembl_id, set()).add(drug_name)
 
         #print(self.interaction_to_activity_values)
 

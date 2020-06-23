@@ -4,11 +4,9 @@ import csv
 class dgidbParser(BianaParser):                                                        
     """             
     MyData Parser Class 
-
     Parses data from DGIdb
-
     """                 
-                                                                                         
+
     name = "dgidb"
     description = "This file implements a program that fills up tables in BIANA database from data in DGIdb"
     external_entity_definition = "An external entity represents a drug or a protein"
@@ -139,6 +137,11 @@ class dgidbParser(BianaParser):
         # Annotate it as CHEMBL
         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "CHEMBL", value=chembl_id, type="cross-reference") )
 
+        # Annotate its Name
+        if chembl_id in parser.chembl_to_names:
+            for drug_name in parser.chembl_to_names[chembl_id]:
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=drug_name, type="cross-reference") )
+
         # Insert this external entity into BIANA
         self.external_entity_ids_dict[chembl_id] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
 
@@ -173,6 +176,7 @@ class DGIdb(object):
         self.interactions = set()
         self.sources = set()
         self.types = set()
+        self.chembl_to_names = {}
         self.interaction_to_source = {}
         self.interaction_to_type = {}
 
@@ -201,6 +205,7 @@ class DGIdb(object):
                 entrez_id = fields[ fields_dict['entrez_id'] ]
                 source = fields[ fields_dict['interaction_claim_source'] ].lower()
                 interaction_types = fields[ fields_dict['interaction_types'] ].lower()
+                drug_name = fields[ fields_dict['drug_name'] ].lower()
                 chembl_id = fields[ fields_dict['drug_chembl_id'] ].upper()
 
                 if entrez_id != '' and chembl_id != '':
@@ -223,6 +228,9 @@ class DGIdb(object):
                             self.types.add(interaction_type)
                             self.interaction_to_type.setdefault(interaction, set())
                             self.interaction_to_type[interaction].add(interaction_type)
+
+                    if drug_name != '':
+                        self.chembl_to_names.setdefault(chembl_id, set()).add(drug_name)
 
                     #print(entrez_id, chembl_id, interaction_type, source)
 
