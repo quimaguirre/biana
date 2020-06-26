@@ -475,30 +475,34 @@ class TTD(object):
                     elif category == 'PUBCHCID':
                         pubchem_cids = fields[2].split('; ')
                         for pubchem_cid in pubchem_cids:
-                            self.drugid_to_pubchem_cids.setdefault(drug_id, set()).add(pubchem_cid)
+                            if pubchem_cid != '':
+                                self.drugid_to_pubchem_cids.setdefault(drug_id, set()).add(pubchem_cid)
                     elif category == 'PUBCHSID':
                         pubchem_sids = fields[2].split('; ')
                         for pubchem_sid in pubchem_sids:
-                            self.drugid_to_pubchem_sids.setdefault(drug_id, set()).add(pubchem_sid)
+                            if pubchem_sid != '':
+                                self.drugid_to_pubchem_sids.setdefault(drug_id, set()).add(pubchem_sid)
                     elif category == 'CHEBI_ID':
                         chebi_ids = fields[2].upper().split('; ')
                         for chebi_id in chebi_ids:
-                            chebi_id = chebi_id.lstrip() # Remove spaces at the beginning of the string
-                            if chebi_id.startswith('CHEBI:'):
-                                chebi_id = chebi_id.lstrip().split('CHEBI:')[1]
-                                self.drugid_to_chebis.setdefault(drug_id, set()).add(chebi_id)
-                            elif chebi_id.startswith('CHEMBL'):
-                                chebi_id = chebi_id.lstrip()
-                                self.drugid_to_chembls.setdefault(drug_id, set()).add(chebi_id)
-                            elif chebi_id == '':
-                                continue
-                            else:
-                                print('Unrecognized CHEBI ID for drug {}: {}'.format(drug_id, chebi_id))
-                                sys.exit(10)
+                            if chebi_id != '':
+                                chebi_id = chebi_id.lstrip() # Remove spaces at the beginning of the string
+                                if chebi_id.startswith('CHEBI:'):
+                                    chebi_id = chebi_id.lstrip().split('CHEBI:')[1]
+                                    self.drugid_to_chebis.setdefault(drug_id, set()).add(chebi_id)
+                                elif chebi_id.startswith('CHEMBL'):
+                                    chebi_id = chebi_id.lstrip()
+                                    self.drugid_to_chembls.setdefault(drug_id, set()).add(chebi_id)
+                                elif chebi_id == '':
+                                    continue
+                                else:
+                                    print('Unrecognized CHEBI ID for drug {}: {}'.format(drug_id, chebi_id))
+                                    sys.exit(10)
                     elif category == 'SUPDRATC':
                         atcs = fields[2].upper().split('; ')
                         for atc in atcs:
-                            self.drugid_to_atcs.setdefault(drug_id, set()).add(atc)
+                            if atc != '':
+                                self.drugid_to_atcs.setdefault(drug_id, set()).add(atc)
 
         return
 
