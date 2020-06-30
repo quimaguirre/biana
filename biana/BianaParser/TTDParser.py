@@ -21,7 +21,7 @@ class TTDParser(BianaParser):
                              default_script_name = "TTDParser.py",
                              default_script_description = TTDParser.description,     
                              additional_compulsory_arguments = [])
-        self.default_eE_attribute = "TTD_drugID"
+        self.default_eE_attribute = "PubChemCompound"
 
     def parse_database(self):
         """
@@ -139,15 +139,15 @@ class TTDParser(BianaParser):
 
         print("\n.....INSERTING THE DRUGS IN THE DATABASE.....\n")
 
-        for drug_id in parser.drug_ids:
+        for pubchem_cid in parser.pubchem_compounds:
 
             # Create an external entity corresponding to the drug in the database (if it is not already created)
-            if not self.external_entity_ids_dict.has_key(drug_id):
+            if not self.external_entity_ids_dict.has_key(pubchem_cid):
 
-                self.create_drug_external_entity(parser, drug_id)
-                #print(drug_id)
+                self.create_drug_external_entity(parser, pubchem_cid)
+                #print(pubchem_cid)
 
-        print('{} drugs inserted'.format(len(parser.drug_ids)))
+        print('{} drugs inserted'.format(len(parser.pubchem_compounds)))
 
 
         #----------------#
@@ -156,15 +156,15 @@ class TTDParser(BianaParser):
 
         print("\n.....INSERTING THE PROTEINS IN THE DATABASE.....\n")
 
-        for target_id in parser.target_ids:
+        for uniprot_entry in parser.uniprot_entries:
 
             # Create an external entity corresponding to the target in the database (if it is not already created)
-            if not self.external_entity_ids_dict.has_key(target_id):
+            if not self.external_entity_ids_dict.has_key(uniprot_entry):
 
-                self.create_protein_external_entity(parser, target_id)
-                #print(target_id)
+                self.create_protein_external_entity(parser, uniprot_entry)
+                #print(uniprot_entry)
 
-        print('{} proteins inserted'.format(len(parser.target_ids)))
+        print('{} proteins inserted'.format(len(parser.uniprot_entries)))
 
 
         #-----------------#
@@ -201,22 +201,28 @@ class TTDParser(BianaParser):
 
             for drug_id in parser.targetid_to_drugids[target_id]:
 
-                interaction = (target_id, drug_id)
+                if target_id in parser.targetid_to_uniprot and drug_id in parser.drugid_to_pubchem_cids:
 
-                # Create an external entity corresponding to the interaction in the database (if it is not already created)
-                if not self.external_entity_ids_dict.has_key(interaction):
+                    for uniprot_entry in parser.targetid_to_uniprot[target_id]:
 
-                    # Create an external entity relation corresponding to interaction between the drug and the target
-                    new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "interaction" )
+                        for pubchem_cid in parser.drugid_to_pubchem_cids[drug_id]:
 
-                    # Associate the participants of the interaction
-                    new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[target_id] )
-                    new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[drug_id] )
+                            interaction = (uniprot_entry, pubchem_cid)
 
-                    # Insert this external entity relation into database
-                    self.external_entity_ids_dict[interaction] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
+                            # Create an external entity corresponding to the interaction in the database (if it is not already created)
+                            if not self.external_entity_ids_dict.has_key(interaction):
 
-                    interactions_inserted.add(interaction)
+                                # Create an external entity relation corresponding to interaction between the drug and the target
+                                new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "interaction" )
+
+                                # Associate the participants of the interaction
+                                new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[uniprot_entry] )
+                                new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[pubchem_cid] )
+
+                                # Insert this external entity relation into database
+                                self.external_entity_ids_dict[interaction] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
+
+                                interactions_inserted.add(interaction)
 
         print('{} interactions inserted'.format(len(interactions_inserted)))
 
@@ -231,25 +237,29 @@ class TTDParser(BianaParser):
 
         for drug_id in parser.drugid_to_icd_to_status:
 
-            for icd11 in parser.drugid_to_icd_to_status[drug_id].keys():
+            if drug_id in parser.drugid_to_pubchem_cids:
 
-                indication = (drug_id, icd11)
+                for pubchem_cid in parser.drugid_to_pubchem_cids[drug_id]:
 
-                # Create an external entity corresponding to the interaction in the database (if it is not already created)
-                if not self.external_entity_ids_dict.has_key(indication):
+                    for icd11 in parser.drugid_to_icd_to_status[drug_id].keys():
 
-                    #print(drug_id, icd11)
+                        indication = (pubchem_cid, icd11)
 
-                    # Create an external entity relation corresponding to interaction between the drug and the target
-                    new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "drug_indication_association" )
+                        # Create an external entity corresponding to the interaction in the database (if it is not already created)
+                        if not self.external_entity_ids_dict.has_key(indication):
 
-                    # Associate the participants of the interaction
-                    new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[drug_id] )
-                    new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[icd11] )
+                            #print(pubchem_cid, icd11)
 
-                    # Insert this external entity relation into database
-                    self.external_entity_ids_dict[indication] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
-                    indications.add(indication)
+                            # Create an external entity relation corresponding to interaction between the drug and the target
+                            new_external_entity_relation = ExternalEntityRelation( source_database = self.database, relation_type = "drug_indication_association" )
+
+                            # Associate the participants of the interaction
+                            new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[pubchem_cid] )
+                            new_external_entity_relation.add_participant( externalEntityID =  self.external_entity_ids_dict[icd11] )
+
+                            # Insert this external entity relation into database
+                            self.external_entity_ids_dict[indication] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity_relation )
+                            indications.add(indication)
 
         print('{} indications inserted'.format(len(indications)))
 
@@ -257,72 +267,72 @@ class TTDParser(BianaParser):
 
 
 
-    def create_drug_external_entity(self, parser, drug_id):
+    def create_drug_external_entity(self, parser, pubchem_cid):
         """
         Create an external entity of a drug
         """
 
         new_external_entity = ExternalEntity( source_database = self.database, type = "drug" )
 
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "TTD_drugID", value=drug_id, type="unique") )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "PubChemCompound", value=pubchem_cid, type="cross-reference") )
 
-        if drug_id in parser.drugid_to_drugname:
-            drug_name = parser.drugid_to_drugname[drug_id]
-            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=drug_name, type="cross-reference") )
+        for drug_id in parser.pubchem_cid_to_drugids[pubchem_cid]:
 
-        if drug_id in parser.drugid_to_drugsynonyms:
-            for synonym in parser.drugid_to_drugsynonyms[drug_id]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=synonym, type="synonym") )
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "TTD_drugID", value=drug_id, type="unique") )
 
-        if drug_id in parser.drugid_to_chebis:
-            for chebi in parser.drugid_to_chebis[drug_id]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "CHEBI", value=chebi, type="cross-reference") )
+            if drug_id in parser.drugid_to_drugname:
+                drug_name = parser.drugid_to_drugname[drug_id]
+                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=drug_name, type="cross-reference") )
 
-        if drug_id in parser.drugid_to_chembls:
-            for chembl in parser.drugid_to_chembls[drug_id]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "CHEMBL", value=chembl, type="cross-reference") )
+            if drug_id in parser.drugid_to_drugsynonyms:
+                for synonym in parser.drugid_to_drugsynonyms[drug_id]:
+                    new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "Name", value=synonym, type="synonym") )
 
-        if drug_id in parser.drugid_to_pubchem_cids:
-            for pubchem_cid in parser.drugid_to_pubchem_cids[drug_id]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "PubChemCompound", value=pubchem_cid, type="cross-reference") )
+            # if drug_id in parser.drugid_to_chebis:
+            #     for chebi in parser.drugid_to_chebis[drug_id]:
+            #         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "CHEBI", value=chebi, type="cross-reference") )
 
-        if drug_id in parser.drugid_to_pubchem_sids:
-            for pubchem_sid in parser.drugid_to_pubchem_sids[drug_id]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "PubChemSubstance", value=pubchem_sid, type="cross-reference") )
+            # if drug_id in parser.drugid_to_chembls:
+            #     for chembl in parser.drugid_to_chembls[drug_id]:
+            #         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "CHEMBL", value=chembl, type="cross-reference") )
 
-        if drug_id in parser.drugid_to_atcs:
-            for atc in parser.drugid_to_atcs[drug_id]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "ATC", value=atc, type="cross-reference") )
+            # if drug_id in parser.drugid_to_pubchem_sids:
+            #     for pubchem_sid in parser.drugid_to_pubchem_sids[drug_id]:
+            #         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "PubChemSubstance", value=pubchem_sid, type="cross-reference") )
+
+            if drug_id in parser.drugid_to_atcs:
+                for atc in parser.drugid_to_atcs[drug_id]:
+                    new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "ATC", value=atc, type="cross-reference") )
 
         # Insert this external entity into BIANA
-        self.external_entity_ids_dict[drug_id] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
+        self.external_entity_ids_dict[pubchem_cid] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
 
         return
 
 
-    def create_protein_external_entity(self, parser, target_id):
+    def create_protein_external_entity(self, parser, uniprot_entry):
         """
         Create an external entity of a protein
         """
 
         new_external_entity = ExternalEntity( source_database = self.database, type = "protein" )
 
-        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "TTD_targetID", value=target_id, type="unique") )
+        new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UniprotEntry", value=uniprot_entry, type="cross-reference") )
 
-        if target_id in parser.targetid_to_uniprot:
-            for uniprot_entry in parser.targetid_to_uniprot[target_id]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "UniprotEntry", value=uniprot_entry, type="cross-reference") )
+        for target_id in parser.uniprot_to_targetids[uniprot_entry]:
 
-        if target_id in parser.targetid_to_genesymbol:
-            for genesymbol in parser.targetid_to_genesymbol[target_id]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=genesymbol, type="cross-reference") )
+            new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "TTD_targetID", value=target_id, type="unique") )
 
-        if target_id in parser.targetid_to_type:
-            for target_type in parser.targetid_to_type[target_id]:
-                new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "TTD_target_type", value=target_type, type="unique") )
+            # if target_id in parser.targetid_to_genesymbol:
+            #     for genesymbol in parser.targetid_to_genesymbol[target_id]:
+            #         new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "GeneSymbol", value=genesymbol, type="cross-reference") )
+
+            if target_id in parser.targetid_to_type:
+                for target_type in parser.targetid_to_type[target_id]:
+                    new_external_entity.add_attribute( ExternalEntityAttribute( attribute_identifier= "TTD_target_type", value=target_type, type="unique") )
 
         # Insert this external entity into BIANA
-        self.external_entity_ids_dict[target_id] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
+        self.external_entity_ids_dict[uniprot_entry] = self.biana_access.insert_new_external_entity( externalEntity = new_external_entity )
 
         return
 
@@ -360,6 +370,8 @@ class TTD(object):
         self.p1_04_synonyms_file = os.path.join(self.input_path, 'P1-04-Drug_synonyms.txt')
         self.p1_05_drug_disease_file = os.path.join(self.input_path, 'P1-05-Drug_disease.txt')
 
+        self.uniprot_entries = set()
+        self.uniprot_to_targetids = {}
         self.target_ids = set()
         self.targetid_to_uniprot = {}
         self.targetid_to_genesymbol = {}
@@ -368,6 +380,8 @@ class TTD(object):
         self.targetid_to_keggpath = {}
         self.targetid_to_drugids = {}
 
+        self.pubchem_compounds = set()
+        self.pubchem_cid_to_drugids = {}
         self.drug_ids = set()
         self.drugid_to_drugname = {}
         self.drugid_to_drugsynonyms = {}
@@ -415,6 +429,8 @@ class TTD(object):
                                 target_uniprot_entries.add(uniprot)
                         for target_uniprot_entry in target_uniprot_entries:
                             self.targetid_to_uniprot.setdefault(target_id, set()).add(target_uniprot_entry)
+                            self.uniprot_to_targetids.setdefault(target_uniprot_entry, set()).add(target_id)
+                            self.uniprot_entries.add(target_uniprot_entry)
                     elif category == 'TARGNAME':
                         target_name = fields[2].lower()
                     elif category == 'GENENAME':
@@ -475,34 +491,32 @@ class TTD(object):
                     elif category == 'PUBCHCID':
                         pubchem_cids = fields[2].split('; ')
                         for pubchem_cid in pubchem_cids:
-                            if pubchem_cid != '':
-                                self.drugid_to_pubchem_cids.setdefault(drug_id, set()).add(pubchem_cid)
+                            self.drugid_to_pubchem_cids.setdefault(drug_id, set()).add(pubchem_cid)
+                            self.pubchem_cid_to_drugids.setdefault(pubchem_cid, set()).add(drug_id)
+                            self.pubchem_compounds.add(pubchem_cid)
                     elif category == 'PUBCHSID':
                         pubchem_sids = fields[2].split('; ')
                         for pubchem_sid in pubchem_sids:
-                            if pubchem_sid != '':
-                                self.drugid_to_pubchem_sids.setdefault(drug_id, set()).add(pubchem_sid)
+                            self.drugid_to_pubchem_sids.setdefault(drug_id, set()).add(pubchem_sid)
                     elif category == 'CHEBI_ID':
                         chebi_ids = fields[2].upper().split('; ')
                         for chebi_id in chebi_ids:
-                            if chebi_id != '':
-                                chebi_id = chebi_id.lstrip() # Remove spaces at the beginning of the string
-                                if chebi_id.startswith('CHEBI:'):
-                                    chebi_id = chebi_id.lstrip().split('CHEBI:')[1]
-                                    self.drugid_to_chebis.setdefault(drug_id, set()).add(chebi_id)
-                                elif chebi_id.startswith('CHEMBL'):
-                                    chebi_id = chebi_id.lstrip()
-                                    self.drugid_to_chembls.setdefault(drug_id, set()).add(chebi_id)
-                                elif chebi_id == '':
-                                    continue
-                                else:
-                                    print('Unrecognized CHEBI ID for drug {}: {}'.format(drug_id, chebi_id))
-                                    sys.exit(10)
+                            chebi_id = chebi_id.lstrip() # Remove spaces at the beginning of the string
+                            if chebi_id.startswith('CHEBI:'):
+                                chebi_id = chebi_id.lstrip().split('CHEBI:')[1]
+                                self.drugid_to_chebis.setdefault(drug_id, set()).add(chebi_id)
+                            elif chebi_id.startswith('CHEMBL'):
+                                chebi_id = chebi_id.lstrip()
+                                self.drugid_to_chembls.setdefault(drug_id, set()).add(chebi_id)
+                            elif chebi_id == '':
+                                continue
+                            else:
+                                print('Unrecognized CHEBI ID for drug {}: {}'.format(drug_id, chebi_id))
+                                sys.exit(10)
                     elif category == 'SUPDRATC':
                         atcs = fields[2].upper().split('; ')
                         for atc in atcs:
-                            if atc != '':
-                                self.drugid_to_atcs.setdefault(drug_id, set()).add(atc)
+                            self.drugid_to_atcs.setdefault(drug_id, set()).add(atc)
 
         return
 
